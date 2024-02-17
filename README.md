@@ -11,8 +11,9 @@
   <li>
   Home Page
     <ul>
+      <li> 2 modes - driving or looking for a ride</li>
       <li> Home page displays Uber/Lyft-like map from Google Maps API</li>
-      <li> Fields - Start, Destination, Time Range(drop down), Driver or Passenger(drop down) </li>
+      <li> Fields - Start, Destination, Time Range(drop down), Number of seats</li>
       <li> Buttons - Find ride button</li>
     </ul>
   </li>
@@ -57,6 +58,13 @@
   Chat between Driver and Rider
     <ul>
       <li> Chat feature</li>
+    </ul>
+  </li>
+  <li>
+  Number of seats
+    <ul>
+      <li> Driver has to select the number of seats available while submitting request</li>
+      <li> Number of vacancies gets reduced when a user books some seats in that car </li>
     </ul>
   </li>
 </ol>
