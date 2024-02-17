@@ -51,6 +51,7 @@
 <ul>
   <li> Choosing appropriate database(analyse functional requirements from database and finalise) </li>
   <li> Google Map APIs </li>
+  <li> Payment Gateway APIs (Paytm, Stripe etc)</li>
   <li> Deployment</li>
 </ul> 
 
