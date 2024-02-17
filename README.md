@@ -38,6 +38,13 @@
       <li> Options - Home, Account, Logout, Ride History</li>
     </ul>
   </li>
+  <li>
+  Payment Gateway
+    <ul>
+      <li> After a ride or just before finalizing the ride</li>
+      <li> Redirect to payment gateway - Success/Fail</li>
+    </ul>
+  </li>
 </ol>
 
 ## Requirements (Financial)
