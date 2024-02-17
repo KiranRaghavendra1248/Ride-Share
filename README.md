@@ -12,12 +12,12 @@
   Home Page
     <ul>
       <li> Home page displays Uber/Lyft-like map from Google Maps API</li>
-      <li> Fields - Start, Destination, Time Range(drop down), Drive or Ride(drop down) </li>
+      <li> Fields - Start, Destination, Time Range(drop down), Driver or Passenger(drop down) </li>
       <li> Buttons - Find ride button</li>
     </ul>
   </li>
   <li>
-  Drive + Find Ride
+  Driver clicks on Find Ride
     <ul>
       <li> Page that says, push notification submitted(stores entry to database)</li>
       <li> Should give push notification when co-passenger selects this driver</li>
@@ -25,7 +25,7 @@
     </ul>
   </li>
    <li>
-  Ride + Find Ride
+  Passenger clicks on = Find Ride
     <ul>
       <li> Page that retrieves rides with matching sources and destination(retrieves entries from database)</li>
       <li> Option to select driver - this should give push notification to selected driver</li>
