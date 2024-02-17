@@ -46,6 +46,19 @@
       <li> Redirect to payment gateway - Success/Fail</li>
     </ul>
   </li>
+  <li>
+  Pre Schedule Rides
+    <ul>
+      <li> User can select rides for future</li>
+      <li> Driver can put down rides for future</li>
+    </ul>
+  </li>
+  <li>
+  Chat between Driver and Rider
+    <ul>
+      <li> Chat feature</li>
+    </ul>
+  </li>
 </ol>
 
 ## Requirements (Financial)
