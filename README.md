@@ -21,6 +21,7 @@
     <ul>
       <li> Page that says, push notification submitted(stores entry to database)</li>
       <li> Should give push notification when co-passenger selects this driver</li>
+      <li> Option to Accept/Decline ride</li>
     </ul>
   </li>
    <li>
