@@ -37,7 +37,7 @@ const setupDB = () => {
                                             DestinationAddress VARCHAR(1000),
                                             SeatsAvailable INT,
                                             TimeOfJourneyStart DATETIME,
-                                            FOREIGN KEY (DriverID) REFERENCES RIDE_SHARE.Users(UserID)
+                                            FOREIGN KEY (DriverID) REFERENCES RIDE_SHARE.Users(UserID) ON DELETE CASCADE
                                         );`;
   connection.query(createOfferedRidesTableQuery);
 
@@ -49,10 +49,10 @@ const setupDB = () => {
                                             StartAddress VARCHAR(1000),
                                             DestinationAddress VARCHAR(1000),
                                             DriverRideID INT,
-                                            FOREIGN KEY (PassengerID) REFERENCES RIDE_SHARE.Users(UserID),
-                                            FOREIGN KEY (DriverRideID) REFERENCES RIDE_SHARE.Offered_Rides(RideID)
+                                            FOREIGN KEY (PassengerID) REFERENCES RIDE_SHARE.Users(UserID) ON DELETE CASCADE,
+                                            FOREIGN KEY (DriverRideID) REFERENCES RIDE_SHARE.Offered_Rides(RideID) ON DELETE CASCADE
                                         );`;
   connection.query(createConfirmedRidesTableQuery);
 };
 
-module.exports = { connectDB, setupDB };
+module.exports = {connectDB, setupDB};
