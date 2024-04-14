@@ -14,7 +14,7 @@ class _SelectModeState extends State<SelectMode> {
     return Scaffold(
       appBar:  AppBar(
         title: const Text("Select Mode"),
-        backgroundColor: Colors.lightBlue[200],
+        backgroundColor: Colors.lightBlue[100],
         elevation: 6,
         shadowColor: Colors.grey
       ),
