@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_place_picker/google_place_picker.dart';
 
 class FindRideHomeMapScreen extends StatefulWidget {
   const FindRideHomeMapScreen({super.key});
