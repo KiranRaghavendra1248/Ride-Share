@@ -88,6 +88,7 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                                 color: Colors.deepPurple[100]
                             ),
                           ),
+                          readOnly: true,
                           onTap: () => _openAutoComplete(context, _startsearchFieldController),
                           onChanged: (value) => _openAutoComplete(context, _startsearchFieldController),
                         ),
@@ -110,6 +111,7 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                               color: Colors.deepOrange[100],
                             ),
                           ),
+                          readOnly: true,
                           onTap: () => _openAutoComplete(context, _endsearchFieldController),
                           onChanged: (value) => _openAutoComplete(context, _endsearchFieldController),
                         ),
