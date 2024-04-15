@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 
 class InputForm extends StatefulWidget{
-  late final mapcontroller, markers;
-  InputForm({Key? key, required this.mapcontroller, required this.markers}) : super(key: key);
+  final mapcontroller;
+  const InputForm({Key? key, required this.mapcontroller}) : super(key: key);
 
   @override
   State<InputForm> createState() => _InputForm();
@@ -163,57 +162,23 @@ class _InputForm extends State<InputForm>{
   }
 
   void _openAutoComplete(BuildContext context, TextEditingController controller) async {
+
     // Show address/place predictions
     Prediction? prediction = await PlacesAutocomplete.show(
       context: context,
-      apiKey: "AIzaSyDN7OVtwKGFU_TTCS7xWkBaGWY0rjyfCFo",
+      apiKey: dotenv.env["AIzaSyDN7OVtwKGFU_TTCS7xWkBaGWY0rjyfCFo"] ?? "API KEY NOT FOUND",
       mode: Mode.overlay,
       types: [],
       strictbounds: false,
       language: "en",
       components: [Component(Component.country, "us")],
     );
+
     if(prediction != null){
-      PlaceDetails placeDetails = await _getPlaceDetails(prediction.placeId ?? "");
-      if (placeDetails != null){
-        var location = placeDetails.geometry?.location;
-        if (location != null) {
-          double latitude = location.lat;
-          double longitude = location.lng;
-          widget.mapcontroller.animateCamera(
-              CameraUpdate.newCameraPosition(
-                  CameraPosition(
-                      target: LatLng(latitude, longitude),
-                      zoom: 14.0)
-              )
-          );
-          widget.markers.clear();
-          widget.markers.add(
-              Marker(markerId: MarkerId('searchLocation'),
-                  position: LatLng(latitude, longitude))
-          );
-        }
-        else{
-          print("Location details are null");
-        }
-      }
-      else{
-        print("Failed to fetch place details");
-      }
       setState(() {
         controller.text = prediction.description ?? "Not result found";
         FocusScope.of(context).requestFocus(FocusNode());
       });
-    }
-  }
-
-  Future<PlaceDetails> _getPlaceDetails(String placeId) async {
-    GoogleMapsPlaces places = GoogleMapsPlaces(apiKey: "AIzaSyDN7OVtwKGFU_TTCS7xWkBaGWY0rjyfCFo");
-    PlacesDetailsResponse details = await places.getDetailsByPlaceId(placeId);
-    if (details.status == 'OK') {
-      return details.result;
-    } else {
-      throw Exception('Failed to retrieve place details');
     }
   }
 }
