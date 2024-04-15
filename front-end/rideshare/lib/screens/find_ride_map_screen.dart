@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -7,14 +6,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 
-class FindRideHomeMapScreen extends StatefulWidget {
-  const FindRideHomeMapScreen({super.key});
+class FindRideMapScreen extends StatefulWidget {
+  const FindRideMapScreen({super.key});
 
   @override
-  State<FindRideHomeMapScreen> createState() => _FindRideHomeMapScreenState();
+  State<FindRideMapScreen> createState() => _FindRideMapScreenState();
 }
 
-class _FindRideHomeMapScreenState extends State<FindRideHomeMapScreen> {
+class _FindRideMapScreenState extends State<FindRideMapScreen> {
 
   late GoogleMapController _controller;
   final _startTimeController = TextEditingController();
@@ -47,11 +46,10 @@ class _FindRideHomeMapScreenState extends State<FindRideHomeMapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Find Ride"),
+          title: const Text("Find a ride"),
           elevation: 6,
-          shadowColor: Colors.grey,
-          centerTitle: true,
-          backgroundColor: Colors.lightBlue[100],
+          shadowColor: Colors.transparent,
+          backgroundColor: Colors.lightBlue[200],
         ),
         body: Stack(
           children: [

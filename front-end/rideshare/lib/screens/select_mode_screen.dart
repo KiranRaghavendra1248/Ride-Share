@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:rideshare/screens/find_ride_home_map_screen.dart';
+import 'package:rideshare/screens/find_ride_map_screen.dart';
+
+import 'find_ride_first_screen.dart';
 
 class SelectMode extends StatefulWidget {
   const SelectMode({super.key});
@@ -14,7 +16,7 @@ class _SelectModeState extends State<SelectMode> {
     return Scaffold(
       appBar:  AppBar(
         title: const Text("Select Mode"),
-        backgroundColor: Colors.lightBlue[100],
+        backgroundColor: Colors.lightBlue[200],
         elevation: 6,
         shadowColor: Colors.grey
       ),
@@ -23,17 +25,25 @@ class _SelectModeState extends State<SelectMode> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children:[
-            ElevatedButton(onPressed: (){
-              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
-                return const FindRideHomeMapScreen();
-              }));
-            }, child: const Text("Find Ride"),),
-            SizedBox(height: 20),
-            ElevatedButton(onPressed: (){
-              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
-                return const FindRideHomeMapScreen();
-              }));
-            }, child: const Text("Submit Ride"),)
+            Container(
+              width: 150,
+              height: 50,
+              child: ElevatedButton(onPressed: (){
+                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
+                  return const FindRideFirstScreen();
+                }));
+              }, child: const Text("Find Ride"),),
+            ),
+            SizedBox(height: 30),
+            Container(
+              width: 150,
+              height: 50,
+              child: ElevatedButton(onPressed: (){
+                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
+                  return const FindRideFirstScreen();
+                }));
+              }, child: const Text("Submit Ride"),),
+            )
 
           ]
 
