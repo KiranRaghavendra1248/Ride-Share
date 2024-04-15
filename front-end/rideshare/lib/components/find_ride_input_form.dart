@@ -4,8 +4,7 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 
 class InputForm extends StatefulWidget{
-  final mapcontroller;
-  const InputForm({Key? key, required this.mapcontroller}) : super(key: key);
+  const InputForm({super.key});
 
   @override
   State<InputForm> createState() => _InputForm();
@@ -166,7 +165,7 @@ class _InputForm extends State<InputForm>{
     // Show address/place predictions
     Prediction? prediction = await PlacesAutocomplete.show(
       context: context,
-      apiKey: dotenv.env["AIzaSyDN7OVtwKGFU_TTCS7xWkBaGWY0rjyfCFo"] ?? "API KEY NOT FOUND",
+      apiKey: dotenv.env["GOOGLE_MAPS_API_KEY"] ?? "",
       mode: Mode.overlay,
       types: [],
       strictbounds: false,
