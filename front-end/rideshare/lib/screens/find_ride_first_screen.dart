@@ -164,12 +164,9 @@ class _FindRideFirstScreenState extends State<FindRideFirstScreen> {
                       height: 50,
                       child: ElevatedButton(onPressed: (){
                         if (_formKey.currentState!.validate()) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Processing Data')),
-                          );
-                        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
-                          return const FindRideMapScreen();
-                        }));
+                          Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
+                            return const FindRideMapScreen();
+                          }));
                         }
                         else{
                           // do noting when form validation fails => stays on same screen
