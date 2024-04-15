@@ -16,8 +16,6 @@ class FindRideMapScreen extends StatefulWidget {
 class _FindRideMapScreenState extends State<FindRideMapScreen> {
 
   late GoogleMapController _controller;
-  final _startTimeController = TextEditingController();
-  final _endTimeController = TextEditingController();
   final _startsearchFieldController = TextEditingController();
   final _endsearchFieldController = TextEditingController();
   final gmaps_api_key = dotenv.env["GOOGLE_MAPS_API_KEY"] ?? "";
@@ -29,9 +27,7 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
 
   @override
   void dispose() {
-    // Dispose the text field controller when the widget is disposed
-    _startTimeController.dispose();
-    _endTimeController.dispose();
+    // Dispose the controller when the widget is disposed
     _startsearchFieldController.dispose();
     _endsearchFieldController.dispose();
     _controller.dispose();
@@ -118,61 +114,6 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                           onChanged: (value) => _openAutoComplete(context, _endsearchFieldController),
                         ),
                         SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _startTimeController,
-                                decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-                                  labelText: 'Start time',
-                                  floatingLabelBehavior: FloatingLabelBehavior.auto,
-                                  filled: true,
-                                  fillColor: Colors.grey[100],
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.0), // Adjust the radius as needed
-                                    borderSide: BorderSide.none, // Make the border invisible
-                                  ),
-                                  prefixIcon: Icon(
-                                    Icons.schedule,
-                                    color: Colors.deepPurple[100],
-                                  ),
-                                ),
-                                readOnly: true, // Make the field read-only
-                                onTap: () {
-                                  // Open a date and time picker when the field is tapped
-                                  _selectTime(context, _startTimeController);
-                                },
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                                child: TextFormField(
-                                  controller: _endTimeController,
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-                                    labelText: 'End time',
-                                    floatingLabelBehavior: FloatingLabelBehavior.auto,
-                                    filled: true,
-                                    fillColor: Colors.grey[100],
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0), // Adjust the radius as needed
-                                      borderSide: BorderSide.none, // Make the border invisible
-                                    ),
-                                    prefixIcon: Icon(
-                                      Icons.schedule,
-                                      color: Colors.deepOrange[100],
-                                    ),
-                                  ),
-                                  readOnly: true, // Make the field read-only
-                                  onTap: () {
-                                    // Open a date and time picker when the field is tapped
-                                    _selectTime(context, _endTimeController);
-                                  },
-                                )
-                            )
-                          ],
-                        ),
                       ],
                     ),
                   ),
@@ -219,16 +160,6 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
             position: LatLng(position.latitude, position.longitude))
     );
     setState(() {});
-  }
-
-  Future<void> _selectTime(BuildContext context, TextEditingController controller) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (picked != null) {
-      controller.text = picked.format(context);
-    }
   }
 
   void _openAutoComplete(BuildContext context, TextEditingController controller) async {

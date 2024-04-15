@@ -18,7 +18,7 @@ class _SelectModeState extends State<SelectMode> {
         title: const Text("Select Mode"),
         backgroundColor: Colors.lightBlue[200],
         elevation: 6,
-        shadowColor: Colors.grey
+        shadowColor: Colors.transparent
       ),
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
