@@ -38,7 +38,9 @@ dependencies:
   google_maps_flutter: ^2.6.0
   geolocator: ^9.0.0
   flutter_google_places: ^0.3.0
+  google_maps_webservice: ^0.0.16
   http: ^0.13.1
+  flutter_dotenv: ^5.0.2
 
 dev_dependencies:
   flutter_test:
@@ -61,6 +63,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+    - .env
 
   # To add assets to your application, add an assets section, like this:
   # assets:

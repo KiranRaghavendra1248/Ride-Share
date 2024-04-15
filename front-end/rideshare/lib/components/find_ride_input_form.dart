@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_webservice/places.dart';
 
 class InputForm extends StatefulWidget{
-  const InputForm({super.key});
+  late final mapcontroller, markers;
+  InputForm({Key? key, required this.mapcontroller, required this.markers}) : super(key: key);
 
   @override
   State<InputForm> createState() => _InputForm();
@@ -11,9 +15,23 @@ class InputForm extends StatefulWidget{
 class _InputForm extends State<InputForm>{
   final _startTimeController = TextEditingController();
   final _endTimeController = TextEditingController();
-  final _seatsController = TextEditingController(text: '1');
   final _startsearchFieldController = TextEditingController();
   final _endsearchFieldController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // Dispose the text field controller when the widget is disposed
+    _startTimeController.dispose();
+    _endTimeController.dispose();
+    _startsearchFieldController.dispose();
+    _endsearchFieldController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +64,8 @@ class _InputForm extends State<InputForm>{
                         color: Colors.deepPurple[100]
                     ),
                   ),
+                  onTap: () => _openAutoComplete(context, _startsearchFieldController),
+                  onChanged: (value) => _openAutoComplete(context, _startsearchFieldController),
                 ),
                 SizedBox(height: 10),
                 TextField(
@@ -66,6 +86,8 @@ class _InputForm extends State<InputForm>{
                       color: Colors.deepOrange[100],
                     ),
                   ),
+                  onTap: () => _openAutoComplete(context, _endsearchFieldController),
+                  onChanged: (value) => _openAutoComplete(context, _endsearchFieldController),
                 ),
                 SizedBox(height: 10),
                 Row(
@@ -137,6 +159,61 @@ class _InputForm extends State<InputForm>{
     );
     if (picked != null) {
       controller.text = picked.format(context);
+    }
+  }
+
+  void _openAutoComplete(BuildContext context, TextEditingController controller) async {
+    // Show address/place predictions
+    Prediction? prediction = await PlacesAutocomplete.show(
+      context: context,
+      apiKey: "AIzaSyDN7OVtwKGFU_TTCS7xWkBaGWY0rjyfCFo",
+      mode: Mode.overlay,
+      types: [],
+      strictbounds: false,
+      language: "en",
+      components: [Component(Component.country, "us")],
+    );
+    if(prediction != null){
+      PlaceDetails placeDetails = await _getPlaceDetails(prediction.placeId ?? "");
+      if (placeDetails != null){
+        var location = placeDetails.geometry?.location;
+        if (location != null) {
+          double latitude = location.lat;
+          double longitude = location.lng;
+          widget.mapcontroller.animateCamera(
+              CameraUpdate.newCameraPosition(
+                  CameraPosition(
+                      target: LatLng(latitude, longitude),
+                      zoom: 14.0)
+              )
+          );
+          widget.markers.clear();
+          widget.markers.add(
+              Marker(markerId: MarkerId('searchLocation'),
+                  position: LatLng(latitude, longitude))
+          );
+        }
+        else{
+          print("Location details are null");
+        }
+      }
+      else{
+        print("Failed to fetch place details");
+      }
+      setState(() {
+        controller.text = prediction.description ?? "Not result found";
+        FocusScope.of(context).requestFocus(FocusNode());
+      });
+    }
+  }
+
+  Future<PlaceDetails> _getPlaceDetails(String placeId) async {
+    GoogleMapsPlaces places = GoogleMapsPlaces(apiKey: "AIzaSyDN7OVtwKGFU_TTCS7xWkBaGWY0rjyfCFo");
+    PlacesDetailsResponse details = await places.getDetailsByPlaceId(placeId);
+    if (details.status == 'OK') {
+      return details.result;
+    } else {
+      throw Exception('Failed to retrieve place details');
     }
   }
 }

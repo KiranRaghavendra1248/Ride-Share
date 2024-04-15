@@ -42,7 +42,7 @@ class _FindRideHomeMapScreenState extends State<FindRideHomeMapScreen> {
                   _determineLocation();
                 }
             ),
-            InputForm()
+            InputForm(mapcontroller: _controller, markers: markers)
           ],
         )
     );
