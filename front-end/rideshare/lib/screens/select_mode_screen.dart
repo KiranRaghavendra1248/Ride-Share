@@ -33,7 +33,11 @@ class _SelectModeState extends State<SelectMode> {
                 Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
                   return const FindRideFirstScreen();
                 }));
-              }, child: const Text("Find Ride"),),
+              }, child: const Text("Find Ride", style: TextStyle(
+                fontSize: 18,
+                fontFamily: 'DMSans',
+                fontWeight: FontWeight.normal,
+              ),),),
             ),
             SizedBox(height: 30),
             Container(
@@ -43,7 +47,11 @@ class _SelectModeState extends State<SelectMode> {
                 Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
                   return const FindRideFirstScreen();
                 }));
-              }, child: const Text("Submit Ride"),),
+              }, child: const Text("Submit Ride", style: TextStyle(
+                fontSize: 18,
+                fontFamily: 'DMSans',
+                fontWeight: FontWeight.normal,
+              )),),
             )
 
           ]

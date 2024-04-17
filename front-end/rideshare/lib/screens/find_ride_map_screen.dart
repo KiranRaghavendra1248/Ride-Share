@@ -7,8 +7,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 
+import 'confirm_ride_map_screen.dart';
+
 class FindRideMapScreen extends StatefulWidget {
-  const FindRideMapScreen({super.key});
+  final startTime, endTime, numSeats;
+  const FindRideMapScreen(this.startTime, this.endTime, this.numSeats, Key? key): super(key: key);
 
   @override
   State<FindRideMapScreen> createState() => _FindRideMapScreenState();
@@ -77,13 +80,31 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "Where to??",
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  fontSize: 30,
-                                  fontFamily: 'DMSans',
-                                  fontWeight: FontWeight.bold,
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
+                                child: Text("Where to??",
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    fontSize: 30,
+                                    fontFamily: 'DMSans',
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 250,
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                  child: Divider(
+                                    color: Colors.grey[200],
+                                    thickness: 4, // Adjust the thickness as needed
+                                  ),
                                 ),
                               ),
                             ],
@@ -154,7 +175,9 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                                   onPressed: (){
                                   if (_formKey.currentState!.validate()) {
                                     Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
-                                      return const FindRideMapScreen();
+                                      String startLocation = _startsearchFieldController.text;
+                                      String endLocation = _endsearchFieldController.text;
+                                      return ConfirmRideMapScreen(widget.startTime, widget.endTime, widget.numSeats, startLocation, endLocation, null);
                                     }));
                                   }
                                   else{
@@ -165,7 +188,8 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                                   fontSize: 17,
                                   fontFamily: 'DMSans',
                                   fontWeight: FontWeight.normal,
-                                )),
+                                )
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(6), // Adjust the border radius here
