@@ -14,6 +14,7 @@ class _SelectModeState extends State<SelectMode> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset : false,
       appBar:  AppBar(
         title: const Text("Select Mode"),
         backgroundColor: Colors.lightBlue[200],

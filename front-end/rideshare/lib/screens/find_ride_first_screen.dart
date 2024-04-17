@@ -30,6 +30,7 @@ class _FindRideFirstScreenState extends State<FindRideFirstScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset : false,
       appBar:  AppBar(
           title: const Text("Ride Share"),
           backgroundColor: Colors.lightBlue[200],
@@ -178,7 +179,7 @@ class _FindRideFirstScreenState extends State<FindRideFirstScreen> {
             ),
           )
       ),
-    );;
+    );
   }
 
   Future<void> _selectTime(BuildContext context, TextEditingController controller) async {
