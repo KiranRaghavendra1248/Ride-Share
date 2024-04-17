@@ -41,87 +41,90 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset : false,
         appBar: AppBar(
           title: const Text("Find a ride"),
           elevation: 6,
           shadowColor: Colors.transparent,
           backgroundColor: Colors.lightBlue[200],
         ),
-        body: Stack(
-          children: [
-            GoogleMap(
-                initialCameraPosition: initialPosition,
-                zoomControlsEnabled: false,
-                markers: markers,
-                mapType: MapType.normal,
-                onMapCreated: (GoogleMapController controller) {
-                  _controller = controller;
-                  _determineLocation();
-                }
-            ),
-            Positioned(
-                top: 2,
-                left: 0,
-                right: 0,
-                child: Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Container(
-                    color: Colors.white,
-                    padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: _startsearchFieldController,
-                          autofocus: false,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-                            labelText: 'Start Location',
-                            floatingLabelBehavior: FloatingLabelBehavior.auto,
-                            filled: true,
-                            fillColor: Colors.grey[100],
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0), // Adjust the radius as needed
-                              borderSide: BorderSide.none, // Make the border invisible
+        body: SingleChildScrollView(
+          child: Stack(
+            children: [
+              GoogleMap(
+                  initialCameraPosition: initialPosition,
+                  zoomControlsEnabled: false,
+                  markers: markers,
+                  mapType: MapType.normal,
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller = controller;
+                    _determineLocation();
+                  }
+              ),
+              Positioned(
+                  top: 2,
+                  left: 0,
+                  right: 0,
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Container(
+                      color: Colors.white,
+                      padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: _startsearchFieldController,
+                            autofocus: false,
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                              labelText: 'Start Location',
+                              floatingLabelBehavior: FloatingLabelBehavior.auto,
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0), // Adjust the radius as needed
+                                borderSide: BorderSide.none, // Make the border invisible
+                              ),
+                              prefixIcon: Icon(
+                                  Icons.radio_button_checked,
+                                  color: Colors.deepPurple[100]
+                              ),
                             ),
-                            prefixIcon: Icon(
+                            readOnly: true,
+                            onTap: () => _openAutoComplete(context, _startsearchFieldController),
+                            onChanged: (value) => _openAutoComplete(context, _startsearchFieldController),
+                          ),
+                          SizedBox(height: 10),
+                          TextField(
+                            controller: _endsearchFieldController,
+                            autofocus: false,
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                              labelText: 'Destination Location',
+                              floatingLabelBehavior: FloatingLabelBehavior.auto,
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0), // Adjust the radius as needed
+                                borderSide: BorderSide.none, // Make the border invisible
+                              ),
+                              prefixIcon: Icon(
                                 Icons.radio_button_checked,
-                                color: Colors.deepPurple[100]
+                                color: Colors.deepOrange[100],
+                              ),
                             ),
+                            readOnly: true,
+                            onTap: () => _openAutoComplete(context, _endsearchFieldController),
+                            onChanged: (value) => _openAutoComplete(context, _endsearchFieldController),
                           ),
-                          readOnly: true,
-                          onTap: () => _openAutoComplete(context, _startsearchFieldController),
-                          onChanged: (value) => _openAutoComplete(context, _startsearchFieldController),
-                        ),
-                        SizedBox(height: 10),
-                        TextField(
-                          controller: _endsearchFieldController,
-                          autofocus: false,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-                            labelText: 'Destination Location',
-                            floatingLabelBehavior: FloatingLabelBehavior.auto,
-                            filled: true,
-                            fillColor: Colors.grey[100],
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0), // Adjust the radius as needed
-                              borderSide: BorderSide.none, // Make the border invisible
-                            ),
-                            prefixIcon: Icon(
-                              Icons.radio_button_checked,
-                              color: Colors.deepOrange[100],
-                            ),
-                          ),
-                          readOnly: true,
-                          onTap: () => _openAutoComplete(context, _endsearchFieldController),
-                          onChanged: (value) => _openAutoComplete(context, _endsearchFieldController),
-                        ),
-                        SizedBox(height: 10),
-                      ],
+                          SizedBox(height: 10),
+                        ],
+                      ),
                     ),
-                  ),
-                )
-            )
-          ],
+                  )
+              )
+            ],
+          ),
         )
     );
   }
