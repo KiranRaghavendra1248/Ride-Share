@@ -25,6 +25,9 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
   final gmaps_api_key = dotenv.env["GOOGLE_MAPS_API_KEY"] ?? "";
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  String startCoordinates = "";
+  String endCoordinates = "";
+
   @override
   void initState() {
     super.initState();
@@ -135,8 +138,8 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                               return null;
                             },
                             readOnly: true,
-                            onTap: () => _openAutoComplete(context, _startsearchFieldController),
-                            onChanged: (value) => _openAutoComplete(context, _startsearchFieldController),
+                            onTap: () => _openAutoComplete(context, _startsearchFieldController, true),
+                            onChanged: (value) => _openAutoComplete(context, _startsearchFieldController, true),
                           ),
                           SizedBox(height: 15),
                           TextFormField(
@@ -164,8 +167,8 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                               return null;
                             },
                             readOnly: true,
-                            onTap: () => _openAutoComplete(context, _endsearchFieldController),
-                            onChanged: (value) => _openAutoComplete(context, _endsearchFieldController),
+                            onTap: () => _openAutoComplete(context, _endsearchFieldController, false),
+                            onChanged: (value) => _openAutoComplete(context, _endsearchFieldController, false),
                           ),
                           SizedBox(height: 20),
                           Row(
@@ -177,7 +180,8 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                                     Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
                                       String startLocation = _startsearchFieldController.text;
                                       String endLocation = _endsearchFieldController.text;
-                                      return ConfirmRideMapScreen(widget.startTime, widget.endTime, widget.numSeats, startLocation, endLocation, null);
+                                      return ConfirmRideMapScreen(widget.startTime, widget.endTime, widget.numSeats,
+                                          startLocation, endLocation, startCoordinates, endCoordinates, null);
                                     }));
                                   }
                                   else{
@@ -250,7 +254,7 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
     setState(() {});
   }
 
-  void _openAutoComplete(BuildContext context, TextEditingController controller) async {
+  void _openAutoComplete(BuildContext context, TextEditingController controller, bool start) async {
     // Show address/place predictions
     Prediction? prediction = await PlacesAutocomplete.show(
       context: context,
@@ -268,6 +272,12 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
         if (location != null) {
           double latitude = location.lat;
           double longitude = location.lng;
+          if (true == start){
+            startCoordinates = location.lat.toString() + "," + location.lng.toString();
+          }
+          else{
+            endCoordinates = location.lat.toString() + "," + location.lng.toString();
+          }
           _controller.animateCamera(
               CameraUpdate.newCameraPosition(
                   CameraPosition(
