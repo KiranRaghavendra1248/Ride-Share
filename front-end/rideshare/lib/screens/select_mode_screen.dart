@@ -21,36 +21,34 @@ class _SelectModeState extends State<SelectMode> {
         elevation: 6,
         shadowColor: Colors.transparent
       ),
-      body: SingleChildScrollView(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children:[
-              Container(
-                width: 150,
-                height: 50,
-                child: ElevatedButton(onPressed: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
-                    return const FindRideFirstScreen();
-                  }));
-                }, child: const Text("Find Ride"),),
-              ),
-              SizedBox(height: 30),
-              Container(
-                width: 150,
-                height: 50,
-                child: ElevatedButton(onPressed: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
-                    return const FindRideFirstScreen();
-                  }));
-                }, child: const Text("Submit Ride"),),
-              )
-        
-            ]
-        
-          )
-        ),
+      body: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children:[
+            Container(
+              width: 150,
+              height: 50,
+              child: ElevatedButton(onPressed: (){
+                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
+                  return const FindRideFirstScreen();
+                }));
+              }, child: const Text("Find Ride"),),
+            ),
+            SizedBox(height: 30),
+            Container(
+              width: 150,
+              height: 50,
+              child: ElevatedButton(onPressed: (){
+                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
+                  return const FindRideFirstScreen();
+                }));
+              }, child: const Text("Submit Ride"),),
+            )
+
+          ]
+
+        )
       ),
     );
   }

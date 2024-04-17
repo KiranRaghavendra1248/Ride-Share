@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -19,6 +20,7 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
   final _startsearchFieldController = TextEditingController();
   final _endsearchFieldController = TextEditingController();
   final gmaps_api_key = dotenv.env["GOOGLE_MAPS_API_KEY"] ?? "";
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -41,28 +43,28 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset : false,
         appBar: AppBar(
           title: const Text("Find a ride"),
           elevation: 6,
           shadowColor: Colors.transparent,
           backgroundColor: Colors.lightBlue[200],
         ),
-        body: SingleChildScrollView(
-          child: Stack(
-            children: [
-              GoogleMap(
-                  initialCameraPosition: initialPosition,
-                  zoomControlsEnabled: false,
-                  markers: markers,
-                  mapType: MapType.normal,
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller = controller;
-                    _determineLocation();
-                  }
-              ),
-              Positioned(
-                  top: 2,
+        body: Stack(
+          children: [
+            GoogleMap(
+                initialCameraPosition: initialPosition,
+                zoomControlsEnabled: false,
+                markers: markers,
+                mapType: MapType.normal,
+                onMapCreated: (GoogleMapController controller) {
+                  _controller = controller;
+                  _determineLocation();
+                }
+            ),
+            Form(
+              key: _formKey,
+              child: Positioned(
+                  bottom: 4,
                   left: 0,
                   right: 0,
                   child: Padding(
@@ -72,7 +74,22 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                       padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
                       child: Column(
                         children: [
-                          TextField(
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Where to??",
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  fontFamily: 'DMSans',
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          TextFormField(
                             controller: _startsearchFieldController,
                             autofocus: false,
                             decoration: InputDecoration(
@@ -90,12 +107,18 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                                   color: Colors.deepPurple[100]
                               ),
                             ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter start location';
+                              }
+                              return null;
+                            },
                             readOnly: true,
                             onTap: () => _openAutoComplete(context, _startsearchFieldController),
                             onChanged: (value) => _openAutoComplete(context, _startsearchFieldController),
                           ),
-                          SizedBox(height: 10),
-                          TextField(
+                          SizedBox(height: 15),
+                          TextFormField(
                             controller: _endsearchFieldController,
                             autofocus: false,
                             decoration: InputDecoration(
@@ -113,18 +136,54 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                                 color: Colors.deepOrange[100],
                               ),
                             ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter destination';
+                              }
+                              return null;
+                            },
                             readOnly: true,
                             onTap: () => _openAutoComplete(context, _endsearchFieldController),
                             onChanged: (value) => _openAutoComplete(context, _endsearchFieldController),
                           ),
-                          SizedBox(height: 10),
+                          SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: (){
+                                  if (_formKey.currentState!.validate()) {
+                                    Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
+                                      return const FindRideMapScreen();
+                                    }));
+                                  }
+                                  else{
+                                    // do noting when form validation fails => stays on same screen
+                                    }
+                                  },
+                                child: Text("Find a ride", style: TextStyle(
+                                  fontSize: 17,
+                                  fontFamily: 'DMSans',
+                                  fontWeight: FontWeight.normal,
+                                )),
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6), // Adjust the border radius here
+                                  ),
+                                  foregroundColor: Colors.white, // Change the background color here
+                                  backgroundColor: Colors.black38, // Change the text color here
+                                ),
+                                ),
+                              ),
+                            ],
+                          )
                         ],
                       ),
                     ),
                   )
-              )
-            ],
-          ),
+              ),
+            )
+          ],
         )
     );
   }

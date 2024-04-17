@@ -65,6 +65,11 @@ flutter:
   uses-material-design: true
   assets:
     - .env
+  fonts:
+    - family: DMSans
+      fonts:
+       - asset: fonts/DMSans-Italic.ttf
+       - asset: fonts/DMSans-Variable.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:
