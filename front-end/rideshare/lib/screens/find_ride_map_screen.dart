@@ -60,6 +60,8 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
             GoogleMap(
                 initialCameraPosition: initialPosition,
                 zoomControlsEnabled: false,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: false,
                 markers: markers,
                 mapType: MapType.normal,
                 onMapCreated: (GoogleMapController controller) {
@@ -247,10 +249,6 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
         )
     );
     markers.clear();
-    markers.add(
-        Marker(markerId: MarkerId('currentLocation'),
-            position: LatLng(position.latitude, position.longitude))
-    );
     setState(() {});
   }
 

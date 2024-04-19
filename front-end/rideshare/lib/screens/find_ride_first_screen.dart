@@ -49,8 +49,10 @@ class _FindRideFirstScreenState extends State<FindRideFirstScreen> {
                     Text(
                       "When are you planning to travel?",
                       style: TextStyle(
-                          fontSize: 20
-                      ),
+                      fontSize: 20,
+                      fontFamily: 'DMSans',
+                      fontWeight: FontWeight.bold,
+                    ),
                     ),
                     SizedBox(height: 20),
                     Container(

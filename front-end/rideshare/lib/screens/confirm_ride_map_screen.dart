@@ -62,6 +62,8 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                 polylines: polylinePoints,
                 initialCameraPosition: initialPosition,
                 zoomControlsEnabled: false,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: false,
                 markers: markers,
                 mapType: MapType.normal,
                 onMapCreated: (GoogleMapController controller) {
@@ -226,11 +228,6 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
         )
     );
     markers.clear();
-    markers.add(
-      Marker(markerId: MarkerId('currentLocation'),
-          position: LatLng(position.latitude, position.longitude)),
-
-    );
     markers.add(
       Marker(markerId: MarkerId('startLocation'),
           position: start),
