@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:rideshare/components/flutter_polyline_points.dart';
+import 'package:rideshare/components/src/PointLatLng.dart';
+import 'package:rideshare/components/src/utils/polyline_result.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart' as http;
+import 'package:rideshare/components/src/utils/request_enums.dart';
 import 'package:rideshare/model/polyline_response.dart';
 import 'dart:math';
 
@@ -27,7 +29,8 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
 
   PolylineResponse polylineResponse = PolylineResponse();
 
-  Set<Polyline> polylinePoints = {};
+  PolylinePoints polylinePoints = PolylinePoints();
+  Set<Polyline> polylines_map_input = {};
   String totalDistance = "";
   String totalDuration = "";
 
@@ -59,7 +62,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
         body: Stack(
           children: [
             GoogleMap(
-                polylines: polylinePoints,
+                polylines: polylines_map_input,
                 initialCameraPosition: initialPosition,
                 zoomControlsEnabled: false,
                 myLocationEnabled: true,
@@ -171,6 +174,38 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
     return radians * 180 / pi;
   }
 
+  void _addPolyLine(List<LatLng> polylineCoordinates) {
+    PolylineId id = PolylineId("poly");
+    Polyline polyline = Polyline(
+      polylineId: id,
+      points: polylineCoordinates,
+      color: Colors.deepPurple,
+      width: 4,
+    );
+    polylines_map_input.add(polyline);
+    setState(() {});
+  }
+
+  void createPolyline(double _originLatitude, double _originLongitude, double _destLatitude, double _destLongitude) async {
+    List<LatLng> polylineCoordinates = [];
+
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      gmaps_api_key,
+      PointLatLng(_originLatitude, _originLongitude),
+      PointLatLng(_destLatitude, _destLongitude),
+      travelMode: TravelMode.driving
+    );
+    if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    } else {
+      print(result.errorMessage);
+    }
+    _addPolyLine(polylineCoordinates);
+  }
+
+
   LatLng calculateMidpoint(LatLng point1, LatLng point2) {
     // Convert degrees to radians
     final lat1 = radians(point1.latitude);
@@ -241,10 +276,10 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
 
     var response = await http.post(Uri.parse(
         "https://maps.googleapis.com/maps/api/directions/json?key="+gmaps_api_key+
-        "&units=metric"+
-        "&origin="+widget.startLocation+
-        "&destination="+widget.endLocation+
-        "&mode=driving"
+            "&units=metric"+
+            "&origin="+widget.startLocation+
+            "&destination="+widget.endLocation+
+            "&mode=driving"
     ));
 
     polylineResponse = PolylineResponse.fromJson(jsonDecode(response.body));
@@ -252,17 +287,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
     totalDistance = polylineResponse.routes![0].legs![0].distance!.text!;
     totalDuration = polylineResponse.routes![0].legs![0].duration!.text!;
 
-    for(int i=0; i<polylineResponse.routes![0].legs![0].steps!.length; i++){
-      polylinePoints.add(Polyline(polylineId: PolylineId(polylineResponse.routes![0].legs![0].steps![i].polyline!.points!),
-      points:  [
-        LatLng(polylineResponse.routes![0].legs![0].steps![i].startLocation!.lat!, polylineResponse.routes![0].legs![0].steps![i].startLocation!.lng!),
-        LatLng(polylineResponse.routes![0].legs![0].steps![i].endLocation!.lat!, polylineResponse.routes![0].legs![0].steps![i].endLocation!.lng!)
-      ],
-      width: 5,
-      color: Colors.deepPurple
-      ));
-    }
-
+    createPolyline(start.latitude, start.longitude, destination.latitude, destination.longitude);
     setState(() {});
   }
 }
