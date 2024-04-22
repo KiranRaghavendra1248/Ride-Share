@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:rideshare/screens/select_mode_screen.dart';
+import 'package:rideshare/screens/welcome_screen.dart';
+import 'package:rideshare/theme/theme.dart';
 
 Future<void> main() async {
   await dotenv.load();
@@ -15,13 +16,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Ride Share Google Maps',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const SelectMode(),
+      title: 'RideShare',
+      theme: lightMode,
+      home: const WelcomeScreen(),
     );
   }
 }
-

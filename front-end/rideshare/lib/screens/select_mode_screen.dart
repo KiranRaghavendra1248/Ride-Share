@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rideshare/screens/find_ride_map_screen.dart';
 
+import 'add_ride_first_screen.dart';
 import 'find_ride_first_screen.dart';
 
 class SelectMode extends StatefulWidget {
@@ -45,7 +46,7 @@ class _SelectModeState extends State<SelectMode> {
               height: 50,
               child: ElevatedButton(onPressed: (){
                 Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
-                  return const FindRideFirstScreen();
+                  return const AddRideFirstScreen();
                 }));
               }, child: const Text("Submit Ride", style: TextStyle(
                 fontSize: 18,
