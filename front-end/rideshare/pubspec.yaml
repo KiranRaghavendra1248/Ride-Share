@@ -37,10 +37,10 @@ dependencies:
   cupertino_icons: ^1.0.6
   google_maps_flutter: ^2.6.0
   geolocator: ^9.0.0
-  flutter_google_places: ^0.3.0
   google_maps_webservice: ^0.0.16
-  http: ^0.13.1
+  http: ^0.13.0
   flutter_dotenv: ^5.0.2
+  flutter_google_places: ^0.3.0
 
 dev_dependencies:
   flutter_test:

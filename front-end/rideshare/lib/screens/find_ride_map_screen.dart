@@ -7,8 +7,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 
+import 'confirm_ride_map_screen.dart';
+
 class FindRideMapScreen extends StatefulWidget {
-  const FindRideMapScreen({super.key});
+  final startTime, endTime, numSeats;
+  const FindRideMapScreen(this.startTime, this.endTime, this.numSeats, Key? key): super(key: key);
 
   @override
   State<FindRideMapScreen> createState() => _FindRideMapScreenState();
@@ -21,6 +24,9 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
   final _endsearchFieldController = TextEditingController();
   final gmaps_api_key = dotenv.env["GOOGLE_MAPS_API_KEY"] ?? "";
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  String startCoordinates = "";
+  String endCoordinates = "";
 
   @override
   void initState() {
@@ -54,6 +60,8 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
             GoogleMap(
                 initialCameraPosition: initialPosition,
                 zoomControlsEnabled: false,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: false,
                 markers: markers,
                 mapType: MapType.normal,
                 onMapCreated: (GoogleMapController controller) {
@@ -77,13 +85,31 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "Where to??",
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  fontSize: 30,
-                                  fontFamily: 'DMSans',
-                                  fontWeight: FontWeight.bold,
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
+                                child: Text("Where to??",
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    fontSize: 30,
+                                    fontFamily: 'DMSans',
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 250,
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                  child: Divider(
+                                    color: Colors.grey[200],
+                                    thickness: 4, // Adjust the thickness as needed
+                                  ),
                                 ),
                               ),
                             ],
@@ -114,8 +140,8 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                               return null;
                             },
                             readOnly: true,
-                            onTap: () => _openAutoComplete(context, _startsearchFieldController),
-                            onChanged: (value) => _openAutoComplete(context, _startsearchFieldController),
+                            onTap: () => _openAutoComplete(context, _startsearchFieldController, true),
+                            onChanged: (value) => _openAutoComplete(context, _startsearchFieldController, true),
                           ),
                           SizedBox(height: 15),
                           TextFormField(
@@ -143,8 +169,8 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                               return null;
                             },
                             readOnly: true,
-                            onTap: () => _openAutoComplete(context, _endsearchFieldController),
-                            onChanged: (value) => _openAutoComplete(context, _endsearchFieldController),
+                            onTap: () => _openAutoComplete(context, _endsearchFieldController, false),
+                            onChanged: (value) => _openAutoComplete(context, _endsearchFieldController, false),
                           ),
                           SizedBox(height: 20),
                           Row(
@@ -154,7 +180,10 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                                   onPressed: (){
                                   if (_formKey.currentState!.validate()) {
                                     Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
-                                      return const FindRideMapScreen();
+                                      String startLocation = _startsearchFieldController.text;
+                                      String endLocation = _endsearchFieldController.text;
+                                      return ConfirmRideMapScreen(widget.startTime, widget.endTime, widget.numSeats,
+                                          startLocation, endLocation, startCoordinates, endCoordinates, null);
                                     }));
                                   }
                                   else{
@@ -165,7 +194,8 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                                   fontSize: 17,
                                   fontFamily: 'DMSans',
                                   fontWeight: FontWeight.normal,
-                                )),
+                                )
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(6), // Adjust the border radius here
@@ -219,14 +249,10 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
         )
     );
     markers.clear();
-    markers.add(
-        Marker(markerId: MarkerId('currentLocation'),
-            position: LatLng(position.latitude, position.longitude))
-    );
     setState(() {});
   }
 
-  void _openAutoComplete(BuildContext context, TextEditingController controller) async {
+  void _openAutoComplete(BuildContext context, TextEditingController controller, bool start) async {
     // Show address/place predictions
     Prediction? prediction = await PlacesAutocomplete.show(
       context: context,
@@ -244,6 +270,12 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
         if (location != null) {
           double latitude = location.lat;
           double longitude = location.lng;
+          if (true == start){
+            startCoordinates = location.lat.toString() + "," + location.lng.toString();
+          }
+          else{
+            endCoordinates = location.lat.toString() + "," + location.lng.toString();
+          }
           _controller.animateCamera(
               CameraUpdate.newCameraPosition(
                   CameraPosition(

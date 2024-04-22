@@ -49,8 +49,10 @@ class _FindRideFirstScreenState extends State<FindRideFirstScreen> {
                     Text(
                       "When are you planning to travel?",
                       style: TextStyle(
-                          fontSize: 20
-                      ),
+                      fontSize: 20,
+                      fontFamily: 'DMSans',
+                      fontWeight: FontWeight.bold,
+                    ),
                     ),
                     SizedBox(height: 20),
                     Container(
@@ -166,13 +168,20 @@ class _FindRideFirstScreenState extends State<FindRideFirstScreen> {
                       child: ElevatedButton(onPressed: (){
                         if (_formKey.currentState!.validate()) {
                           Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
-                            return const FindRideMapScreen();
+                            String startTime = _startTimeController.text;
+                            String endTime = _endTimeController.text;
+                            String numSeats = _numSeatsController.text;
+                            return FindRideMapScreen(startTime, endTime, numSeats, null);
                           }));
                         }
                         else{
                           // do noting when form validation fails => stays on same screen
                         }
-                      }, child: const Text("Next"),),
+                      }, child: const Text("Next", style: TextStyle(
+                        fontSize: 17,
+                        fontFamily: 'DMSans',
+                        fontWeight: FontWeight.normal,
+                      ),),),
                     ),
                   ]
               ),
