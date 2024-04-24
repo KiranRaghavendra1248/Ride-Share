@@ -152,9 +152,6 @@ class _FindRideFirstScreenState extends State<AddRideFirstScreen> {
                       child: ElevatedButton(onPressed: (){
                         // Inside the ElevatedButton's onPressed method
                         if (_formKey.currentState!.validate()) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Processing Data')),
-                          );
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (BuildContext context) => AddRideMapScreen(
                               date: _dateController.text,
