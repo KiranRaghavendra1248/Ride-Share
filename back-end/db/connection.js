@@ -33,10 +33,11 @@ const setupDB = () => {
                                         RIDE_SHARE.Offered_Rides (
                                             RideID INT PRIMARY KEY,
                                             DriverID INT,
-                                            StartAddress VARCHAR(1000),
-                                            DestinationAddress VARCHAR(1000),
+                                            StartAddress POINT,
+                                            DestinationAddress POINT,
                                             SeatsAvailable INT,
                                             TimeOfJourneyStart DATETIME,
+                                            Polyline TEXT,
                                             FOREIGN KEY (DriverID) REFERENCES RIDE_SHARE.Users(UserID) ON DELETE CASCADE
                                         );`;
   connection.query(createOfferedRidesTableQuery);
@@ -46,9 +47,10 @@ const setupDB = () => {
                                           RIDE_SHARE.Confirmed_Rides (
                                             RideID INT PRIMARY KEY,
                                             PassengerID INT,
-                                            StartAddress VARCHAR(1000),
-                                            DestinationAddress VARCHAR(1000),
+                                            StartAddress POINT,
+                                            DestinationAddress POINT,
                                             DriverRideID INT,
+                                            Polyline TEXT,
                                             FOREIGN KEY (PassengerID) REFERENCES RIDE_SHARE.Users(UserID) ON DELETE CASCADE,
                                             FOREIGN KEY (DriverRideID) REFERENCES RIDE_SHARE.Offered_Rides(RideID) ON DELETE CASCADE
                                         );`;
