@@ -162,11 +162,28 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
                   SizedBox(height: 10),
                   Text("Seats Available: ${widget.numSeats}", style: TextStyle(fontSize: 18)),
                   SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Code to handle submission
-                    },
-                    child: Text("Submit Ride"),
+                  Container(
+                    height: 50,
+                    width: 300,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Code to handle submission
+                      },
+                      child: Text("Confirm", style: TextStyle(
+                        fontSize: 17,
+                        fontFamily: 'DMSans',
+                        fontWeight: FontWeight.normal,
+                      )
+                      ),
+                      style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6), // Adjust the border radius here
+                          ),
+                          foregroundColor: Colors.white, // Change the background color here
+                          backgroundColor: Colors.black38, // Change the text color here
+                          padding: EdgeInsets.fromLTRB(0, 15, 0, 15)
+                      ),
+                    ),
                   )
                 ],
               ),

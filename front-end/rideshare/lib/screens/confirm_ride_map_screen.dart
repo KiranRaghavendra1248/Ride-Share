@@ -134,12 +134,13 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                                   )
                                   ),
                                   style: ElevatedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6), // Adjust the border radius here
-                                    ),
-                                    foregroundColor: Colors.white, // Change the background color here
-                                    backgroundColor: Colors.black38, // Change the text color here
-                                  ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6), // Adjust the border radius here
+                                      ),
+                                      foregroundColor: Colors.white, // Change the background color here
+                                      backgroundColor: Colors.black38, // Change the text color here
+                                      padding: EdgeInsets.fromLTRB(0, 15, 0, 15)
+                                  )
                                 ),
                               ),
                             ],

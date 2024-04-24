@@ -173,39 +173,44 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                             onChanged: (value) => _openAutoComplete(context, _endsearchFieldController, false),
                           ),
                           SizedBox(height: 20),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: (){
-                                  if (_formKey.currentState!.validate()) {
-                                    Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
-                                      String startLocation = _startsearchFieldController.text;
-                                      String endLocation = _endsearchFieldController.text;
-                                      return ConfirmRideMapScreen(widget.startTime, widget.endTime, widget.numSeats,
-                                          startLocation, endLocation, startCoordinates, endCoordinates, null);
-                                    }));
-                                  }
-                                  else{
-                                    // do noting when form validation fails => stays on same screen
+                          Container(
+                            width: 350,
+                            height: 50,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: (){
+                                    if (_formKey.currentState!.validate()) {
+                                      Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
+                                        String startLocation = _startsearchFieldController.text;
+                                        String endLocation = _endsearchFieldController.text;
+                                        return ConfirmRideMapScreen(widget.startTime, widget.endTime, widget.numSeats,
+                                            startLocation, endLocation, startCoordinates, endCoordinates, null);
+                                      }));
                                     }
-                                  },
-                                child: Text("Find a ride", style: TextStyle(
-                                  fontSize: 17,
-                                  fontFamily: 'DMSans',
-                                  fontWeight: FontWeight.normal,
-                                )
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6), // Adjust the border radius here
+                                    else{
+                                      // do noting when form validation fails => stays on same screen
+                                      }
+                                    },
+                                  child: Text("Find a ride", style: TextStyle(
+                                    fontSize: 17,
+                                    fontFamily: 'DMSans',
+                                    fontWeight: FontWeight.normal,
+                                  )
                                   ),
-                                  foregroundColor: Colors.white, // Change the background color here
-                                  backgroundColor: Colors.black38, // Change the text color here
+                                    style: ElevatedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(6), // Adjust the border radius here
+                                        ),
+                                        foregroundColor: Colors.white, // Change the background color here
+                                        backgroundColor: Colors.black38, // Change the text color here
+                                        padding: EdgeInsets.fromLTRB(0, 15, 0, 15)
+                                    ),
+                                  ),
                                 ),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           )
                         ],
                       ),

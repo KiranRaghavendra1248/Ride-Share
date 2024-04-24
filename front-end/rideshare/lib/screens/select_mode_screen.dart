@@ -38,7 +38,14 @@ class _SelectModeState extends State<SelectMode> {
                 fontSize: 18,
                 fontFamily: 'DMSans',
                 fontWeight: FontWeight.normal,
-              ),),),
+              ),
+              ),
+                style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.blueAccent, // Change the background color here
+                    backgroundColor: Colors.white, // Change the text color here
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 0)
+                  )
+              ),
             ),
             SizedBox(height: 30),
             Container(
@@ -52,9 +59,15 @@ class _SelectModeState extends State<SelectMode> {
                 fontSize: 18,
                 fontFamily: 'DMSans',
                 fontWeight: FontWeight.normal,
-              )),),
+              ),
+              ),
+                style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.blueAccent, // Change the background color here
+                    backgroundColor: Colors.white, // Change the text color here
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 0)
+              ),
+              )
             )
-
           ]
 
         )

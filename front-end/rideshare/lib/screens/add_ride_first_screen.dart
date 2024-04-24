@@ -167,7 +167,24 @@ class _FindRideFirstScreenState extends State<AddRideFirstScreen> {
                         else{
                           // do noting when form validation fails => stays on same screen
                         }
-                      }, child: const Text("Next"),),
+                      }, child: const Text(
+                        "Next",
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontFamily: 'DMSans',
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                        style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6), // Adjust the border radius here
+                            ),
+                            foregroundColor: Colors.white, // Change the background color here
+                            backgroundColor: Colors.black38, // Change the text color here
+                            padding: EdgeInsets.fromLTRB(0, 0, 0, 0)
+                        ),
+                      ),
+
                     ),
                   ]
               ),

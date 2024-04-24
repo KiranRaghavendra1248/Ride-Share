@@ -72,7 +72,7 @@ class _AddRideMapScreenState extends State<AddRideMapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Find a ride"),
+          title: const Text("Submit a ride"),
           elevation: 6,
           shadowColor: Colors.transparent,
           backgroundColor: Colors.lightBlue[200],
@@ -90,7 +90,7 @@ class _AddRideMapScreenState extends State<AddRideMapScreen> {
                 }
             ),
             Positioned(
-                top: 2,
+                bottom: 2,
                 left: 0,
                 right: 0,
                 child: Padding(
@@ -100,6 +100,39 @@ class _AddRideMapScreenState extends State<AddRideMapScreen> {
                     padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
                     child: Column(
                       children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
+                              child: Text("I am headed from..",
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  fontFamily: 'DMSans',
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 250,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                child: Divider(
+                                  color: Colors.grey[200],
+                                  thickness: 4, // Adjust the thickness as needed
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20),
                         TextField(
                           controller: _startsearchFieldController,
                           autofocus: false,
@@ -118,7 +151,7 @@ class _AddRideMapScreenState extends State<AddRideMapScreen> {
                           readOnly: true,
                           onTap: () => _openAutoComplete(context, _startsearchFieldController, true),
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: 15),
                         TextField(
                           controller: _endsearchFieldController,
                           autofocus: false,
@@ -138,21 +171,37 @@ class _AddRideMapScreenState extends State<AddRideMapScreen> {
                           onTap: () => _openAutoComplete(context, _endsearchFieldController, false),
                         ),
                         SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            print("Button pressed");
-                            print("Start Text: ${_startsearchFieldController.text}");
-                            print("End Text: ${_endsearchFieldController.text}");
-                            print("Source LatLng: $_sourceLatLng");
-                            print("Destination LatLng: $_destinationLatLng");
-                            if (_startsearchFieldController.text.isNotEmpty &&
-                                _endsearchFieldController.text.isNotEmpty &&
-                                _sourceLatLng != null &&
-                                _destinationLatLng != null) {
-                              _goToConfirmationScreen(context);
-                            }
-                          },
-                          child: Text('Confirm Ride'),
+                        Container(
+                          height: 50,
+                          width: 350,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              print("Start Text: ${_startsearchFieldController.text}");
+                              print("End Text: ${_endsearchFieldController.text}");
+                              print("Source LatLng: $_sourceLatLng");
+                              print("Destination LatLng: $_destinationLatLng");
+                              if (_startsearchFieldController.text.isNotEmpty &&
+                                  _endsearchFieldController.text.isNotEmpty &&
+                                  _sourceLatLng != null &&
+                                  _destinationLatLng != null) {
+                                _goToConfirmationScreen(context);
+                              }
+                            },
+                            child: Text("Submit ride", style: TextStyle(
+                              fontSize: 17,
+                              fontFamily: 'DMSans',
+                              fontWeight: FontWeight.normal,
+                            )
+                            ),
+                            style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6), // Adjust the border radius here
+                                ),
+                                foregroundColor: Colors.white, // Change the background color here
+                                backgroundColor: Colors.black38, // Change the text color here
+                                padding: EdgeInsets.fromLTRB(0, 15, 0, 15)
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -241,10 +290,8 @@ class _AddRideMapScreenState extends State<AddRideMapScreen> {
         throw Exception("Failed to fetch place details");
       }
       setState(() {
-        controller.text = prediction.description ?? "No result found";
-        if (_startsearchFieldController.text.isNotEmpty && _endsearchFieldController.text.isNotEmpty) {
-          _goToConfirmationScreen(context);
-        }
+        controller.text = prediction.description ?? "Not result found";
+        FocusScope.of(context).requestFocus(FocusNode());
       });
     }
   }
