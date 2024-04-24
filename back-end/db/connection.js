@@ -11,6 +11,10 @@ const connectDB = () => {
   return connection.connect();
 };
 
+const runQuery = (query) => {
+  connection.query(query);
+}
+
 const setupDB = () => {
   // Create database
   const createDatabaseQuery = "CREATE DATABASE IF NOT EXISTS RIDE_SHARE;";
@@ -26,7 +30,7 @@ const setupDB = () => {
                                     CountryCode VARCHAR(5),
                                     PhoneNumber VARCHAR(15)
                                 );`;
-  connection.query(createUsersTableQuery);
+  runQuery(createUsersTableQuery);
 
   // Create Offered Rides table
   const createOfferedRidesTableQuery = `CREATE TABLE IF NOT EXISTS 
@@ -40,7 +44,7 @@ const setupDB = () => {
                                             Polyline TEXT,
                                             FOREIGN KEY (DriverID) REFERENCES RIDE_SHARE.Users(UserID) ON DELETE CASCADE
                                         );`;
-  connection.query(createOfferedRidesTableQuery);
+  runQuery(createOfferedRidesTableQuery);
 
   // Create Confirmed Rides table
   const createConfirmedRidesTableQuery = `CREATE TABLE IF NOT EXISTS 
@@ -54,7 +58,7 @@ const setupDB = () => {
                                             FOREIGN KEY (PassengerID) REFERENCES RIDE_SHARE.Users(UserID) ON DELETE CASCADE,
                                             FOREIGN KEY (DriverRideID) REFERENCES RIDE_SHARE.Offered_Rides(RideID) ON DELETE CASCADE
                                         );`;
-  connection.query(createConfirmedRidesTableQuery);
+  runQuery(createConfirmedRidesTableQuery);
 };
 
-module.exports = {connectDB, setupDB};
+module.exports = {connectDB, setupDB, runQuery};
