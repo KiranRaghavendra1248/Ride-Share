@@ -1,9 +1,25 @@
 const express = require("express");
+const cors = require("cors");
+const rides = require("./routes_app/rides");
 const { connectDB, setupDB, runQuery } = require("./db/connection");
+const EventEmitter = require('events'); 
+
+const emitter = new EventEmitter();
+
 require("dotenv").config();
 
-const port = 3000;
 const app = express();
+
+const port = 3000;
+
+//middleware
+app.use(express.json());
+app.use(cors());
+
+//routes
+app.use("/api/v1/users", rides);
+
+emitter.setMaxListeners(25);
 
 const start = async () => {
   try {
