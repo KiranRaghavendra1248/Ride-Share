@@ -7,7 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 
-import 'confirm_ride_map_screen.dart';
+import 'find_ride_confirm_screen.dart';
 
 class FindRideMapScreen extends StatefulWidget {
   final startTime, endTime, numSeats;
