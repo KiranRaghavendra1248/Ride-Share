@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-Future<Map<String, dynamic>?> makePostRequest(String baseUrl, String route, Map<String, dynamic> requestBody) async {
-
+Future<dynamic> makePostRequest(String baseUrl, String route, Map<String, dynamic> requestBody) async {
   String apiUrl = '$baseUrl/$route';
 
   try {
@@ -15,7 +14,7 @@ Future<Map<String, dynamic>?> makePostRequest(String baseUrl, String route, Map<
     // Check if the request was successful (status code 200)
     if (response.statusCode == 200) {
       // Parse the response JSON
-      Map<String, dynamic> responseData = json.decode(response.body);
+      dynamic responseData = json.decode(response.body);
       // Return the parsed response
       return responseData;
     } else {
@@ -30,7 +29,7 @@ Future<Map<String, dynamic>?> makePostRequest(String baseUrl, String route, Map<
   }
 }
 
-Future<Map<String, dynamic>?> makeGetRequest(String baseUrl, String route) async {
+Future<dynamic> makeGetRequest(String baseUrl, String route) async {
 
   String apiUrl = '$baseUrl/$route';
 
