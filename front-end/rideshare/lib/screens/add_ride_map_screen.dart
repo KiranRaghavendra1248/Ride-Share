@@ -5,7 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'confirm_ride_screen.dart';
+import 'submit_ride_confirm_screen.dart';
 
 class AddRideMapScreen extends StatefulWidget {
   final String date;

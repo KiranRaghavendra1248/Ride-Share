@@ -13,6 +13,8 @@ import 'package:rideshare/components/src/utils/request_enums.dart';
 import 'package:rideshare/model/polyline_response.dart';
 import 'dart:math';
 
+import '../components/network_utililty.dart';
+
 class ConfirmRideMapScreen extends StatefulWidget {
   final startTime, endTime, numSeats, startLocation, endLocation, startCoordinates, endCoordinates;
   const ConfirmRideMapScreen(this.startTime, this.endTime, this.numSeats, this.startLocation, this.endLocation, this.startCoordinates, this.endCoordinates, Key? key): super(key: key);
@@ -25,6 +27,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
 
   late GoogleMapController _controller;
   final gmaps_api_key = dotenv.env["GOOGLE_MAPS_API_KEY"] ?? "";
+  final base_url = dotenv.env["BASE_URL"] ?? "";
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   PolylineResponse polylineResponse = PolylineResponse();
@@ -125,7 +128,19 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: (){
+                                  onPressed: () async {
+                                    int rideID = 5679;
+                                    String route = "api/v1/users/$rideID/rides";
+                                    Map<String, dynamic> requestBody = {
+                                      'userID': '12345',
+                                      'start': widget.startCoordinates.toString(),
+                                      'destination': widget.endCoordinates.toString(),
+                                      'startTime': widget.startTime,
+                                      'endTime': widget.endTime,
+                                      'numSeats': widget.numSeats
+                                    };
+                                    var response = await makePostRequest(base_url, route, requestBody);
+                                    print(response);
                                   },
                                   child: Text("Confirm", style: TextStyle(
                                     fontSize: 17,

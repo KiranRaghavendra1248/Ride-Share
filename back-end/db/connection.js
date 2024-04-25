@@ -8,11 +8,28 @@ const connection = mysql.createConnection({
 });
 
 const connectDB = () => {
-  return connection.connect();
+  return connection.connect((err) => {
+    if (err) {
+      console.error('Error connecting to database:', err);
+      return;
+    }
+    console.log('Connected to database successfully');
+  });
 };
 
 const runQuery = (query) => {
   connection.query(query);
+}
+
+const retrieveData = (query, callback) =>{
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      res.status(500).send('Error retrieving data from database');
+      return;
+    }
+    callback(null, results);
+  });
 }
 
 const setupDB = () => {
@@ -61,4 +78,4 @@ const setupDB = () => {
   runQuery(createConfirmedRidesTableQuery);
 };
 
-module.exports = {connectDB, setupDB, runQuery};
+module.exports = {connectDB, setupDB, runQuery, retrieveData};
