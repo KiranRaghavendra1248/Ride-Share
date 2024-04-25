@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const rides = require("./routes_app/rides");
-const { connectDB, setupDB, runQuery } = require("./db/connection");
+const { connectDB, setupDB } = require("./db/connection");
 const EventEmitter = require('events'); 
 const bodyParser = require('body-parser');
 
