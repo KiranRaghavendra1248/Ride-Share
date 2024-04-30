@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
+import '../ID/backend_identifier.dart';
+
 class ConfirmRideScreen extends StatefulWidget {
   final String startTime;
   final String date;
@@ -35,6 +37,7 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
   final Set<Polyline> _polylines = {};
 
   final gmaps_api_key = dotenv.env["GOOGLE_MAPS_API_KEY"] ?? "";
+  final base_url = dotenv.env["BASE_URL"] ?? "";
 
   BitmapDescriptor startmarkerIcon = BitmapDescriptor.defaultMarker;
   BitmapDescriptor destmarkerIcon = BitmapDescriptor.defaultMarker;
@@ -77,6 +80,69 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
     mapController = controller;
     _setMapPins();
     _setPolylines();
+  }
+
+  String _encodePolyline(List <LatLng> points) {
+    int prevLat = 0;
+    int prevLng = 0;
+    StringBuffer encoded = StringBuffer();
+
+    for (LatLng point in points) {
+      int lat = (point.latitude * 1E5).round();
+      int lng = (point.longitude * 1E5).round();
+      int dLat = lat - prevLat;
+      int dLng = lng - prevLng;
+
+      _encodeDifference(encoded, dLat);
+      _encodeDifference(encoded, dLng);
+
+      prevLat = lat;
+      prevLng = lng;
+    }
+
+    return encoded.toString();
+  }
+
+  void _encodeDifference(StringBuffer encoded, int diff) {
+    int shifted = diff << 1;
+    if (diff < 0) {
+      shifted = ~shifted;
+    }
+    int rem = shifted;
+
+    while (rem >= 0x20) {
+      encoded.writeCharCode((0x20 | (rem & 0x1f)) + 63);
+      rem >>= 5;
+    }
+    encoded.writeCharCode(rem + 63);
+  }
+
+  Future<dynamic> makePostRequest(String baseUrl, String route, Map<String, dynamic> requestBody) async {
+    String apiUrl = '$baseUrl/$route';
+
+    try {
+      // Make the API call and await the response
+      http.Response response = await http.post(
+        Uri.parse(apiUrl),
+        body: requestBody,
+      );
+
+      // Check if the request was successful (status code 200)
+      if (response.statusCode == 200) {
+        // Parse the response JSON
+        dynamic responseData = json.decode(response.body);
+        // Return the parsed response
+        return responseData;
+      } else {
+        // Handle error response
+        print('Error: ${response.statusCode} - ${response.reasonPhrase}');
+        return null;
+      }
+    } catch (e) {
+      // Handle any exceptions
+      print('Error: $e');
+      return null;
+    }
   }
 
   void _setMapPins() {
@@ -280,8 +346,22 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
                       height: 50,
                       width: 300,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Code to handle submission
+                        onPressed: () async {
+                          int userID = BackendIdentifier.userId;
+                          String route = "api/v1/users/$userID/submitrides";
+                          Map<String, dynamic> requestBody = {
+                            'Date': widget.date,
+                            'start_latitude': widget.sourceLatLng.latitude.toString(),
+                            'destination_latitude': widget.destinationLatLng.latitude.toString(),
+                            'start_longitude': widget.sourceLatLng.longitude.toString(),
+                            'destination_longitude': widget.destinationLatLng.longitude.toString(),
+                            'startTime': widget.startTime,
+                            'numSeats': widget.numSeats.toString(),
+                            'polyline': _encodePolyline(_polylines.first.points),
+                            'userID': userID.toString()
+                          };
+                          var response = await makePostRequest(base_url, route, requestBody);
+                          print(response);
                         },
                         child: Text("Confirm", style: TextStyle(
                           fontSize: 17,

@@ -13,6 +13,7 @@ import 'package:rideshare/components/src/utils/request_enums.dart';
 import 'package:rideshare/model/polyline_response.dart';
 import 'dart:math';
 
+import '../ID/backend_identifier.dart';
 import '../components/network_utililty.dart';
 
 class ConfirmRideMapScreen extends StatefulWidget {
@@ -194,7 +195,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    int userID = 5679;
+                                    int userID = BackendIdentifier.userId;
                                     String route = "api/v1/users/$userID/findrides";
                                     Map<String, dynamic> requestBody = {
                                       'userID': '12345',
