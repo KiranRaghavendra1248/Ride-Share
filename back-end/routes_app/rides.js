@@ -19,7 +19,8 @@ router.route("/signup").post(signUpUser);
 router.route("/:userID").post(getUserDetails);
 router.route("/:userID").patch(modifyUserDetails);
 
-router.route("/:userID/rides").post(findRides).post(submitRide);
+router.route("/:userID/findrides").post(findRides);
+router.route("/:userID/submitrides").post(submitRide);
 router.route("/:userID/:rideID").post(getRideDetails).post(confirmRide);
 
 module.exports = router;

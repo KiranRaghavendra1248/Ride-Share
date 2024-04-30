@@ -1,4 +1,3 @@
-
 const buildQueryForFindRide = (startTime, endTime, startLocation, endLocation, numSeats) => {
 
     const query =  `SELECT *,
@@ -12,6 +11,14 @@ const buildQueryForFindRide = (startTime, endTime, startLocation, endLocation, n
             
     return query;
 }
+
+const buildQueryForSubmitRide = (DriverID, StartAddress, DestinationAddress, SeatsAvailable, TimeOfJourneyStart, Polyline) => {
+  const query = `INSERT INTO RIDE_SHARE.Offered_Rides
+                 (DriverID, StartAddress, DestinationAddress, SeatsAvailable, TimeOfJourneyStart, Polyline)
+                 VALUES (?, ST_GeomFromText(?), ST_GeomFromText(?), ?, ?, ?);`;
+  return query;
+}
+
 
 
 
@@ -56,22 +63,4 @@ const convertTimeToDateTime = (timeString) => {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports = {buildQueryForFindRide, convertTimeToDateTime, convertCoordinates}
+module.exports = {buildQueryForFindRide,buildQueryForSubmitRide, convertTimeToDateTime, convertCoordinates}
