@@ -20,6 +20,13 @@ const buildQueryRetrieveConfirmedRide = (rideID) => {
                     WHERE RideID = ${rideID};`
   return query;
 }
+const buildQueryForSubmitRide = (DriverID, StartAddress, DestinationAddress, SeatsAvailable, TimeOfJourneyStart, Polyline) => {
+  const query = `INSERT INTO RIDE_SHARE.Offered_Rides
+                 (DriverID, StartAddress, DestinationAddress, SeatsAvailable, TimeOfJourneyStart, Polyline)
+                 VALUES (?, ST_GeomFromText(?), ST_GeomFromText(?), ?, ?, ?);`;
+  return query;
+}
+
 
 const buildQueryRetrieveOfferedRide = (rideID) => {
   const query = `SELECT *
@@ -150,4 +157,4 @@ const createBackendFiles = () => {
 
 
 
-module.exports = { buildQueryForFindRide, convertTimeToDateTime, convertCoordinates, validatePassword, getLastUserID, updateLastUserID, createBackendFiles, buildQueryRetrieveConfirmedRide, buildQueryRetrieveOfferedRide, buildQueryDeleteConfirmedRide }
+module.exports = { buildQueryForFindRide, convertTimeToDateTime, convertCoordinates, validatePassword, getLastUserID, updateLastUserID, createBackendFiles, buildQueryRetrieveConfirmedRide, buildQueryRetrieveOfferedRide, buildQueryDeleteConfirmedRide, buildQueryForSubmitRide }
