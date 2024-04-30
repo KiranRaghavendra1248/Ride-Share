@@ -130,7 +130,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                                 child: ElevatedButton(
                                   onPressed: () async {
                                     int userID = 5679;
-                                    String route = "api/v1/users/$userID/rides";
+                                    String route = "api/v1/users/$userID/findrides";
                                     Map<String, dynamic> requestBody = {
                                       'userID': '12345',
                                       'start': widget.startCoordinates.toString(),
