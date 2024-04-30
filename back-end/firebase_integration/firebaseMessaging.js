@@ -5,6 +5,10 @@ firebase.initializeApp({
   credential: firebase.credential.cert(serviceAccount)
 });
 
+const notifTypeRideReq = "RideRequest";
+const notifTypeRideConfirm = "RideConfirmation";
+const notifTypeRideReject = "RideRejection";
+
 function sendRideRequestToDriver(token, data) {
   const message = {
     token: token,
@@ -13,6 +17,7 @@ function sendRideRequestToDriver(token, data) {
       body: 'A user has requested to hop on your ride, please confirm!!'
     },
     data: {
+      type: notifTypeRideReq,
       offeredRideId: data.offeredRideId,
       requestedRideId: data.requestedRideId,
     }
@@ -29,6 +34,7 @@ function sendRideConfirmationToRider(token, data) {
       body: 'The driver has confirmed your ride!!'
     },
     data: {
+      type: notifTypeRideConfirm,
       offeredRideId: data.offeredRideId,
       requestedRideId: data.requestedRideId,
     }
@@ -45,6 +51,7 @@ function sendRideRejectionToRider(token, data) {
       body: 'The driver denied your ride request :('
     },
     data: {
+      type: notifTypeRideReject,
       offeredRideId: data.offeredRideId,
       requestedRideId: data.requestedRideId,
     }
