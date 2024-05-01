@@ -170,9 +170,10 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
         children: [
           GoogleMap(
             onMapCreated: _onMapCreated,
+            myLocationEnabled: true,
             initialCameraPosition: CameraPosition(
               target: widget.sourceLatLng,
-              zoom: 12,
+              zoom: 8,
             ),
             markers: _markers,
             polylines: _polylines,

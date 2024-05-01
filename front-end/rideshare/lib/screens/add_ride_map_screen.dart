@@ -82,6 +82,7 @@ class _AddRideMapScreenState extends State<AddRideMapScreen> {
             GoogleMap(
                 initialCameraPosition: initialPosition,
                 zoomControlsEnabled: false,
+                myLocationEnabled: true,
                 markers: markers,
                 mapType: MapType.normal,
                 onMapCreated: (GoogleMapController controller) {
