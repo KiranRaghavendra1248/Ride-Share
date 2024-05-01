@@ -66,7 +66,7 @@ class _FindRideFirstScreenState extends State<AddRideFirstScreen> {
                         decoration: InputDecoration(
                           labelText: 'Date of travel',
                           contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-                          prefixIcon: Icon(Icons.calendar_today, color: Colors.deepPurple[100]),
+                          prefixIcon: Icon(Icons.calendar_today, color: Colors.deepOrange[100]),
                           filled: true,
                           fillColor: Colors.grey[100],
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),
@@ -93,7 +93,7 @@ class _FindRideFirstScreenState extends State<AddRideFirstScreen> {
                         decoration: InputDecoration(
                           labelText: 'Start time',
                           contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-                          prefixIcon: Icon(Icons.schedule, color: Colors.deepPurple[100]),
+                          prefixIcon: Icon(Icons.schedule, color: Colors.deepOrange[100]),
                           filled: true,
                           fillColor: Colors.grey[100],
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),
