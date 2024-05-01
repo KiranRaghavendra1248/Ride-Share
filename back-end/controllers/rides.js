@@ -33,6 +33,7 @@ const findRides = async (req, res) => {
   const startLocation = convertCoordinates(req.body.start);
   const endLocation = convertCoordinates(req.body.destination);
   const numSeats = req.body.numSeats;
+  const Polyline = req.body.polyline;
 
   query = buildQueryForFindRide(startTime, endTime, startLocation, endLocation, numSeats);
   result = retrieveData(query, (err, results) => {
@@ -43,6 +44,7 @@ const findRides = async (req, res) => {
       return;
     }
     // Send the results back to the client
+    console.log(req.body);
     console.log(results);
     res.status(200).json(results);
   });
