@@ -25,6 +25,7 @@ class _FindRideFirstScreenState extends State<FindRideFirstScreen> {
     _startTimeController.dispose();
     _endTimeController.dispose();
     _numSeatsController.dispose();
+    super.dispose();
   }
 
   @override
@@ -79,7 +80,7 @@ class _FindRideFirstScreenState extends State<FindRideFirstScreen> {
                           ),
                           prefixIcon: Icon(
                             Icons.schedule,
-                            color: Colors.deepPurple[100],
+                            color: Colors.deepOrange[100],
                           ),
                         ),
                         validator: (value) {
@@ -112,7 +113,7 @@ class _FindRideFirstScreenState extends State<FindRideFirstScreen> {
                           ),
                           prefixIcon: Icon(
                             Icons.schedule,
-                            color: Colors.deepOrange[100],
+                            color: Colors.deepPurple[100],
                           ),
                         ),
                         validator: (value) {
@@ -154,8 +155,8 @@ class _FindRideFirstScreenState extends State<FindRideFirstScreen> {
                             return 'Please enter seats required';
                           }
                           int? intValue = int.tryParse(value);
-                          if (intValue == null || intValue < 1 || intValue > 4) {
-                            return 'Please enter an number between 1 and 4';
+                          if (intValue == null || intValue < 1 || intValue > 6) {
+                            return 'Please enter an number between 1 and 6';
                           }
                           return null;
                         },
