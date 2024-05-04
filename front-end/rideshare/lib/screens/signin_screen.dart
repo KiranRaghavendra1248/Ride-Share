@@ -1,13 +1,15 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:icons_plus/icons_plus.dart';
 import 'package:rideshare/screens/select_mode_screen.dart';
 import 'package:rideshare/screens/signup_screen.dart';
 import 'package:rideshare/widgets/custom_scaffold.dart';
-
 import '../theme/theme.dart';
+import 'package:rideshare/ID/backend_identifier.dart';
 
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+  const SignInScreen({Key? key}) : super(key: key);
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -16,6 +18,49 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final _formSignInKey = GlobalKey<FormState>();
   bool rememberPassword = true;
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  Future<void> loginUser(String email, String password) async {
+    var url = Uri.parse('http://10.0.2.2:3000/user/login');
+    var body = jsonEncode({'email': email, 'password': password});
+
+    try {
+      var response = await http.post(url, body: body, headers: {
+        'Content-Type': 'application/json',
+      });
+
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+        var userId = responseData['userId'];
+        print('User_id: $userId');
+
+        print('User_id before update: ${BackendIdentifier.userId}');
+        BackendIdentifier.userId = userId;
+        print('User_id after update: ${BackendIdentifier.userId}');
+
+        // Navigate to SelectMode screen
+        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
+          return const SelectMode();
+        }));
+      } else {
+        var errorMessage = jsonDecode(response.body)['message'];
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('An error occurred. Please try again later.'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
@@ -56,6 +101,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         height: 40.0,
                       ),
                       TextFormField(
+                        controller: emailController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Email';
@@ -86,6 +132,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         height: 25.0,
                       ),
                       TextFormField(
+                        controller: passwordController,
                         obscureText: true,
                         obscuringCharacter: '*',
                         validator: (value) {
@@ -157,21 +204,18 @@ class _SignInScreenState extends State<SignInScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            if (_formSignInKey.currentState!.validate() &&
-                                rememberPassword) {
+                            if (_formSignInKey.currentState!.validate() && rememberPassword) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Processing Data'),
                                 ),
                               );
-                              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
-                                return const SelectMode();
-                              }));
+                              loginUser(emailController.text, passwordController.text);
                             } else if (!rememberPassword) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text(
-                                        'Please agree to the processing of personal data')),
+                                  content: Text('Please agree to the processing of personal data'),
+                                ),
                               );
                             }
                           },

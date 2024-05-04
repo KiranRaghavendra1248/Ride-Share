@@ -1,26 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:rideshare/screens/find_ride_map_screen.dart';
-
 import 'add_ride_first_screen.dart';
 import 'find_ride_first_screen.dart';
+import '../theme/theme.dart';
 
-class SelectMode extends StatefulWidget {
-  const SelectMode({super.key});
+class SelectMode extends StatelessWidget {
+  const SelectMode({Key? key}) : super(key: key);
 
-  @override
-  State<SelectMode> createState() => _SelectModeState();
-}
-
-class _SelectModeState extends State<SelectMode> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset : false,
-      appBar:  AppBar(
+      appBar: AppBar(
         title: const Text("Select Mode"),
-        backgroundColor: Colors.lightBlue[200],
-        elevation: 6,
-        shadowColor: Colors.transparent
       ),
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
@@ -75,4 +65,3 @@ class _SelectModeState extends State<SelectMode> {
     );
   }
 }
-
