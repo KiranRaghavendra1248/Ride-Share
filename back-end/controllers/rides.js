@@ -1,5 +1,12 @@
-const { retrieveData } = require("../db/connection");
-const { buildQueryForFindRide, convertTimeToDateTime, convertCoordinates } = require("./utils");
+const { retrieveData, runQuery } = require("../db/connection");
+const { 
+  buildQueryForFindRide, 
+  convertTimeToDateTime, 
+  convertCoordinates, 
+  buildQueryRetrieveConfirmedRide, 
+  buildQueryRetrieveOfferedRide,
+  buildQueryDeleteConfirmedRide
+} = require("./utils");
 
 const signUpUser = async (req, res) => {
   // Sample query
@@ -36,7 +43,7 @@ const findRides = async (req, res) => {
   const Polyline = req.body.polyline;
 
   query = buildQueryForFindRide(startTime, endTime, startLocation, endLocation, numSeats);
-  result = retrieveData(query, (err, results) => {
+  retrieveData(query, (err, results) => {
     if (err) {
       // Handle error
       console.error('Error retrieving data:', err);
@@ -44,8 +51,6 @@ const findRides = async (req, res) => {
       return;
     }
     // Send the results back to the client
-    console.log(req.body);
-    console.log(results);
     res.status(200).json(results);
   });
 };
@@ -59,7 +64,42 @@ const confirmRide = async (req, res) => {
 };
 
 const riderCancelled = async (req, res) => {
-
+  const passengerID = parseInt(req.body.passengerID, 10);
+  const passengerrideID = parseInt(req.body.rideID, 10);
+  retrievePassengerRideQuery = buildQueryRetrieveConfirmedRide(passengerrideID);
+  retrieveData(retrievePassengerRideQuery, (err, passengerRide) => {
+    if (err) {
+      // Handle error
+      console.error('Error retrieving data:', err);
+      res.status(500).json({ error: 'Error retrieving data' });
+      return;
+    }
+    const driverRideID = passengerRide[0].DriverRideID;
+    retrieveDriverRideQuery = buildQueryRetrieveOfferedRide(driverRideID);
+    retrieveData(retrieveDriverRideQuery, (err, driverRide) => {
+      if (err) {
+        // Handle error
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Error retrieving data' });
+        return;
+      }
+      const driverID = driverRide[0].UserID;
+      // Send push notification to Driver
+      // sendPushNotification(driverID,"A passenger just cancelled a ride")
+      console.log(driverRide);
+      // Increment seats count in Offered Rides table(lets take this up later)
+      // Remove entry from confirmed rides table
+      deleteRideConfirmedRideTableQuery = buildQueryDeleteConfirmedRide(passengerrideID);
+      console.log(deleteRideConfirmedRideTableQuery);
+      try{
+        runQuery(deleteRideConfirmedRideTableQuery);
+      }
+      catch(err){
+        console.error(err);
+      }
+      res.status(200);
+    });
+  });
 };
 
 const driverCancelled = async (req, res) => {

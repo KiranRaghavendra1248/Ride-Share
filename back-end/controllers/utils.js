@@ -13,6 +13,27 @@ const buildQueryForFindRide = (startTime, endTime, startLocation, endLocation, n
     return query;
 }
 
+const buildQueryRetrieveConfirmedRide = (rideID) => {
+    const query = `SELECT *
+                    FROM RIDE_SHARE.Confirmed_Rides
+                    WHERE RideID = ${rideID};`
+    return query;
+}
+
+const buildQueryRetrieveOfferedRide = (rideID) => {
+    const query = `SELECT *
+                    FROM RIDE_SHARE.Offered_Rides
+                    WHERE RideID = ${rideID};`
+    return query;
+}
+
+const buildQueryDeleteConfirmedRide = (rideID) => {
+    const query = `DELETE 
+                    FROM RIDE_SHARE.Confirmed_Rides 
+                    WHERE RideID = ${rideID};`;
+    return query;
+}
+
 
 
 const convertTimeToDateTime = (timeString) => {
@@ -74,4 +95,4 @@ const convertTimeToDateTime = (timeString) => {
 
 
 
-module.exports = {buildQueryForFindRide, convertTimeToDateTime, convertCoordinates}
+module.exports = {buildQueryForFindRide, convertTimeToDateTime, convertCoordinates, buildQueryRetrieveConfirmedRide, buildQueryRetrieveOfferedRide, buildQueryDeleteConfirmedRide}
