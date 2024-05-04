@@ -58,6 +58,14 @@ const confirmRide = async (req, res) => {
 
 };
 
+const riderCancelled = async (req, res) => {
+
+};
+
+const driverCancelled = async (req, res) => {
+
+};
+
 module.exports = {
   signUpUser,
   loginUser,
@@ -67,4 +75,6 @@ module.exports = {
   findRides,
   getRideDetails,
   confirmRide,
+  riderCancelled,
+  driverCancelled
 };
