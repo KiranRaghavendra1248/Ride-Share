@@ -36,10 +36,36 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
   Set<Polyline> polylines_map_input = {};
   String totalDistance = "";
   String totalDuration = "";
+  String polyline = "";
+
+  BitmapDescriptor startmarkerIcon = BitmapDescriptor.defaultMarker;
+  BitmapDescriptor destmarkerIcon = BitmapDescriptor.defaultMarker;
 
   @override
   void initState() {
+    addCustomIcon();
     super.initState();
+  }
+
+  void addCustomIcon() {
+    BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(), "assets/images/start_location_marker.png")
+        .then(
+          (icon) {
+        setState(() {
+          startmarkerIcon = icon;
+        });
+      },
+    );
+    BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(), "assets/images/destination_map_marker.png")
+        .then(
+          (icon) {
+        setState(() {
+          destmarkerIcon = icon;
+        });
+      },
+    );
   }
 
   @override
@@ -137,9 +163,11 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                                       'destination': widget.endCoordinates.toString(),
                                       'startTime': widget.startTime,
                                       'endTime': widget.endTime,
-                                      'numSeats': widget.numSeats
+                                      'numSeats': widget.numSeats,
+                                      'polyline': polyline
                                     };
                                     var response = await makePostRequest(base_url, route, requestBody);
+                                    print("Results from find ride query");
                                     print(response);
                                   },
                                   child: Text("Confirm", style: TextStyle(
@@ -212,6 +240,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
       travelMode: TravelMode.driving
     );
     if (result.points.isNotEmpty) {
+      polyline = result.overviewPolyline?? "";
       result.points.forEach((PointLatLng point) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
       });
@@ -281,13 +310,13 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
     markers.clear();
     markers.add(
       Marker(markerId: MarkerId('startLocation'),
-          position: start),
-
+          position: start,
+          icon: startmarkerIcon)
     );
     markers.add(
       Marker(markerId: MarkerId('endLocation'),
-          position: destination),
-
+          position: destination,
+          icon: destmarkerIcon,)
     );
 
     var response = await http.post(Uri.parse(

@@ -82,6 +82,7 @@ class _AddRideMapScreenState extends State<AddRideMapScreen> {
             GoogleMap(
                 initialCameraPosition: initialPosition,
                 zoomControlsEnabled: false,
+                myLocationEnabled: true,
                 markers: markers,
                 mapType: MapType.normal,
                 onMapCreated: (GoogleMapController controller) {
@@ -146,7 +147,7 @@ class _AddRideMapScreenState extends State<AddRideMapScreen> {
                               borderRadius: BorderRadius.circular(10.0),
                               borderSide: BorderSide.none,
                             ),
-                            prefixIcon: Icon(Icons.radio_button_checked, color: Colors.deepPurple[100]),
+                            prefixIcon: Icon(Icons.radio_button_checked, color: Colors.deepOrange[100]),
                           ),
                           readOnly: true,
                           onTap: () => _openAutoComplete(context, _startsearchFieldController, true),
@@ -165,7 +166,7 @@ class _AddRideMapScreenState extends State<AddRideMapScreen> {
                               borderRadius: BorderRadius.circular(10.0),
                               borderSide: BorderSide.none,
                             ),
-                            prefixIcon: Icon(Icons.radio_button_checked, color: Colors.deepOrange[100]),
+                            prefixIcon: Icon(Icons.radio_button_checked, color: Colors.deepPurple[100]),
                           ),
                           readOnly: true,
                           onTap: () => _openAutoComplete(context, _endsearchFieldController, false),
@@ -245,10 +246,6 @@ class _AddRideMapScreenState extends State<AddRideMapScreen> {
         )
     );
     markers.clear();
-    markers.add(
-        Marker(markerId: MarkerId('currentLocation'),
-            position: LatLng(position.latitude, position.longitude))
-    );
     setState(() {});
   }
 

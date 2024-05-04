@@ -130,7 +130,7 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                               ),
                               prefixIcon: Icon(
                                   Icons.radio_button_checked,
-                                  color: Colors.deepPurple[100]
+                                  color: Colors.deepOrange[100]
                               ),
                             ),
                             validator: (value) {
@@ -159,7 +159,7 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
                               ),
                               prefixIcon: Icon(
                                 Icons.radio_button_checked,
-                                color: Colors.deepOrange[100],
+                                color: Colors.deepPurple[100],
                               ),
                             ),
                             validator: (value) {

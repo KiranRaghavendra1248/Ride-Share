@@ -37,6 +37,43 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
   final gmaps_api_key = dotenv.env["GOOGLE_MAPS_API_KEY"] ?? "";
   final base_url = dotenv.env["BASE_URL"] ?? "";
 
+  BitmapDescriptor startmarkerIcon = BitmapDescriptor.defaultMarker;
+  BitmapDescriptor destmarkerIcon = BitmapDescriptor.defaultMarker;
+
+  @override
+  void initState() {
+    addCustomIcon();
+    super.initState();
+  }
+
+  void addCustomIcon() {
+    BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(), "assets/images/start_location_marker.png")
+        .then(
+          (icon) {
+        setState(() {
+          startmarkerIcon = icon;
+        });
+      },
+    );
+    BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(), "assets/images/destination_map_marker.png")
+        .then(
+          (icon) {
+        setState(() {
+          destmarkerIcon = icon;
+        });
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    // Dispose the controller when the widget is disposed
+    mapController.dispose();
+    super.dispose();
+  }
+
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
     _setMapPins();
@@ -110,11 +147,13 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
     setState(() {
       _markers.add(Marker(
         markerId: MarkerId('sourcePin'),
-        position: widget.sourceLatLng, // Use the passed LatLng for the source
+        position: widget.sourceLatLng,
+        icon: startmarkerIcon// Use the passed LatLng for the source
       ));
       _markers.add(Marker(
         markerId: MarkerId('destPin'),
-        position: widget.destinationLatLng, // Use the passed LatLng for the destination
+        position: widget.destinationLatLng,
+        icon: destmarkerIcon// Use the passed LatLng for the destination
       ));
     });
   }
@@ -198,9 +237,10 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
         children: [
           GoogleMap(
             onMapCreated: _onMapCreated,
+            myLocationEnabled: true,
             initialCameraPosition: CameraPosition(
               target: widget.sourceLatLng,
-              zoom: 12,
+              zoom: 8,
             ),
             markers: _markers,
             polylines: _polylines,
