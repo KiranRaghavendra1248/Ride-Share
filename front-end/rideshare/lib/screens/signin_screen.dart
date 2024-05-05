@@ -25,17 +25,17 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Future<void> loginUser(String email, String password) async {
     String baseurl = dotenv.env["BASE_URL"]?? "";
-    String route = '/api/v1/users/login';
+    String route = 'api/v1/users/login';
     Map<String, dynamic> body = {'email': email, 'password': password};
 
     var response = await makePostRequest(baseurl, route, body);
-    var responseData = jsonDecode(response.body);
-    var userId = responseData['userId'];
-    print('User_id: $userId');
+    var userId = response['userId'];
 
-    print('User_id before update: ${BackendIdentifier.userId}');
     BackendIdentifier.userId = userId;
-    print('User_id after update: ${BackendIdentifier.userId}');
+    print('You userID is: ${BackendIdentifier.userId}');
+    Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
+        return const SelectMode();
+    }));
   }
 
   @override
@@ -182,11 +182,6 @@ class _SignInScreenState extends State<SignInScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_formSignInKey.currentState!.validate() && rememberPassword) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Processing Data'),
-                                ),
-                              );
                               loginUser(emailController.text, passwordController.text);
                             } else if (!rememberPassword) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -196,7 +191,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               );
                             }
                           },
-                          child: const Text('Sign up'),
+                          child: const Text('Sign in'),
                         ),
                       ),
                       const SizedBox(
