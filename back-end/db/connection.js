@@ -41,11 +41,10 @@ const setupDB = () => {
   const createUsersTableQuery = `CREATE TABLE IF NOT EXISTS 
                                 RIDE_SHARE.Users (
                                     UserID INT PRIMARY KEY,
-                                    FirstName VARCHAR(50),
-                                    LastName VARCHAR(50),
+                                    Name VARCHAR(100),
                                     EmailID VARCHAR(100),
-                                    CountryCode VARCHAR(5),
-                                    PhoneNumber VARCHAR(15)
+                                    Phone VARCHAR(15),
+                                    Password VARCHAR(500)
                                 );`;
   runQuery(createUsersTableQuery);
 
