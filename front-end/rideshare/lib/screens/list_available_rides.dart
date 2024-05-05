@@ -44,8 +44,12 @@ class RideWidget extends StatelessWidget {
 
 class RideListWidget extends StatelessWidget {
   final List<Ride> rides;
+  final String curRideStartCoOrds;
+  final String curRideEndCoOrds;
+  final String curRideStartLoc;
+  final String curRideEndLoc;
 
-  const RideListWidget({Key? key, required this.rides}) : super(key: key);
+  const RideListWidget({Key? key, required this.rides, required this.curRideStartCoOrds, required this.curRideEndCoOrds, required this.curRideStartLoc, required this.curRideEndLoc}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +65,7 @@ class RideListWidget extends StatelessWidget {
         itemBuilder: (context, index) {
           return RideWidget(
             ride: sortedRides[index],
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RideDetailPage(ride: sortedRides[index]))),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RideDetailPage(ride: sortedRides[index], curRideStartCoOrds: curRideStartCoOrds, curRideEndCoOrds: curRideEndCoOrds, curRideStartLoc: curRideStartLoc, curRideEndLoc: curRideEndLoc))),
           );
         },
       ),

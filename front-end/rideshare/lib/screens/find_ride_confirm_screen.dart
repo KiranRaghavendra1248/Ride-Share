@@ -153,8 +153,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
     _controller.dispose();
     super.dispose();
   }
-  static const CameraPosition initialPosition = CameraPosition(
-      target: LatLng(33.684566, -117.826508), zoom: 14.0);
+  static const CameraPosition initialPosition = CameraPosition(target: LatLng(33.684566, -117.826508), zoom: 14.0);
 
   Set<Marker> markers = {};
 
@@ -294,7 +293,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                                     print("Results from find ride query");
                                     print(response);
 
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => RideListWidget(rides: sample_rides)));
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => RideListWidget(rides: sample_rides, curRideStartCoOrds: widget.startCoordinates, curRideEndCoOrds: widget.endCoordinates, curRideStartLoc: widget.startLocation, curRideEndLoc: widget.endLocation)));
                                   },
                                   child: Text("Confirm", style: TextStyle(
                                     fontSize: 17,
