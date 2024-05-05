@@ -9,6 +9,7 @@ const {
   updateLastUserID,
   updateLastDriverRideID,
   createBackendFiles
+  buildQueryRetrieveOfferedRide,
 } = require("./utils");
 
 const bcrypt = require('bcrypt');
@@ -214,12 +215,82 @@ const findRides = async (req, res) => {
   });
 };
 
+const requestRide = async (req, res) => {
+  const riderId = req.body.userID;
+  const selectedRideId = req.body.rideID;
+  const startLocation = convertCoordinates(req.body.start);
+  const endLocation = convertCoordinates(req.body.destination);
+  const polyLine = req.body.polyLine;
+  const numSeats = req.body.numSeats;
+
+  // verify if the selectedRideId is valid
+  retrieveDriverRideQuery = buildQueryRetrieveOfferedRide(driverRideID);
+  retrieveData(retrieveDriverRideQuery, (err, driverRide) => {
+    if (err) {
+      // Handle error
+      console.error('Error retrieving data:', err);
+      res.status(500).json({ error: 'Error retrieving data' });
+      return;
+    } else {
+      const insertSqlStmt = `INSERT INTO
+                                RIDE_SHARE.RequestedRides
+                                (PassengerID, RideID, StartAddress, DestinationAddress, Polyline, SeatsRequested)
+                                VALUES (?, ?, POINT(?), POINT(?), ?, ?)`;
+
+      const values = [riderId, selectedRideId, startLocation, endLocation, polyLine, numSeats]
+
+      connection.query(insertSqlStmt, values, (err, results) => {
+        if (err) {
+          console.log("Error while inserting into RequestedRides table");
+          return console.error(err.message);
+        }
+      });
+
+      // send the notification to the driver
+      const driverID = driverRide[0].UserID;
+    }
+  });
+}
+
 const getRideDetails = async (req, res) => {
 
 };
 
 const confirmRide = async (req, res) => {
+    const { confirmed, offeredRideID, requestedPassengerID } = req.body;
+    if (confirmed) {
+        const query = `
+            INSERT INTO RIDE_SHARE.Confirmed_Rides (PassengerID, StartAddress, DestinationAddress, DriverRideID, Polyline)
+            SELECT PassengerID, StartAddress, DestinationAddress, ?, Polyline
+            FROM RIDE_SHARE.RequestedRides
+            WHERE PassengerID = ? AND RideID = ?;
+        `;
 
+        connection.query(query, [offeredRideID, requestedPassengerID, offeredRideID], (error, results) => {
+            if (error) {
+                console.error("Database error while moving requested ride to confirmed ride: ", error);
+            } else {
+                // Fetch the newly generated RideID
+                const insertedRideID = results.insertId;
+
+                // send the notification to requestedPassengerID that the ride has been confirmed
+                // and send the ride id of the entry from Confirmed_Rides table
+            }
+        });
+    } else {
+        const deleteQuery = `
+            DELETE FROM RIDE_SHARE.RequestedRides
+            WHERE PassengerID = ? AND RideID = ?;
+        `;
+
+        connection.query(deleteQuery, [requestedPassengerID, offeredRideID], (error, results) => {
+            if (error) {
+                console.error("Database error while deleting entry from RequestedRides: ", error);
+            } else {
+                // send the notification to requestedPassengerID that the request was denied
+            }
+        });
+    }
 };
 
 const riderCancelled = async (req, res) => {
@@ -274,6 +345,7 @@ module.exports = {
   modifyUserDetails,
   submitRide,
   findRides,
+  requestRide,
   getRideDetails,
   confirmRide,
   riderCancelled,

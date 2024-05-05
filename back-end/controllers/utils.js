@@ -155,23 +155,15 @@ const createBackendFiles = () => {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports = { buildQueryForFindRide, convertTimeToDateTime, convertCoordinates, validatePassword, getLastUserID, updateLastUserID, createBackendFiles, buildQueryRetrieveConfirmedRide, buildQueryRetrieveOfferedRide, buildQueryDeleteConfirmedRide, buildQueryForSubmitRide, updateLastDriverRideID }
+module.exports = { buildQueryForFindRide,
+                   convertTimeToDateTime,
+                   convertCoordinates,
+                   validatePassword,
+                   getLastUserID,
+                   updateLastUserID,
+                   createBackendFiles,
+                   buildQueryRetrieveConfirmedRide,
+                   buildQueryRetrieveOfferedRide,
+                   buildQueryDeleteConfirmedRide,
+                   buildQueryForSubmitRide,
+                   updateLastDriverRideID }

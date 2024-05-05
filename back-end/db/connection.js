@@ -76,10 +76,23 @@ const setupDB = () => {
                                         );`;
   runQuery(createOfferedRidesTableQuery);
 
+  // Create Requested Rides table
+  const createRequestedRidesTableQuery = `CREATE TABLE IF NOT EXISTS
+                                          RIDE_SHARE.RequestedRides (
+                                            PassengerID INT,
+                                            RideID INT,
+                                            StartAddress POINT,
+                                            DestinationAddress POINT,
+                                            Polyline TEXT,
+                                            SeatsRequested INT,
+                                            PRIMARY KEY (PassengerID, RideID)
+                                          );`;
+  runQuery(createRequestedRidesTableQuery);
+
   // Create Confirmed Rides table
   const createConfirmedRidesTableQuery = `CREATE TABLE IF NOT EXISTS 
                                           RIDE_SHARE.Confirmed_Rides (
-                                            RideID INT PRIMARY KEY,
+                                            RideID INT AUTO_INCREMENT PRIMARY KEY,
                                             PassengerID INT,
                                             StartAddress POINT,
                                             DestinationAddress POINT,
