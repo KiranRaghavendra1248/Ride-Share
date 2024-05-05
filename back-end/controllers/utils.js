@@ -1,7 +1,8 @@
+const fs = require('fs');
 
 const buildQueryForFindRide = (startTime, endTime, startLocation, endLocation, numSeats) => {
 
-    const query =  `SELECT *,
+  const query = `SELECT *,
                         ST_Distance_Sphere(StartAddress, ST_GeomFromText('POINT(${startLocation})')) +
                         ST_Distance_Sphere(DestinationAddress, ST_GeomFromText('POINT(${endLocation})')) AS total_distance
                     FROM RIDE_SHARE.Offered_Rides
@@ -9,71 +10,124 @@ const buildQueryForFindRide = (startTime, endTime, startLocation, endLocation, n
                         AND CAST('${numSeats}' AS UNSIGNED) <= SeatsAvailable
                     ORDER BY total_distance ASC
                     LIMIT 5;`;
-            
-    return query;
+
+  return query;
 }
 
 const buildQueryRetrieveConfirmedRide = (rideID) => {
-    const query = `SELECT *
+  const query = `SELECT *
                     FROM RIDE_SHARE.Confirmed_Rides
                     WHERE RideID = ${rideID};`
-    return query;
+  return query;
 }
 
 const buildQueryRetrieveOfferedRide = (rideID) => {
-    const query = `SELECT *
+  const query = `SELECT *
                     FROM RIDE_SHARE.Offered_Rides
                     WHERE RideID = ${rideID};`
-    return query;
+  return query;
 }
 
 const buildQueryDeleteConfirmedRide = (rideID) => {
-    const query = `DELETE 
+  const query = `DELETE 
                     FROM RIDE_SHARE.Confirmed_Rides 
                     WHERE RideID = ${rideID};`;
-    return query;
+  return query;
 }
 
+// Function to fetch the last user ID from the JSON file
+const getLastUserID = () => {
+  try {
+    const userData = require(__dirname + '/id-tracker.json');
+    return userData['lastUserID'];
+  } catch (error) {
+    console.error('Error reading user IDs file:', error);
+    return null;
+  }
+}
 
+// Function to validate password constraints
+const validatePassword = (password) => {
+  // Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one digit
+  const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
+  return passwordRegex.test(password);
+}
+
+// Function to update the last user ID in the JSON file
+const updateLastUserID = (newUserID) => {
+  try {
+    const userData = require(__dirname + '/id-tracker.json');
+    userData['lastUserID'] = newUserID;
+    fs.writeFileSync(__dirname + '/id-tracker.json', JSON.stringify(userData));
+    return true;
+  } catch (error) {
+    console.error('Error updating user IDs file:', error);
+    return false;
+  }
+}
 
 const convertTimeToDateTime = (timeString) => {
-    // Get today's date
-    const today = new Date();
-    
-    // Split the time string into hours, minutes, and AM/PM parts
-    const [time, period] = timeString.split(' ');
-    const [hours, minutes] = time.split(':').map(Number);
-  
-    // Convert hours to 24-hour format if needed
-    let hours24 = hours;
-    if (period === 'PM' && hours !== 12) {
-      hours24 += 12;
-    } else if (period === 'AM' && hours === 12) {
-      hours24 = 0;
-    }
-  
-    // Set the time from the provided string to today's date
-    today.setHours(hours24, minutes, 0, 0);
-  
-    // Extract the components of the date
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    const hoursFormatted = String(today.getHours()).padStart(2, '0');
-    const minutesFormatted = String(today.getMinutes()).padStart(2, '0');
-    const seconds = '00'; // Set seconds to '00'
-  
-    // Format the date and time components into the desired format
-    const formattedDateTime = `${year}-${month}-${day} ${hoursFormatted}:${minutesFormatted}:${seconds}`;
-  
-    return formattedDateTime;
-  };
-  
+  // Get today's date
+  const today = new Date();
 
-  const convertCoordinates = (originalCoordinates) => {
-    const [latitude, longitude] = originalCoordinates.split(',');
-    const convertedCoordinates = `${longitude} ${latitude}`;
-    return convertedCoordinates;
+  // Split the time string into hours, minutes, and AM/PM parts
+  const [time, period] = timeString.split(' ');
+  const [hours, minutes] = time.split(':').map(Number);
+
+  // Convert hours to 24-hour format if needed
+  let hours24 = hours;
+  if (period === 'PM' && hours !== 12) {
+    hours24 += 12;
+  } else if (period === 'AM' && hours === 12) {
+    hours24 = 0;
+  }
+
+  // Set the time from the provided string to today's date
+  today.setHours(hours24, minutes, 0, 0);
+
+  // Extract the components of the date
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const hoursFormatted = String(today.getHours()).padStart(2, '0');
+  const minutesFormatted = String(today.getMinutes()).padStart(2, '0');
+  const seconds = '00'; // Set seconds to '00'
+
+  // Format the date and time components into the desired format
+  const formattedDateTime = `${year}-${month}-${day} ${hoursFormatted}:${minutesFormatted}:${seconds}`;
+
+  return formattedDateTime;
+};
+
+
+const convertCoordinates = (originalCoordinates) => {
+  const [latitude, longitude] = originalCoordinates.split(',');
+  const convertedCoordinates = `${longitude} ${latitude}`;
+  return convertedCoordinates;
+}
+
+const createBackendFiles = () => {
+  const filepath = __dirname + '/id-tracker.json';
+  const defaultValue = {
+    lastUserID: 0,
+    lastDriverID: 0,
+    lastPassengerID: 0
+  };
+
+  // Check if the file exists
+
+  fs.access(filepath, fs.constants.F_OK, (err) => {
+    if (err) {
+      // File doesn't exist, create it
+      fs.writeFileSync(filepath, JSON.stringify(defaultValue), (err) => {
+        if (err) throw err;
+        console.log(`${filepath} created with initial value.`);
+      });
+    } else {
+      console.log(`${filepath} already exists.`);
+    }
+  });
+
 }
 
 
@@ -95,4 +149,5 @@ const convertTimeToDateTime = (timeString) => {
 
 
 
-module.exports = {buildQueryForFindRide, convertTimeToDateTime, convertCoordinates, buildQueryRetrieveConfirmedRide, buildQueryRetrieveOfferedRide, buildQueryDeleteConfirmedRide}
+
+module.exports = { buildQueryForFindRide, convertTimeToDateTime, convertCoordinates, validatePassword, getLastUserID, updateLastUserID, createBackendFiles, buildQueryRetrieveConfirmedRide, buildQueryRetrieveOfferedRide, buildQueryDeleteConfirmedRide }

@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const rides = require("./routes_app/rides");
 const { connectDB, setupDB } = require("./db/connection");
-const EventEmitter = require('events'); 
+const EventEmitter = require('events');
 const bodyParser = require('body-parser');
 
 const emitter = new EventEmitter();
@@ -32,7 +32,7 @@ const start = async () => {
     // Create database and setup tables
     await setupDB();
     console.log("Created RideShare DB and Created Users, Offered_Rides, Confirmed_Rides Tables Successfully!!");
-    
+
     app.listen(port, host, () => {
       console.log(`Listening on port http://${host}:${port}..`);
     });

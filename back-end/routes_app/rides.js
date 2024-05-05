@@ -15,7 +15,7 @@ const {
 } = require("../controllers/rides");
 
 router.route("/login").post(loginUser);
-router.route("/signup").post(signUpUser);
+router.route("/register").post(signUpUser);
 router.route("/:userID").post(getUserDetails);
 router.route("/:userID").patch(modifyUserDetails);
 

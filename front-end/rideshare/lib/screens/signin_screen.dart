@@ -1,13 +1,17 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:icons_plus/icons_plus.dart';
+import 'package:rideshare/components/network_utililty.dart';
 import 'package:rideshare/screens/select_mode_screen.dart';
 import 'package:rideshare/screens/signup_screen.dart';
 import 'package:rideshare/widgets/custom_scaffold.dart';
-
 import '../theme/theme.dart';
+import 'package:rideshare/ID/backend_identifier.dart';
 
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+  const SignInScreen({Key? key}) : super(key: key);
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -16,6 +20,24 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final _formSignInKey = GlobalKey<FormState>();
   bool rememberPassword = true;
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  Future<void> loginUser(String email, String password) async {
+    String baseurl = dotenv.env["BASE_URL"]?? "";
+    String route = 'api/v1/users/login';
+    Map<String, dynamic> body = {'email': email, 'password': password};
+
+    var response = await makePostRequest(baseurl, route, body);
+    var userId = response['userId'];
+
+    BackendIdentifier.userId = userId;
+    print('You userID is: ${BackendIdentifier.userId}');
+    Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
+        return const SelectMode();
+    }));
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
@@ -56,6 +78,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         height: 40.0,
                       ),
                       TextFormField(
+                        controller: emailController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Email';
@@ -86,6 +109,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         height: 25.0,
                       ),
                       TextFormField(
+                        controller: passwordController,
                         obscureText: true,
                         obscuringCharacter: '*',
                         validator: (value) {
@@ -157,25 +181,17 @@ class _SignInScreenState extends State<SignInScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            if (_formSignInKey.currentState!.validate() &&
-                                rememberPassword) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Processing Data'),
-                                ),
-                              );
-                              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
-                                return const SelectMode();
-                              }));
+                            if (_formSignInKey.currentState!.validate() && rememberPassword) {
+                              loginUser(emailController.text, passwordController.text);
                             } else if (!rememberPassword) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text(
-                                        'Please agree to the processing of personal data')),
+                                  content: Text('Please agree to the processing of personal data'),
+                                ),
                               );
                             }
                           },
-                          child: const Text('Sign up'),
+                          child: const Text('Sign in'),
                         ),
                       ),
                       const SizedBox(
