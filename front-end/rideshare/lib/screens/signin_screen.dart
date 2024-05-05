@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:icons_plus/icons_plus.dart';
+import 'package:rideshare/components/network_utililty.dart';
 import 'package:rideshare/screens/select_mode_screen.dart';
 import 'package:rideshare/screens/signup_screen.dart';
 import 'package:rideshare/widgets/custom_scaffold.dart';
@@ -22,43 +24,18 @@ class _SignInScreenState extends State<SignInScreen> {
   TextEditingController passwordController = TextEditingController();
 
   Future<void> loginUser(String email, String password) async {
-    var url = Uri.parse('http://10.0.2.2:3000/user/login');
-    var body = jsonEncode({'email': email, 'password': password});
+    String baseurl = dotenv.env["BASE_URL"]?? "";
+    String route = '/api/v1/users/login';
+    Map<String, dynamic> body = {'email': email, 'password': password};
 
-    try {
-      var response = await http.post(url, body: body, headers: {
-        'Content-Type': 'application/json',
-      });
+    var response = await makePostRequest(baseurl, route, body);
+    var responseData = jsonDecode(response.body);
+    var userId = responseData['userId'];
+    print('User_id: $userId');
 
-      if (response.statusCode == 200) {
-        var responseData = jsonDecode(response.body);
-        var userId = responseData['userId'];
-        print('User_id: $userId');
-
-        print('User_id before update: ${BackendIdentifier.userId}');
-        BackendIdentifier.userId = userId;
-        print('User_id after update: ${BackendIdentifier.userId}');
-
-        // Navigate to SelectMode screen
-        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
-          return const SelectMode();
-        }));
-      } else {
-        var errorMessage = jsonDecode(response.body)['message'];
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-          ),
-        );
-      }
-    } catch (e) {
-      print('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('An error occurred. Please try again later.'),
-        ),
-      );
-    }
+    print('User_id before update: ${BackendIdentifier.userId}');
+    BackendIdentifier.userId = userId;
+    print('User_id after update: ${BackendIdentifier.userId}');
   }
 
   @override

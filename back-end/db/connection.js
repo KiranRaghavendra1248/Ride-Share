@@ -21,7 +21,7 @@ const runQuery = (query) => {
   connection.query(query);
 }
 
-const retrieveData = (query, callback) =>{
+const retrieveData = (query, callback) => {
   connection.query(query, (err, results) => {
     if (err) {
       console.error('Error executing query:', err);
@@ -77,4 +77,4 @@ const setupDB = () => {
   runQuery(createConfirmedRidesTableQuery);
 };
 
-module.exports = {connectDB, setupDB, runQuery, retrieveData};
+module.exports = { connectDB, setupDB, runQuery, retrieveData, connection };
