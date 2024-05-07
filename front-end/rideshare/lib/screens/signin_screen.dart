@@ -22,6 +22,7 @@ class _SignInScreenState extends State<SignInScreen> {
   bool rememberPassword = true;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  String? errorMessage; // Add error message variable
 
   Future<void> loginUser(String email, String password) async {
     String baseurl = dotenv.env["BASE_URL"]?? "";
@@ -34,7 +35,7 @@ class _SignInScreenState extends State<SignInScreen> {
     BackendIdentifier.userId = userId;
     print('You userID is: ${BackendIdentifier.userId}');
     Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
-        return const SelectMode();
+      return const SelectMode();
     }));
   }
 
@@ -138,8 +139,17 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 15),
+                      // Error message displayed here if it's not null
+                      if(errorMessage != null)
+                        Text(
+                          errorMessage!,
+                          style: TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
                       const SizedBox(
-                        height: 25.0,
+                        height: 15.0,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -180,9 +190,15 @@ class _SignInScreenState extends State<SignInScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async { // Changed onPressed to async
                             if (_formSignInKey.currentState!.validate() && rememberPassword) {
-                              loginUser(emailController.text, passwordController.text);
+                              try {
+                                await loginUser(emailController.text, passwordController.text);
+                              } catch (error) {
+                                setState(() {
+                                  errorMessage = 'Invalid email or password';
+                                });
+                              }
                             } else if (!rememberPassword) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(

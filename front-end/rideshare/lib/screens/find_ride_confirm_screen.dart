@@ -100,7 +100,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                 mapType: MapType.normal,
                 onMapCreated: (GoogleMapController controller) {
                   _controller = controller;
-                  _determineLocation();
+                  drawPolyline();
                 }
             ),
             Form(
@@ -115,30 +115,52 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                       color: Colors.white,
                       padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
-                                child: Text("Total Distance : "+totalDistance,
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontFamily: 'DMSans',
-                                    fontWeight: FontWeight.normal,
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Flexible(
+                                  child: Text("Source : ${widget.startLocation.split(",")[0]}",
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontFamily: 'DMSans',
+                                      fontWeight: FontWeight.normal,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           SizedBox(height: 10),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
-                                child: Text("Total Duration : "+totalDuration,
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Flexible(
+                                  child: Text("Destination : ${widget.endLocation.split(",")[0]}",
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontFamily: 'DMSans',
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Total Distance : "+totalDistance,
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
                                     fontSize: 20,
@@ -146,8 +168,25 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                                     fontWeight: FontWeight.normal,
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Total Duration : "+totalDuration,
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontFamily: 'DMSans',
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           SizedBox(height: 20),
                           Row(
@@ -269,33 +308,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
     return LatLng(avgLatDegrees, avgLonDegrees);
   }
 
-  Future<void> _determineLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      // Request permission
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permission denied');
-      }
-    }
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error('Location permissions are permanently denied');
-    }
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high
-    );
-    drawPolyline(position);
-  }
-
-  void drawPolyline(Position position) async{
+  void drawPolyline() async{
     LatLng start = parseLatLngFromString(widget.startCoordinates);
     LatLng destination = parseLatLngFromString(widget.endCoordinates);
     LatLng midPoint = calculateMidpoint(start, destination);
@@ -308,11 +321,6 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
         )
     );
     markers.clear();
-    markers.add(
-      Marker(markerId: MarkerId('startLocation'),
-          position: start,
-          icon: startmarkerIcon)
-    );
     markers.add(
       Marker(markerId: MarkerId('endLocation'),
           position: destination,

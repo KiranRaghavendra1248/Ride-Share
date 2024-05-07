@@ -21,27 +21,40 @@ class WelcomeScreen extends StatelessWidget {
                   horizontal: 40.0,
                 ),
                 child: Center(
-                  child: RichText(
-                    textAlign: TextAlign.center,
-                    text: const TextSpan(
-                      children: [
-                        TextSpan(
-                            text: 'RideShare\n',
-                            style: TextStyle(
-                              fontSize: 45.0,
-                              fontWeight: FontWeight.w600,
-                            )),
-                        TextSpan(
-                            text:
-                                'Connecting Commuters, One Ride at a Time\n',
-                            style: TextStyle(
-                              fontStyle: FontStyle.italic,
-                              fontSize: 18,
-                              // height: 0,
-                            ))
-                      ],
-                    ),
-                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "RideShare",
+                        style: TextStyle(
+                          fontSize: 50,
+                          fontFamily: 'DMSans',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white
+                        )
+                      ),
+                      SizedBox(height:5),
+                      Text(
+                          "Connecting People",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontFamily: 'DMSans',
+                            fontWeight: FontWeight.normal,
+                            color: Colors.white
+                          )
+                      ),
+                      SizedBox(height:2),
+                      Text(
+                          "One Ride at a Time",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontFamily: 'DMSans',
+                            fontWeight: FontWeight.normal,
+                            color: Colors.white
+                          )
+                      ),
+                    ],
+                  )
                 ),
               )),
           Flexible(

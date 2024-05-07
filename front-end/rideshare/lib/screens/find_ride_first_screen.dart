@@ -134,6 +134,7 @@ class _FindRideFirstScreenState extends State<FindRideFirstScreen> {
                       width: 300,
                       child: TextFormField(
                         controller: _numSeatsController,
+                        keyboardType: TextInputType.phone,
                         autofocus: false,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),

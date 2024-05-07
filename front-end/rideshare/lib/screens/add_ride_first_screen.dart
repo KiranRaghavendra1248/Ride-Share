@@ -31,6 +31,7 @@ class _FindRideFirstScreenState extends State<AddRideFirstScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset : false,
       appBar: AppBar(
           title: const Text("Ride Share"),
           backgroundColor: Colors.lightBlue[200],
@@ -117,6 +118,7 @@ class _FindRideFirstScreenState extends State<AddRideFirstScreen> {
                       width: 300,
                       child: TextFormField(
                         controller: _numSeatsController,
+                        keyboardType: TextInputType.phone,
                         autofocus: false,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
