@@ -108,7 +108,39 @@ const loginUser = async (req, res) => {
 };
 
 const getUserDetails = async (req, res) => {
+  const userId = req.body.userId; // Assuming the userId is passed in the request body
 
+  // Check if userId is provided
+  if (!userId) {
+    return res.status(400).json({ success: false, message: 'User ID is required' });
+  }
+
+  // Query to retrieve user details
+  const sql = "SELECT * FROM RIDE_SHARE.Users WHERE UserID=?";
+  const values = [userId];
+
+  // Execute the query
+  connection.query(sql, values, function (err, data) {
+    if (err) {
+      console.error('Error retrieving user details:', err);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    } else {
+      if (data.length > 0) {
+        // User found, return user details
+        const userDetails = {
+          userId: data[0].UserID,
+          name: data[0].Name,
+          email: data[0].EmailID,
+          phone: data[0].Phone
+          // Add other user details as needed
+        };
+        return res.status(200).json({ success: true, message: 'User details retrieved successfully', userDetails: userDetails });
+      } else {
+        // User not found
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+    }
+  });
 };
 
 const modifyUserDetails = async (req, res) => {
