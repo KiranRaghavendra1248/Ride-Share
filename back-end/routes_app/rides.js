@@ -8,6 +8,7 @@ const {
   modifyUserDetails,
   submitRide,
   findRides,
+  requestRide,
   getRideDetails,
   confirmRide,
   riderCancelled,

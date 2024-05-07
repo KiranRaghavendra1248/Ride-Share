@@ -58,7 +58,8 @@ const setupDB = () => {
                                     Name VARCHAR(100),
                                     EmailID VARCHAR(100),
                                     Phone VARCHAR(15),
-                                    Password VARCHAR(500)
+                                    Password VARCHAR(500),
+                                    FCMToken VARCHAR(255)
                                 );`;
   runQuery(createUsersTableQuery);
 

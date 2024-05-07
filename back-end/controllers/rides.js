@@ -248,6 +248,19 @@ const requestRide = async (req, res) => {
 
       // send the notification to the driver
       const driverID = driverRide[0].UserID;
+
+      const notifData = {
+          offeredRideId: selectedRideId,
+          requestedPassengerId: riderId
+      };
+
+      sendRideRequestToDriver(driverID, notifData)
+      .then((response) => {
+        console.log("Successfully send ride request from rider to driver: ", riderId, selectedRideId);
+      })
+      .catch((error) => {
+        console.log("Failed to send ride request from rider to driver: ", error);
+      });
     }
   });
 }
@@ -275,6 +288,18 @@ const confirmRide = async (req, res) => {
 
                 // send the notification to requestedPassengerID that the ride has been confirmed
                 // and send the ride id of the entry from Confirmed_Rides table
+                  const notifData = {
+                      offeredRideId: selectedRideId,
+                      confirmedRideId: insertedRideID
+                  };
+
+                  sendRideConfirmationToRider(requestedPassengerID, notifData)
+                  .then((response) => {
+                    console.log("Successfully sent ride confirmation message to rider: ", riderId, insertedRideID);
+                  })
+                  .catch((error) => {
+                    console.log("Failed to send ride confirmation to rider: ", insertedRideID, error);
+                  });
             }
         });
     } else {
@@ -288,6 +313,17 @@ const confirmRide = async (req, res) => {
                 console.error("Database error while deleting entry from RequestedRides: ", error);
             } else {
                 // send the notification to requestedPassengerID that the request was denied
+                  const notifData = {
+                      offeredRideId: selectedRideId,
+                  };
+
+                  sendRideRejectionToRider(requestedPassengerID, notifData)
+                  .then((response) => {
+                    console.log("Successfully sent ride rejection message to rider: ", riderId);
+                  })
+                  .catch((error) => {
+                    console.log("Failed to send ride rejection to rider: ", error);
+                  });
             }
         });
     }
