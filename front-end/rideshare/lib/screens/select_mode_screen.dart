@@ -20,7 +20,7 @@ class SelectMode extends StatelessWidget {
             Text(
               "Hello there!",
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 34,
                 fontFamily: 'DMSans',
                 fontWeight: FontWeight.bold,
                 color: Colors.black,

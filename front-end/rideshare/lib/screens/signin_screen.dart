@@ -78,14 +78,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       const SizedBox(
                         height: 40.0,
                       ),
-                      // Error message displayed here if it's not null
-                      if(errorMessage != null)
-                        Text(
-                          errorMessage!,
-                          style: TextStyle(
-                            color: Colors.red,
-                          ),
-                        ),
                       TextFormField(
                         controller: emailController,
                         validator: (value) {
@@ -147,8 +139,17 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 15),
+                      // Error message displayed here if it's not null
+                      if(errorMessage != null)
+                        Text(
+                          errorMessage!,
+                          style: TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
                       const SizedBox(
-                        height: 25.0,
+                        height: 15.0,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
