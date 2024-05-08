@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'add_ride_first_screen.dart';
 import 'find_ride_first_screen.dart';
-import '../theme/theme.dart';
-import 'package:rideshare/ID/backend_identifier.dart';
+
 
 class SelectMode extends StatelessWidget {
   const SelectMode({Key? key}) : super(key: key);
