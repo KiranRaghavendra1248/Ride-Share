@@ -50,10 +50,16 @@ class _FindRideMapScreenState extends State<FindRideMapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Find a ride"),
+          title: const Text(
+              "Find a ride",
+              style : TextStyle(
+                fontFamily: 'DMSans',
+                fontWeight: FontWeight.normal,
+              )
+          ),
           elevation: 6,
           shadowColor: Colors.transparent,
-          backgroundColor: Colors.lightBlue[200],
+          backgroundColor: Colors.deepPurple[50],
         ),
         body: Stack(
           children: [

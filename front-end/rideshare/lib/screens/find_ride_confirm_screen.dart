@@ -84,10 +84,15 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Confirm ride"),
+          title: const Text(
+              "Confirm ride",
+              style : TextStyle(
+                fontFamily: 'DMSans',
+                fontWeight: FontWeight.normal,
+              )),
           elevation: 6,
           shadowColor: Colors.transparent,
-          backgroundColor: Colors.lightBlue[200],
+          backgroundColor: Colors.deepPurple[50],
         ),
         body: Stack(
           children: [
@@ -198,7 +203,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                                     int userID = BackendIdentifier.userId;
                                     String route = "api/v1/users/$userID/findrides";
                                     Map<String, dynamic> requestBody = {
-                                      'userID': '12345',
+                                      'userID': userID.toString(),
                                       'start': widget.startCoordinates.toString(),
                                       'destination': widget.endCoordinates.toString(),
                                       'startTime': widget.startTime,

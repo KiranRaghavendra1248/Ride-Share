@@ -10,7 +10,12 @@ class SelectMode extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Select Mode"),
+        title: const Text(
+            "Select Mode",
+            style : TextStyle(
+              fontFamily: 'DMSans',
+              fontWeight: FontWeight.normal,
+            )),
       ),
       body: Center( // Wrap Column with Center widget
         child: Column(

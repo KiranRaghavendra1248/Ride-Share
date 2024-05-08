@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:rideshare/screens/select_mode_screen.dart';
 
 import '../ID/backend_identifier.dart';
 
@@ -227,8 +228,14 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Confirm Ride Details"),
-        backgroundColor: Colors.lightBlue[200],
+        title: Text(
+            "Confirm Ride Details",
+            style : TextStyle(
+              fontFamily: 'DMSans',
+              fontWeight: FontWeight.normal,
+            )
+        ),
+        backgroundColor: Colors.deepPurple[50],
       ),
       body: Stack(
         children: [
@@ -350,6 +357,7 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
                           int userID = BackendIdentifier.userId;
                           String route = "api/v1/users/$userID/submitrides";
                           Map<String, dynamic> requestBody = {
+                            'RideID': '12345',
                             'Date': widget.date,
                             'start_latitude': widget.sourceLatLng.latitude.toString(),
                             'destination_latitude': widget.destinationLatLng.latitude.toString(),
@@ -360,8 +368,91 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
                             'polyline': _encodePolyline(_polylines.first.points),
                             'userID': userID.toString()
                           };
-                          var response = await makePostRequest(base_url, route, requestBody);
-                          print(response);
+                          var url = Uri.parse('$base_url/$route');
+                          print("Making HTTP request to $url"); // Check the complete URL.
+
+                          try {
+                            var response = await http.post(
+                                url,
+                                body: json.encode(requestBody),
+                                headers: {"Content-Type": "application/json"}
+                            );
+                            print("Response status: ${response.statusCode}"); // Check response status.
+
+                            if (response.statusCode == 200) {
+                              var responseData = json.decode(response.body);
+                              var rideId = responseData['RideID'];  // Extracting RideID from the response.
+                              print("Ride ID: $rideId"); // Print the RideID to ensure it's extracted correctly.
+
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Dialog(
+                                    child: SingleChildScrollView(
+                                      child: Container(
+                                        height: 225, // Set a fixed height for the dialog box
+                                        padding: EdgeInsets.all(16),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "Confirmation",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontFamily: 'DMSans',
+                                                fontWeight: FontWeight.normal,
+                                              ),
+                                            ),
+                                            SizedBox(height: 10),
+                                            Align(
+                                              alignment: Alignment.center,  // Align left
+                                              child: Text(
+                                                "Your ride is submitted successfully!!",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontFamily: 'DMSans',
+                                                  fontWeight: FontWeight.normal,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(height: 5),
+                                            Align(
+                                              alignment: Alignment.center,  // Align left
+                                              child: Text(
+                                                "You will be notified once passengers are added",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontFamily: 'DMSans',
+                                                  fontWeight: FontWeight.normal,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(height: 5),
+                                            Align(
+                                              alignment: Alignment.centerRight,
+                                              child: TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop(); // Close the dialog
+                                                  Navigator.of(context).pushReplacement(
+                                                    MaterialPageRoute(builder: (context) => SelectMode()),
+                                                  );
+                                                },
+                                                child: Text("OK"),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            } else {
+                              print("Failed to submit ride with status code ${response.statusCode}: ${response.body}");
+                            }
+                          } catch (e) {
+                            print("Failed to submit ride due to an exception: $e");
+                          }
                         },
                         child: Text("Confirm", style: TextStyle(
                           fontSize: 17,
@@ -374,7 +465,8 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
                               borderRadius: BorderRadius.circular(6), // Adjust the border radius here
                             ),
                             foregroundColor: Colors.white, // Change the background color here
-                            backgroundColor: Colors.black38, // Change the text color here
+                            backgroundColor
+                                :Colors.black38, // Change the text color here
                             padding: EdgeInsets.fromLTRB(0, 15, 0, 15)
                         ),
                       ),
