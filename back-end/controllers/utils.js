@@ -20,13 +20,13 @@ const buildQueryRetrieveConfirmedRide = (rideID) => {
                     WHERE RideID = ${rideID};`
   return query;
 }
-const buildQueryForSubmitRide = (DriverID, StartAddress, DestinationAddress, SeatsAvailable, TimeOfJourneyStart, Polyline) => {
-  const query = `INSERT INTO RIDE_SHARE.Offered_Rides
-                 (DriverID, StartAddress, DestinationAddress, SeatsAvailable, TimeOfJourneyStart, Polyline)
-                 VALUES (?, ST_GeomFromText(?), ST_GeomFromText(?), ?, ?, ?);`;
-  return query;
-}
 
+const buildQueryForSubmitRide = (DriverID, StartAddress, DestinationAddress, SeatsAvailable, TimeOfJourneyStart, Polyline) => {
+    const query = `INSERT INTO RIDE_SHARE.Offered_Rides
+                   (DriverID, StartAddress, DestinationAddress, SeatsAvailable, TimeOfJourneyStart, Polyline)
+                   VALUES (?, ST_GeomFromText(?), ST_GeomFromText(?), ?, ?, ?);`;
+    return query;
+  }
 
 const buildQueryRetrieveOfferedRide = (rideID) => {
   const query = `SELECT *
@@ -73,6 +73,18 @@ const updateLastUserID = (newUserID) => {
   }
 }
 
+const updateLastRideID = (newDriverRideID) => {
+    try {
+      const userData = require(__dirname + '/id-tracker.json');
+      userData['lastDriverRideID'] = newDriverRideID;
+      fs.writeFileSync(__dirname + '/id-tracker.json', JSON.stringify(userData));
+      return true;
+    } catch (error) {
+      console.error('Error updating user IDs file:', error);
+      return false;
+    }
+  }
+
 const convertTimeToDateTime = (timeString) => {
   // Get today's date
   const today = new Date();
@@ -117,8 +129,8 @@ const createBackendFiles = () => {
   const filepath = __dirname + '/id-tracker.json';
   const defaultValue = {
     lastUserID: 0,
-    lastDriverID: 0,
-    lastPassengerID: 0
+    lastDriverRideID: 0,
+    lastPassengerRideID: 0
   };
 
   // Check if the file exists
@@ -157,4 +169,4 @@ const createBackendFiles = () => {
 
 
 
-module.exports = { buildQueryForFindRide, convertTimeToDateTime, convertCoordinates, validatePassword, getLastUserID, updateLastUserID, createBackendFiles, buildQueryRetrieveConfirmedRide, buildQueryRetrieveOfferedRide, buildQueryDeleteConfirmedRide, buildQueryForSubmitRide }
+module.exports = { buildQueryForFindRide, convertTimeToDateTime, convertCoordinates, validatePassword, getLastUserID, updateLastUserID, createBackendFiles, buildQueryRetrieveConfirmedRide, buildQueryRetrieveOfferedRide, buildQueryDeleteConfirmedRide, buildQueryForSubmitRide, updateLastRideID }

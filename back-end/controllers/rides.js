@@ -172,7 +172,16 @@ const submitRide = async (req, res) => {
           dateTime,
           polyline
       ]);
-      res.status(200).json({ message: "Ride submitted successfully", data: results });
+      const maxIdQuery = "SELECT MAX(RideID) AS MaxRideID FROM RIDE_SHARE.Offered_Rides";
+      const [result] = await execute(maxIdQuery); 
+      console.log(result)
+
+      const maxRideID = result['MaxRideID'];
+      console.log("Most Recently Inserted RideID:", maxRideID);
+
+      updateLastRideID(maxRideID);
+
+      res.status(200).json({ message: "Ride submitted successfully", RideID: maxRideID });
   } catch (error) {
       console.error('Failed to submit ride:', error);
       res.status(500).json({ error: 'Database operation failed', details: error });
