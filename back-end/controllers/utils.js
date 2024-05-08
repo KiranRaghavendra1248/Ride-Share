@@ -73,7 +73,7 @@ const updateLastUserID = (newUserID) => {
   }
 }
 
-const updateLastRideID = (newDriverRideID) => {
+const updateLastDriverRideID = (newDriverRideID) => {
     try {
       const userData = require(__dirname + '/id-tracker.json');
       userData['lastDriverRideID'] = newDriverRideID;
@@ -169,4 +169,4 @@ const createBackendFiles = () => {
 
 
 
-module.exports = { buildQueryForFindRide, convertTimeToDateTime, convertCoordinates, validatePassword, getLastUserID, updateLastUserID, createBackendFiles, buildQueryRetrieveConfirmedRide, buildQueryRetrieveOfferedRide, buildQueryDeleteConfirmedRide, buildQueryForSubmitRide, updateLastRideID }
+module.exports = { buildQueryForFindRide, convertTimeToDateTime, convertCoordinates, validatePassword, getLastUserID, updateLastUserID, createBackendFiles, buildQueryRetrieveConfirmedRide, buildQueryRetrieveOfferedRide, buildQueryDeleteConfirmedRide, buildQueryForSubmitRide, updateLastDriverRideID }

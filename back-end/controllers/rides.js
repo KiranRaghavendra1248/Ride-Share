@@ -7,6 +7,7 @@ const {
   validatePassword,
   getLastUserID,
   updateLastUserID,
+  updateLastDriverRideID,
   createBackendFiles
 } = require("./utils");
 
@@ -17,6 +18,7 @@ const fs = require('fs');
 
 const signUpUser = async (req, res) => {
   // Get parameters from request body
+  console.log("Recieved API request for Sign up");
   var name = req.body.name;
   var email = req.body.email;
   var phone = req.body.phone;
@@ -71,6 +73,7 @@ const signUpUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
+  console.log("Recieved API request for Login");
   var email = req.body.email;
   var password = req.body.password;
 
@@ -109,6 +112,7 @@ const loginUser = async (req, res) => {
 };
 
 const getUserDetails = async (req, res) => {
+  console.log("Recieved API request for Get User Details");
   const userId = req.body.userId; // Assuming the userId is passed in the request body
 
   // Check if userId is provided
@@ -145,24 +149,23 @@ const getUserDetails = async (req, res) => {
 };
 
 const modifyUserDetails = async (req, res) => {
+  console.log("Recieved API request for Modify User Details");
 
 };
 
 
 const submitRide = async (req, res) => {
+  console.log("Recieved API request for Submit Ride");
   const { RideID, Date, start_latitude, start_longitude, destination_latitude, destination_longitude, startTime, numSeats, polyline, userID } = req.body;
   const DriverID = userID; // Use userID as DriverID
-  console.log("Request Body:", req.body);
 
   const dateTime = convertTimeToDateTime(startTime, Date);
 
   // Correctly construct the POINT from parameters and ensure the order is (longitude, latitude)
   const startCoords = `POINT(${start_longitude} ${start_latitude})`;
   const destCoords = `POINT(${destination_longitude} ${destination_latitude})`;
-  console.log(startCoords)
 
   const query = buildQueryForSubmitRide(DriverID, startCoords, destCoords, numSeats, dateTime, polyline);
-
   try {
       const results = await execute(query, [
           DriverID,
@@ -174,12 +177,10 @@ const submitRide = async (req, res) => {
       ]);
       const maxIdQuery = "SELECT MAX(RideID) AS MaxRideID FROM RIDE_SHARE.Offered_Rides";
       const [result] = await execute(maxIdQuery); 
-      console.log(result)
 
       const maxRideID = result['MaxRideID'];
-      console.log("Most Recently Inserted RideID:", maxRideID);
 
-      updateLastRideID(maxRideID);
+      updateLastDriverRideID(maxRideID);
 
       res.status(200).json({ message: "Ride submitted successfully", RideID: maxRideID });
   } catch (error) {
@@ -190,6 +191,7 @@ const submitRide = async (req, res) => {
 
 
 const findRides = async (req, res) => {
+  console.log("Recieved API request for Find Rides");
   const startTime = convertTimeToDateTime(req.body.startTime);
   const endTime = convertTimeToDateTime(req.body.endTime);
   const startLocation = convertCoordinates(req.body.start);
@@ -219,6 +221,7 @@ const confirmRide = async (req, res) => {
 };
 
 const riderCancelled = async (req, res) => {
+  console.log("Recieved API request for Passenger Side Ride Cancellation");
   const passengerID = parseInt(req.body.passengerID, 10);
   const passengerrideID = parseInt(req.body.rideID, 10);
   retrievePassengerRideQuery = buildQueryRetrieveConfirmedRide(passengerrideID);
@@ -258,6 +261,7 @@ const riderCancelled = async (req, res) => {
 };
 
 const driverCancelled = async (req, res) => {
+  console.log("Recieved API request for Driver Side Ride Cancellation");
 
 };
 
