@@ -33,8 +33,14 @@ class _FindRideFirstScreenState extends State<AddRideFirstScreen> {
     return Scaffold(
       resizeToAvoidBottomInset : false,
       appBar: AppBar(
-          title: const Text("Ride Share"),
-          backgroundColor: Colors.lightBlue[200],
+          title: const Text(
+              "Ride Share",
+              style : TextStyle(
+                fontFamily: 'DMSans',
+                fontWeight: FontWeight.normal,
+              )
+          ),
+          backgroundColor: Colors.deepPurple[50],
           elevation: 6,
           shadowColor: Colors.transparent
       ),

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'add_ride_first_screen.dart';
 import 'find_ride_first_screen.dart';
-import '../theme/theme.dart';
-import 'package:rideshare/ID/backend_identifier.dart';
+
 
 class SelectMode extends StatelessWidget {
   const SelectMode({Key? key}) : super(key: key);
@@ -11,7 +10,12 @@ class SelectMode extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Select Mode"),
+        title: const Text(
+            "Select Mode",
+            style : TextStyle(
+              fontFamily: 'DMSans',
+              fontWeight: FontWeight.normal,
+            )),
       ),
       body: Center( // Wrap Column with Center widget
         child: Column(

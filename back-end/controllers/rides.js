@@ -1,11 +1,13 @@
-const { retrieveData, connection } = require("../db/connection");
+const { retrieveData, connection, execute } = require("../db/connection");
 const {
   buildQueryForFindRide,
+  buildQueryForSubmitRide,
   convertTimeToDateTime,
   convertCoordinates,
   validatePassword,
   getLastUserID,
   updateLastUserID,
+  updateLastDriverRideID,
   createBackendFiles
 } = require("./utils");
 
@@ -16,6 +18,7 @@ const fs = require('fs');
 
 const signUpUser = async (req, res) => {
   // Get parameters from request body
+  console.log("Recieved API request for Sign up");
   var name = req.body.name;
   var email = req.body.email;
   var phone = req.body.phone;
@@ -70,6 +73,7 @@ const signUpUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
+  console.log("Recieved API request for Login");
   var email = req.body.email;
   var password = req.body.password;
 
@@ -108,6 +112,7 @@ const loginUser = async (req, res) => {
 };
 
 const getUserDetails = async (req, res) => {
+  console.log("Recieved API request for Get User Details");
   const userId = req.body.userId; // Assuming the userId is passed in the request body
 
   // Check if userId is provided
@@ -144,27 +149,58 @@ const getUserDetails = async (req, res) => {
 };
 
 const modifyUserDetails = async (req, res) => {
+  console.log("Recieved API request for Modify User Details");
 
 };
+
 
 const submitRide = async (req, res) => {
-  // Suraj, the rides alli the location needs to be submitted in POINT(LNG, LAT) - it needs swapping basically
-  // Use the convertCoordinates function in utils
+  console.log("Recieved API request for Submit Ride");
+  const { Date, start_latitude, start_longitude, destination_latitude, destination_longitude, startTime, numSeats, polyline, userID } = req.body;
+  const DriverID = userID; // Use userID as DriverID
 
-  // Sample query
-  // INSERT INTO RIDE_SHARE.Offered_Rides (RideID, DriverID, StartAddress, DestinationAddress, SeatsAvailable, TimeOfJourneyStart, Polyline) VALUES (123, 456, POINT(-116.3130661, 33.684566), POINT(-117.819771,33.742069), 3, '2024-04-25 08:00:00', 'encoded_polyline_string_here');
+  const dateTime = convertTimeToDateTime(startTime, Date);
 
+  // Correctly construct the POINT from parameters and ensure the order is (longitude, latitude)
+  const startCoords = `POINT(${start_longitude} ${start_latitude})`;
+  const destCoords = `POINT(${destination_longitude} ${destination_latitude})`;
+
+  const query = buildQueryForSubmitRide(DriverID, startCoords, destCoords, numSeats, dateTime, polyline);
+  try {
+      const results = await execute(query, [
+          DriverID,
+          startCoords, 
+          destCoords, 
+          numSeats,
+          dateTime,
+          polyline
+      ]);
+      const maxIdQuery = "SELECT MAX(RideID) AS MaxRideID FROM RIDE_SHARE.Offered_Rides";
+      const [result] = await execute(maxIdQuery); 
+
+      const maxRideID = result['MaxRideID'];
+
+      updateLastDriverRideID(maxRideID);
+
+      res.status(200).json({ message: "Ride submitted successfully", RideID: maxRideID });
+  } catch (error) {
+      console.error('Failed to submit ride:', error);
+      res.status(500).json({ error: 'Database operation failed', details: error });
+  }
 };
 
+
 const findRides = async (req, res) => {
+  console.log("Recieved API request for Find Rides");
+  const passengerID = req.body.userID;
   const startTime = convertTimeToDateTime(req.body.startTime);
   const endTime = convertTimeToDateTime(req.body.endTime);
   const startLocation = convertCoordinates(req.body.start);
   const endLocation = convertCoordinates(req.body.destination);
   const numSeats = req.body.numSeats;
-  const Polyline = req.body.polyline;
+  const threshold = 4800; // roughly 3 miles
 
-  query = buildQueryForFindRide(startTime, endTime, startLocation, endLocation, numSeats);
+  query = buildQueryForFindRide(startTime, endTime, startLocation, endLocation, numSeats, threshold, passengerID);
   retrieveData(query, (err, results) => {
     if (err) {
       // Handle error
@@ -173,6 +209,7 @@ const findRides = async (req, res) => {
       return;
     }
     // Send the results back to the client
+    console.log(results);
     res.status(200).json(results);
   });
 };
@@ -186,6 +223,7 @@ const confirmRide = async (req, res) => {
 };
 
 const riderCancelled = async (req, res) => {
+  console.log("Recieved API request for Passenger Side Ride Cancellation");
   const passengerID = parseInt(req.body.passengerID, 10);
   const passengerrideID = parseInt(req.body.rideID, 10);
   retrievePassengerRideQuery = buildQueryRetrieveConfirmedRide(passengerrideID);
@@ -225,6 +263,7 @@ const riderCancelled = async (req, res) => {
 };
 
 const driverCancelled = async (req, res) => {
+  console.log("Recieved API request for Driver Side Ride Cancellation");
 
 };
 

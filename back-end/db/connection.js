@@ -7,6 +7,8 @@ const connection = mysql.createConnection({
   password: process.env.MYSQL_PASSWORD,
 });
 
+
+
 const connectDB = () => {
   return connection.connect((err) => {
     if (err) {
@@ -21,7 +23,19 @@ const runQuery = (query) => {
   connection.query(query);
 }
 
-const retrieveData = (query, callback) => {
+async function execute(query, params) {
+  return new Promise((resolve, reject) => {
+      connection.execute(query, params, (error, results) => {
+          if (error) {
+              reject(error);
+          } else {
+              resolve(results);
+          }
+      });
+  });
+}
+
+const retrieveData = (query, callback) =>{
   connection.query(query, (err, results) => {
     if (err) {
       console.error('Error executing query:', err);
@@ -51,7 +65,7 @@ const setupDB = () => {
   // Create Offered Rides table
   const createOfferedRidesTableQuery = `CREATE TABLE IF NOT EXISTS 
                                         RIDE_SHARE.Offered_Rides (
-                                            RideID INT PRIMARY KEY,
+                                            RideID INT AUTO_INCREMENT PRIMARY KEY,
                                             DriverID INT,
                                             StartAddress POINT,
                                             DestinationAddress POINT,
@@ -77,4 +91,4 @@ const setupDB = () => {
   runQuery(createConfirmedRidesTableQuery);
 };
 
-module.exports = { connectDB, setupDB, runQuery, retrieveData, connection };
+module.exports = { connectDB, setupDB, runQuery, retrieveData, connection, execute};

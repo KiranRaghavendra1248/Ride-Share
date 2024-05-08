@@ -1,14 +1,19 @@
 const fs = require('fs');
 
-const buildQueryForFindRide = (startTime, endTime, startLocation, endLocation, numSeats) => {
-
-  const query = `SELECT *,
-                        ST_Distance_Sphere(StartAddress, ST_GeomFromText('POINT(${startLocation})')) +
-                        ST_Distance_Sphere(DestinationAddress, ST_GeomFromText('POINT(${endLocation})')) AS total_distance
-                    FROM RIDE_SHARE.Offered_Rides
-                    WHERE TimeOfJourneyStart BETWEEN '${startTime}' AND '${endTime}'
-                        AND CAST('${numSeats}' AS UNSIGNED) <= SeatsAvailable
-                    ORDER BY total_distance ASC
+const buildQueryForFindRide = (startTime, endTime, startLocation, endLocation, numSeats, threshold, passengerID) => {
+  // AND DriverID != ${passengerID} add this in line 14 when deploying
+  const query = `SELECT *
+                    FROM (
+                        SELECT RideID, DriverID, StartAddress, DestinationAddress, SeatsAvailable, 
+                                DATE_FORMAT(TimeOfJourneyStart, '%Y-%m-%d %H:%i:%s') AS JourneyStart,
+                                ST_Distance_Sphere(StartAddress, ST_GeomFromText('POINT(${startLocation})')) +
+                                ST_Distance_Sphere(DestinationAddress, ST_GeomFromText('POINT(${endLocation})')) AS distance_in_meters
+                        FROM RIDE_SHARE.Offered_Rides
+                        WHERE TimeOfJourneyStart BETWEEN '${startTime}' AND '${endTime}'
+                            AND CAST('${numSeats}' AS UNSIGNED) <= SeatsAvailable
+                    ) AS subquery
+                    WHERE distance_in_meters < ${threshold}
+                    ORDER BY distance_in_meters ASC
                     LIMIT 5;`;
 
   return query;
@@ -20,6 +25,13 @@ const buildQueryRetrieveConfirmedRide = (rideID) => {
                     WHERE RideID = ${rideID};`
   return query;
 }
+
+const buildQueryForSubmitRide = (DriverID, StartAddress, DestinationAddress, SeatsAvailable, TimeOfJourneyStart, Polyline) => {
+    const query = `INSERT INTO RIDE_SHARE.Offered_Rides
+                   (DriverID, StartAddress, DestinationAddress, SeatsAvailable, TimeOfJourneyStart, Polyline)
+                   VALUES (?, ST_GeomFromText(?), ST_GeomFromText(?), ?, ?, ?);`;
+    return query;
+  }
 
 const buildQueryRetrieveOfferedRide = (rideID) => {
   const query = `SELECT *
@@ -66,6 +78,18 @@ const updateLastUserID = (newUserID) => {
   }
 }
 
+const updateLastDriverRideID = (newDriverRideID) => {
+    try {
+      const userData = require(__dirname + '/id-tracker.json');
+      userData['lastDriverRideID'] = newDriverRideID;
+      fs.writeFileSync(__dirname + '/id-tracker.json', JSON.stringify(userData));
+      return true;
+    } catch (error) {
+      console.error('Error updating user IDs file:', error);
+      return false;
+    }
+  }
+
 const convertTimeToDateTime = (timeString) => {
   // Get today's date
   const today = new Date();
@@ -110,8 +134,8 @@ const createBackendFiles = () => {
   const filepath = __dirname + '/id-tracker.json';
   const defaultValue = {
     lastUserID: 0,
-    lastDriverID: 0,
-    lastPassengerID: 0
+    lastDriverRideID: 0,
+    lastPassengerRideID: 0
   };
 
   // Check if the file exists
@@ -150,4 +174,4 @@ const createBackendFiles = () => {
 
 
 
-module.exports = { buildQueryForFindRide, convertTimeToDateTime, convertCoordinates, validatePassword, getLastUserID, updateLastUserID, createBackendFiles, buildQueryRetrieveConfirmedRide, buildQueryRetrieveOfferedRide, buildQueryDeleteConfirmedRide }
+module.exports = { buildQueryForFindRide, convertTimeToDateTime, convertCoordinates, validatePassword, getLastUserID, updateLastUserID, createBackendFiles, buildQueryRetrieveConfirmedRide, buildQueryRetrieveOfferedRide, buildQueryDeleteConfirmedRide, buildQueryForSubmitRide, updateLastDriverRideID }
