@@ -156,7 +156,7 @@ const modifyUserDetails = async (req, res) => {
 
 const submitRide = async (req, res) => {
   console.log("Recieved API request for Submit Ride");
-  const { RideID, Date, start_latitude, start_longitude, destination_latitude, destination_longitude, startTime, numSeats, polyline, userID } = req.body;
+  const { Date, start_latitude, start_longitude, destination_latitude, destination_longitude, startTime, numSeats, polyline, userID } = req.body;
   const DriverID = userID; // Use userID as DriverID
 
   const dateTime = convertTimeToDateTime(startTime, Date);
@@ -192,14 +192,15 @@ const submitRide = async (req, res) => {
 
 const findRides = async (req, res) => {
   console.log("Recieved API request for Find Rides");
+  const passengerID = req.body.userID;
   const startTime = convertTimeToDateTime(req.body.startTime);
   const endTime = convertTimeToDateTime(req.body.endTime);
   const startLocation = convertCoordinates(req.body.start);
   const endLocation = convertCoordinates(req.body.destination);
   const numSeats = req.body.numSeats;
-  const Polyline = req.body.polyline;
+  const threshold = 4800; // roughly 3 miles
 
-  query = buildQueryForFindRide(startTime, endTime, startLocation, endLocation, numSeats);
+  query = buildQueryForFindRide(startTime, endTime, startLocation, endLocation, numSeats, threshold, passengerID);
   retrieveData(query, (err, results) => {
     if (err) {
       // Handle error
@@ -208,6 +209,7 @@ const findRides = async (req, res) => {
       return;
     }
     // Send the results back to the client
+    console.log(results);
     res.status(200).json(results);
   });
 };

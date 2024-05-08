@@ -1,14 +1,19 @@
 const fs = require('fs');
 
-const buildQueryForFindRide = (startTime, endTime, startLocation, endLocation, numSeats) => {
-
-  const query = `SELECT *,
-                        ST_Distance_Sphere(StartAddress, ST_GeomFromText('POINT(${startLocation})')) +
-                        ST_Distance_Sphere(DestinationAddress, ST_GeomFromText('POINT(${endLocation})')) AS total_distance
-                    FROM RIDE_SHARE.Offered_Rides
-                    WHERE TimeOfJourneyStart BETWEEN '${startTime}' AND '${endTime}'
-                        AND CAST('${numSeats}' AS UNSIGNED) <= SeatsAvailable
-                    ORDER BY total_distance ASC
+const buildQueryForFindRide = (startTime, endTime, startLocation, endLocation, numSeats, threshold, passengerID) => {
+  // AND DriverID != ${passengerID} add this in line 14 when deploying
+  const query = `SELECT *
+                    FROM (
+                        SELECT RideID, DriverID, StartAddress, DestinationAddress, SeatsAvailable, 
+                                DATE_FORMAT(TimeOfJourneyStart, '%Y-%m-%d %H:%i:%s') AS JourneyStart,
+                                ST_Distance_Sphere(StartAddress, ST_GeomFromText('POINT(${startLocation})')) +
+                                ST_Distance_Sphere(DestinationAddress, ST_GeomFromText('POINT(${endLocation})')) AS distance_in_meters
+                        FROM RIDE_SHARE.Offered_Rides
+                        WHERE TimeOfJourneyStart BETWEEN '${startTime}' AND '${endTime}'
+                            AND CAST('${numSeats}' AS UNSIGNED) <= SeatsAvailable
+                    ) AS subquery
+                    WHERE distance_in_meters < ${threshold}
+                    ORDER BY distance_in_meters ASC
                     LIMIT 5;`;
 
   return query;
