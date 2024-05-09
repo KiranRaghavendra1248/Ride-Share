@@ -8,8 +8,8 @@ const {
   getLastUserID,
   updateLastUserID,
   updateLastDriverRideID,
-  createBackendFiles
-  buildQueryRetrieveOfferedRide,
+  createBackendFiles,
+  buildQueryRetrieveOfferedRide
 } = require("./utils");
 
 const bcrypt = require('bcrypt');
@@ -75,7 +75,9 @@ const signUpUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   console.log("Recieved API request for Login");
-  var email = req.body.email;
+  console.log(req.body);
+
+  var email = req.body.email.toString();
   var password = req.body.password;
 
   // Validate email
@@ -111,6 +113,22 @@ const loginUser = async (req, res) => {
     }
   });
 };
+
+const updateFcmToken = async (req, res) => {
+    var userId = req.body.user;
+    var token = req.body.fcmToken;
+
+    console.log("Updating FCM Token for user ", userId);
+
+    var updateSql = `UPDATE RIDE_SHARE.Users SET FCMToken = ? WHERE UserID = ?`
+
+    connection.query(updateSql, [token, userId], (err, data) => {
+        if (err) {
+            console.log(err.message)
+            return res.status(500).send('Failed to update FCMToken');
+        }
+    });
+}
 
 const getUserDetails = async (req, res) => {
   console.log("Recieved API request for Get User Details");
@@ -377,6 +395,7 @@ const driverCancelled = async (req, res) => {
 module.exports = {
   signUpUser,
   loginUser,
+  updateFcmToken,
   getUserDetails,
   modifyUserDetails,
   submitRide,

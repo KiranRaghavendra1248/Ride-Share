@@ -7,6 +7,7 @@ import 'package:rideshare/components/network_utililty.dart';
 import 'package:rideshare/screens/select_mode_screen.dart';
 import 'package:rideshare/screens/signup_screen.dart';
 import 'package:rideshare/widgets/custom_scaffold.dart';
+import '../firebase_messaging/notification_handler.dart';
 import '../theme/theme.dart';
 import 'package:rideshare/ID/backend_identifier.dart';
 
@@ -37,6 +38,7 @@ class _SignInScreenState extends State<SignInScreen> {
     Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
       return const SelectMode();
     }));
+    updateFCMToken();
   }
 
   @override

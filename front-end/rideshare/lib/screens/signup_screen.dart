@@ -7,6 +7,8 @@ import 'package:rideshare/screens/signin_screen.dart';
 import 'package:rideshare/theme/theme.dart';
 import 'package:rideshare/ID/backend_identifier.dart';
 
+import '../firebase_messaging/notification_handler.dart';
+
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
 
@@ -57,10 +59,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
         return const SelectMode();
       }));
     } catch (error) {
-      setState(() {
-        errorMessage = 'Error registering user: $error';
-      });
+      //setState(() {
+        //errorMessage = 'Error registering user: $error';
+      //});
     }
+    updateFCMToken();
   }
 
   @override

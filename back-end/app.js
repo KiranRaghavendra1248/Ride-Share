@@ -39,15 +39,16 @@ const start = async () => {
         offeredRideId: "OfferedRide",
         requestedRideId: "RequestedRide"
     };
-    testToken = "eU3DkrMdTJOGYJLYWs5oes:APA91bE6qA2fDsCvXRSDtCuzM933w0Y4ZFzI_yV2UNhJSW1YkFEzbWxK6UFirly5JaptBliuUauOuEXOBS3O748h5aNLwk7CphGT1qEEf6zBLGjjK5EpfyhnL3dj_ZhJg3Mkk_2JfDAH"
 
-    sendRideRequestToDriver(testToken, testNotification)
+      /*
+    sendRideRequestToDriver(0, testNotification)
       .then((response) => {
         console.log("Success - ", response);
       })
       .catch((error) => {
         console.log("Failure - ", error);
       });
+      */
     
     app.listen(port, host, () => {
       console.log(`Listening on port http://${host}:${port}..`);

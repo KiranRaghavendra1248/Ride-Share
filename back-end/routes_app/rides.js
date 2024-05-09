@@ -4,6 +4,7 @@ const router = express.Router();
 const {
   signUpUser,
   loginUser,
+  updateFcmToken,
   getUserDetails,
   modifyUserDetails,
   submitRide,
@@ -17,6 +18,7 @@ const {
 
 router.route("/login").post(loginUser);
 router.route("/register").post(signUpUser);
+router.route("/updateFcmToken").post(updateFcmToken);
 router.route("/:userID").post(getUserDetails);
 router.route("/:userID").patch(modifyUserDetails);
 
