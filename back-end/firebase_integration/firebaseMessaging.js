@@ -11,50 +11,51 @@ const notifTypeRideReq = "RideRequest";
 const notifTypeRideConfirm = "RideConfirmation";
 const notifTypeRideReject = "RideRejection";
 
-function getToken(userID, callback) {
-    const query = 'SELECT FCMToken FROM RIDE_SHARE.Users WHERE UserID = ?';
-
+function getToken(userID) {
+  const query = 'SELECT FCMToken FROM RIDE_SHARE.Users WHERE UserID = ?';
+  return new Promise((resolve, reject) => {
     connection.query(query, [userID], (error, results) => {
-        if (error) {
-            return callback(error, null);
-        }
-        if (results.length > 0) {
-            return callback(null, results[0].FCMToken);
-        } else {
-            return callback(new Error('No user found with the provided UserID'), null);
-        }
+      if (error) {
+        return reject(error);
+      }
+      if (results.length > 0) {
+        return resolve(results[0].FCMToken);
+      } else {
+        return reject(new Error('No user found with the provided UserID'));
+      }
     });
+  });
 }
 
-function sendRideRequestToDriver(userID, data) {
-  getToken(userID, (error, token) => {
-    if (error) {
-      console.log("Error while trying to fetch FCM token for user: ", userID);
-      throw new Error(error.message);
-    }
+async function sendRideRequestToDriver(userID, data) {
+  try {
+    const token = await getToken(userID);
     const message = {
       token: token,
       notification: {
         title: 'Please confirm ride request',
         body: 'A user has requested to hop on your ride, please confirm!!'
       },
-      data: {
-        type: notifTypeRideReq,
-        offeredRideId: data.offeredRideId,
-        requestedPassengerId: data.requestePassengerId,
+      android: {
+        priority: 'high'
       }
+      // data: {
+        // type: data.notifTypeRideReq, // Correct this if needed
+        // offeredRideId: data.offeredRideId.toString(),
+        // requestedPassengerId: data.requestedPassengerId.toString(),
+      // }
     };
 
-    return firebase.messaging().send(message)
-  });
+    const response = await firebase.messaging().send(message);
+    console.log('Notification sent:', response);
+  } catch (error) {
+    console.error("Error while trying to fetch FCM token for user: ", userID, error);
+  }
 }
 
-function sendRideConfirmationToRider(userID, data) {
-  getToken(userID, (error, token) => {
-    if (error) {
-      console.log("Error while trying to fetch FCM token for user: ", userID);
-      throw new Error(error.message);
-    }
+async function sendRideConfirmationToRider(userID, data) {
+  try {
+    const token = await getToken(userID);
     const message = {
       token: token,
       notification: {
@@ -62,36 +63,41 @@ function sendRideConfirmationToRider(userID, data) {
         body: 'The driver has confirmed your ride!!'
       },
       data: {
-        type: notifTypeRideConfirm,
-        offeredRideId: data.offeredRideId,
-        confirmedRideId: data.confirmedRideId,
+        type: data.notifTypeRideConfirm, // Ensure this is correctly defined or passed
+        offeredRideId: data.offeredRideId.toString(),
+        confirmedRideId: data.confirmedRideId.toString(),
       }
     };
 
-    return firebase.messaging().send(message)
-  });
+    const response = await firebase.messaging().send(message);
+    console.log('Confirmation notification sent:', response);
+    return response; // Optionally return the response if needed elsewhere
+  } catch (error) {
+    console.error("Error while trying to fetch FCM token for user: ", userID, error);
+  }
 }
 
-function sendRideRejectionToRider(userID, data) {
-  getToken(userID, (error, token) => {
-    if (error) {
-      console.log("Error while trying to fetch FCM token for user: ", userID);
-      throw new Error(error.message);
-    }
-      const message = {
-        token: token,
-        notification: {
-          title: 'Coudn\'t confirm ride',
-          body: 'The driver denied your ride request :('
-        },
-        data: {
-          type: notifTypeRideReject,
-          offeredRideId: data.offeredRideId,
-        }
-      };
+async function sendRideRejectionToRider(userID, data) {
+  try {
+    const token = await getToken(userID);
+    const message = {
+      token: token,
+      notification: {
+        title: 'Couldn\'t confirm ride',
+        body: 'The driver denied your ride request :('
+      },
+      data: {
+        type: data.notifTypeRideReject, // Ensure this is correctly defined or passed
+        offeredRideId: data.offeredRideId.toString(),
+      }
+    };
 
-      return firebase.messaging().send(message)
-  });
+    const response = await firebase.messaging().send(message);
+    console.log('Rejection notification sent:', response);
+  } catch (error) {
+    console.error("Error while trying to fetch FCM token for user: ", userID, error);
+  }
 }
+
 
 module.exports = {sendRideRequestToDriver, sendRideConfirmationToRider, sendRideRejectionToRider};

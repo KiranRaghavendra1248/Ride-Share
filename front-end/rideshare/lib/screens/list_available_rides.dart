@@ -19,16 +19,16 @@ class RideWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(ride.name, style: Theme.of(context).textTheme.headline6),
+              Text(ride.driverId.toString(), style: Theme.of(context).textTheme.headline6),
               SizedBox(height: 8),
-              Text('Route Match: ${ride.matchPercentage}%',
+              Text('Distance to cover: ${ride.distanceInMts}%',
                   style: Theme.of(context).textTheme.subtitle1),
               SizedBox(height: 8),
               Row(
                 children: [
                   Icon(Icons.directions_car, color: Colors.blue), // Car icon
                   SizedBox(width: 10), // Space between the icon and the text
-                  Text(ride.carName, style: Theme.of(context).textTheme.bodyText1), // Car name next to the icon
+                  Text(ride.rideId.toString(), style: Theme.of(context).textTheme.bodyText1), // Car name next to the icon
                 ],
               ),
               SizedBox(height: 8),
@@ -44,17 +44,14 @@ class RideWidget extends StatelessWidget {
 
 class RideListWidget extends StatelessWidget {
   final List<Ride> rides;
-  final String curRideStartCoOrds;
-  final String curRideEndCoOrds;
-  final String curRideStartLoc;
-  final String curRideEndLoc;
+  final RequestedRide requestedRide;
 
-  const RideListWidget({Key? key, required this.rides, required this.curRideStartCoOrds, required this.curRideEndCoOrds, required this.curRideStartLoc, required this.curRideEndLoc}) : super(key: key);
+  const RideListWidget({Key? key, required this.rides, required this.requestedRide}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     List<Ride> sortedRides =
-    List.from(rides)..sort((a, b) => b.matchPercentage.compareTo(a.matchPercentage));
+    List.from(rides)..sort((a, b) => a.distanceInMts.compareTo(b.distanceInMts));
 
     return Scaffold(
       appBar: AppBar(
@@ -65,7 +62,7 @@ class RideListWidget extends StatelessWidget {
         itemBuilder: (context, index) {
           return RideWidget(
             ride: sortedRides[index],
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RideDetailPage(ride: sortedRides[index], curRideStartCoOrds: curRideStartCoOrds, curRideEndCoOrds: curRideEndCoOrds, curRideStartLoc: curRideStartLoc, curRideEndLoc: curRideEndLoc))),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RideDetailPage(ride: sortedRides[index], requestedRide: requestedRide))),
           );
         },
       ),

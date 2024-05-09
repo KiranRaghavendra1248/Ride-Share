@@ -8,31 +8,47 @@ import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../components/flutter_polyline_points.dart';
+import '../components/network_utililty.dart';
 import '../components/src/PointLatLng.dart';
 import '../components/src/utils/polyline_result.dart';
 import '../components/src/utils/request_enums.dart';
 import '../model/polyline_response.dart';
 
 class Ride {
-  final String name;
-  final double matchPercentage;
-  final String carName;
+  final int driverId;
+  final int rideId;
+  final double distanceInMts;
   final String startTime;
+  final String startAddress;
+  final String destinationAddress;
 
-  Ride({
-    required this.name,
-    required this.matchPercentage,
-    required this.carName,
-    required this.startTime,
-  });
+  Ride(this.driverId, this.rideId, this.distanceInMts, this.startTime, this.startAddress, this.destinationAddress);
+
+  factory Ride.fromJson(Map<String, dynamic> json) {
+    return Ride(
+      json['DriverID'] as int,
+      json['RideID'] as int,
+      json['distance_in_meters'].toDouble(),
+      json['JourneyStart'] as String,
+      "${json['StartAddress']['x']}, ${json['StartAddress']['y']}",
+      "${json['DestinationAddress']['x']}, ${json['DestinationAddress']['y']}",
+    );
+  }
+}
+
+class RequestedRide {
+  final int userID;
+  final int numSeatsReq;
+  final String startAddress;
+  final String destinationAddress;
+  final String polyline;
+
+  RequestedRide(this.userID, this.numSeatsReq, this.startAddress, this.destinationAddress, this.polyline);
 }
 
 class RideDetailPage extends StatelessWidget {
   final Ride ride;
-  final String curRideStartCoOrds;
-  final String curRideEndCoOrds;
-  final String curRideStartLoc;
-  final String curRideEndLoc;
+  final RequestedRide requestedRide;
 
   final gmaps_api_key = dotenv.env["GOOGLE_MAPS_API_KEY"] ?? "";
   final base_url = dotenv.env["BASE_URL"] ?? "";
@@ -47,7 +63,7 @@ class RideDetailPage extends StatelessWidget {
 
   static const CameraPosition initialPosition = CameraPosition(target: LatLng(33.684566, -117.826508), zoom: 14.0);
 
-  RideDetailPage({Key? key, required this.ride, required this.curRideStartCoOrds, required this.curRideEndCoOrds, required this.curRideStartLoc, required this.curRideEndLoc}) : super(key: key);
+  RideDetailPage({Key? key, required this.ride, required this.requestedRide}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -101,15 +117,15 @@ class RideDetailPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Text('${ride.name}', style: Theme.of(context).textTheme.headline6),
-                          Text('${ride.carName}', style: Theme.of(context).textTheme.bodyText1),
+                          Text('${ride.driverId}', style: Theme.of(context).textTheme.headline6),
+                          Text('${ride.rideId}', style: Theme.of(context).textTheme.bodyText1),
                           Text('Starts at: ${ride.startTime}', style: Theme.of(context).textTheme.bodyText1),
                         ],
                       ),
                       CircleAvatar(
                         radius: 36,
-                        backgroundColor: getColor(ride.matchPercentage),
-                        child: Text('${ride.matchPercentage.toInt()}%'),
+                        backgroundColor: getColor(ride.distanceInMts),
+                        child: Text('${ride.distanceInMts.toInt()}%'),
                       ),
                     ],
                   ),
@@ -117,8 +133,21 @@ class RideDetailPage extends StatelessWidget {
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.8,  // 80% of screen width
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Implement submission logic here
+                      onPressed: () async {
+                        String route = "api/v1/users/${requestedRide.userID}/requestRide";
+                        Map<String, dynamic> requestBody = {
+                          'userID': requestedRide.userID,
+                          'rideID': ride.rideId,
+                          'start': requestedRide.startAddress,
+                          'destination': requestedRide.destinationAddress,
+                          'polyline': requestedRide.polyline,
+                          'numSeats': requestedRide.numSeatsReq
+                        };
+
+                        var response = await makePostRequest(base_url, route, requestBody);
+
+                        print("Response from server upon requesting the ride ${response}");
+
                         showConfirmationDialog(context);
                       },
                       child: Text('Submit Request'),
@@ -144,25 +173,19 @@ class RideDetailPage extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text('Please wait while the driver confirms your ride request.'),
+              Text("You'll be notified when the driver accepts the ride request"),
               SizedBox(height: 20),
               CircularProgressIndicator(),
             ],
           ),
           actions: <Widget>[
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.of(dialogContext).pop();  // Dismiss the dialog
-              },
-            ),
             ElevatedButton(
               child: Text('Return to Home Page'),
               onPressed: () {
                 // Here we pop the dialog first
                 Navigator.of(context).pop();
                 // And then navigate to the home page
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).popUntil(ModalRoute.withName('/selectMode'));
               },
             ),
           ],
@@ -266,8 +289,8 @@ class RideDetailPage extends StatelessWidget {
   }
 
   void drawPolyline(Position position) async{
-    LatLng start = parseLatLngFromString(curRideStartCoOrds);
-    LatLng destination = parseLatLngFromString(curRideEndCoOrds);
+    LatLng start = parseLatLngFromString(requestedRide.startAddress);
+    LatLng destination = parseLatLngFromString(requestedRide.destinationAddress);
     LatLng midPoint = calculateMidpoint(start, destination);
 
     _controller.animateCamera(
@@ -292,8 +315,8 @@ class RideDetailPage extends StatelessWidget {
     var response = await http.post(Uri.parse(
         "https://maps.googleapis.com/maps/api/directions/json?key="+gmaps_api_key+
             "&units=metric"+
-            "&origin="+curRideStartLoc+
-            "&destination="+curRideEndLoc+
+            "&origin="+requestedRide.startAddress+
+            "&destination="+requestedRide.destinationAddress+
             "&mode=driving"
     ));
 

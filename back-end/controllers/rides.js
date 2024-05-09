@@ -1,4 +1,5 @@
 const { retrieveData, connection, execute } = require("../db/connection");
+const { sendRideRequestToDriver, sendRideConfirmationToRider, sendRideRejectionToRider } = require("../firebase_integration/firebaseMessaging");
 const {
   buildQueryForFindRide,
   buildQueryForSubmitRide,
@@ -234,6 +235,8 @@ const findRides = async (req, res) => {
 };
 
 const requestRide = async (req, res) => {
+  console.log(req.body);
+
   const riderId = req.body.userID;
   const selectedRideId = req.body.rideID;
   const startLocation = convertCoordinates(req.body.start);
@@ -241,8 +244,10 @@ const requestRide = async (req, res) => {
   const polyLine = req.body.polyLine;
   const numSeats = req.body.numSeats;
 
+  console.log(riderId, selectedRideId, numSeats);
+
   // verify if the selectedRideId is valid
-  retrieveDriverRideQuery = buildQueryRetrieveOfferedRide(driverRideID);
+  retrieveDriverRideQuery = buildQueryRetrieveOfferedRide(selectedRideId);
   retrieveData(retrieveDriverRideQuery, (err, driverRide) => {
     if (err) {
       // Handle error
@@ -250,12 +255,15 @@ const requestRide = async (req, res) => {
       res.status(500).json({ error: 'Error retrieving data' });
       return;
     } else {
+      const start = `POINT(${startLocation})`;
+      const end = `POINT(${endLocation})`;
+
       const insertSqlStmt = `INSERT INTO
                                 RIDE_SHARE.RequestedRides
                                 (PassengerID, RideID, StartAddress, DestinationAddress, Polyline, SeatsRequested)
-                                VALUES (?, ?, POINT(?), POINT(?), ?, ?)`;
+                                VALUES (?, ?, ST_GeomFromText(?), ST_GeomFromText(?), ?, ?)`;
 
-      const values = [riderId, selectedRideId, startLocation, endLocation, polyLine, numSeats]
+      const values = [riderId, selectedRideId, start, end, polyLine, numSeats]
 
       connection.query(insertSqlStmt, values, (err, results) => {
         if (err) {
@@ -265,20 +273,16 @@ const requestRide = async (req, res) => {
       });
 
       // send the notification to the driver
-      const driverID = driverRide[0].UserID;
+      console.log(driverRide);
+      const driverID = driverRide[0].DriverID;
 
       const notifData = {
           offeredRideId: selectedRideId,
           requestedPassengerId: riderId
       };
 
-      sendRideRequestToDriver(driverID, notifData)
-      .then((response) => {
-        console.log("Successfully send ride request from rider to driver: ", riderId, selectedRideId);
-      })
-      .catch((error) => {
-        console.log("Failed to send ride request from rider to driver: ", error);
-      });
+      sendRideRequestToDriver(driverID, notifData);
+      res.status(200);
     }
   });
 }
@@ -311,13 +315,7 @@ const confirmRide = async (req, res) => {
                       confirmedRideId: insertedRideID
                   };
 
-                  sendRideConfirmationToRider(requestedPassengerID, notifData)
-                  .then((response) => {
-                    console.log("Successfully sent ride confirmation message to rider: ", riderId, insertedRideID);
-                  })
-                  .catch((error) => {
-                    console.log("Failed to send ride confirmation to rider: ", insertedRideID, error);
-                  });
+                  sendRideConfirmationToRider(requestedPassengerID, notifData);
             }
         });
     } else {
@@ -335,13 +333,7 @@ const confirmRide = async (req, res) => {
                       offeredRideId: selectedRideId,
                   };
 
-                  sendRideRejectionToRider(requestedPassengerID, notifData)
-                  .then((response) => {
-                    console.log("Successfully sent ride rejection message to rider: ", riderId);
-                  })
-                  .catch((error) => {
-                    console.log("Failed to send ride rejection to rider: ", error);
-                  });
+                  sendRideRejectionToRider(requestedPassengerID, notifData);
             }
         });
     }

@@ -27,7 +27,8 @@ class ConfirmRideMapScreen extends StatefulWidget {
 }
 
 
-final List<Ride> sample_rides = [
+final List<Ride> sample_rides = [];
+/*
   Ride(
     name: "John Doe",
     matchPercentage: 22,
@@ -101,6 +102,7 @@ final List<Ride> sample_rides = [
     startTime: "12:30 PM",
   ),
 ];
+*/
 
 class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
 
@@ -288,12 +290,18 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                                       'numSeats': widget.numSeats,
                                       'polyline': polyline
                                     };
-                                    var response = await makePostRequest(base_url, route, requestBody);
+
+                                    List<dynamic> rideList = await makePostRequest(base_url, route, requestBody);
 
                                     print("Results from find ride query");
-                                    print(response);
+                                    print(rideList);
 
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => RideListWidget(rides: sample_rides, curRideStartCoOrds: widget.startCoordinates, curRideEndCoOrds: widget.endCoordinates, curRideStartLoc: widget.startLocation, curRideEndLoc: widget.endLocation)));
+                                    // Convert JSON objects to Ride objects
+                                    List<Ride> rides = rideList.map((json) => Ride.fromJson(json)).toList();
+
+                                    RequestedRide requestedRide = RequestedRide(userID, int.parse(widget.numSeats.toString()), widget.startCoordinates.toString(), widget.endCoordinates.toString(), polyline);
+
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => RideListWidget(rides: rides, requestedRide: requestedRide)));
                                   },
                                   child: Text("Confirm", style: TextStyle(
                                     fontSize: 17,

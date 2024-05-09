@@ -55,9 +55,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       BackendIdentifier.userId = userId;
       print('You userID is: ${BackendIdentifier.userId}');
-      Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
-        return const SelectMode();
-      }));
+      Navigator.pushNamed(context, '/selectMode');
     } catch (error) {
       //setState(() {
         //errorMessage = 'Error registering user: $error';
