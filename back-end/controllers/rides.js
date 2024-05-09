@@ -10,7 +10,8 @@ const {
   updateLastUserID,
   updateLastDriverRideID,
   createBackendFiles,
-  buildQueryRetrieveOfferedRide
+  buildQueryRetrieveOfferedRide,
+  buildQueryRetrieveUserDetails
 } = require("./utils");
 
 const bcrypt = require('bcrypt');
@@ -119,7 +120,7 @@ const updateFcmToken = async (req, res) => {
     var userId = req.body.user;
     var token = req.body.fcmToken;
 
-    console.log("Updating FCM Token for user ", userId);
+    console.log("Update FCM Token API hit for", userId);
 
     var updateSql = `UPDATE RIDE_SHARE.Users SET FCMToken = ? WHERE UserID = ?`
 
@@ -228,15 +229,30 @@ const findRides = async (req, res) => {
       res.status(500).json({ error: 'Error retrieving data' });
       return;
     }
-    // Send the results back to the client
-    console.log(results);
-    res.status(200).json(results);
+    userIDs = [];
+    for(let i = 0; i < results.length; i++){
+      userIDs.push(results[i]['DriverID']);
+    }
+    getUserDetailsQuery = buildQueryRetrieveUserDetails(userIDs);
+    retrieveData(getUserDetailsQuery, (err, userDetails) => {
+      if (err) {
+        // Handle error
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Error retrieving data' });
+        return;
+      }
+      for(let i = 0; i < results.length; i++){
+        results[i]['driverDetails'] = userDetails[i];
+      }
+      // Send the results back to the client
+      console.log(results);
+      res.status(200).json(results);
+    });
   });
 };
 
 const requestRide = async (req, res) => {
-  console.log(req.body);
-
+  console.log("Recieved API request for Request Ride");
   const riderId = req.body.userID;
   const selectedRideId = req.body.rideID;
   const startLocation = convertCoordinates(req.body.start);
@@ -244,7 +260,6 @@ const requestRide = async (req, res) => {
   const polyLine = req.body.polyLine;
   const numSeats = req.body.numSeats;
 
-  console.log(riderId, selectedRideId, numSeats);
 
   // verify if the selectedRideId is valid
   retrieveDriverRideQuery = buildQueryRetrieveOfferedRide(selectedRideId);
@@ -273,7 +288,6 @@ const requestRide = async (req, res) => {
       });
 
       // send the notification to the driver
-      console.log(driverRide);
       const driverID = driverRide[0].DriverID;
 
       const notifData = {
@@ -292,6 +306,7 @@ const getRideDetails = async (req, res) => {
 };
 
 const confirmRide = async (req, res) => {
+  console.log("Recieved API request for Confirm Ride");
     const { confirmed, offeredRideID, requestedPassengerID } = req.body;
     if (confirmed) {
         const query = `

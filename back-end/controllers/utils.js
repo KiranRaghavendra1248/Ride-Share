@@ -19,6 +19,17 @@ const buildQueryForFindRide = (startTime, endTime, startLocation, endLocation, n
   return query;
 }
 
+const buildQueryRetrieveUserDetails = (userIDs) => {
+    const userIDString = userIDs.join(', ');
+
+    // Construct the SQL query with the dynamic IN clause
+    const query = `SELECT *
+                    FROM RIDE_SHARE.Users
+                    WHERE UserID IN (${userIDString});`;
+
+    return query;
+}
+
 const buildQueryRetrieveConfirmedRide = (rideID) => {
   const query = `SELECT *
                     FROM RIDE_SHARE.Confirmed_Rides
@@ -166,4 +177,6 @@ module.exports = { buildQueryForFindRide,
                    buildQueryRetrieveOfferedRide,
                    buildQueryDeleteConfirmedRide,
                    buildQueryForSubmitRide,
-                   updateLastDriverRideID }
+                   updateLastDriverRideID,
+                   buildQueryRetrieveUserDetails
+                 }
