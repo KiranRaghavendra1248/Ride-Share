@@ -229,9 +229,16 @@ const findRides = async (req, res) => {
       res.status(500).json({ error: 'Error retrieving data' });
       return;
     }
+    console.log(results,results.length);
     userIDs = [];
     for(let i = 0; i < results.length; i++){
       userIDs.push(results[i]['DriverID']);
+    }
+    if(0 == results.length){
+      response = {
+        "message" : "No rides available"
+      }
+      return res.status(200).json(response);
     }
     getUserDetailsQuery = buildQueryRetrieveUserDetails(userIDs);
     retrieveData(getUserDetailsQuery, (err, userDetails) => {
@@ -242,11 +249,17 @@ const findRides = async (req, res) => {
         return;
       }
       for(let i = 0; i < results.length; i++){
-        results[i]['driverDetails'] = userDetails[i];
+        results[i]['distance_in_meters'] = parseInt(results[i]['distance_in_meters']);
+        for(let j = 0; j < userDetails.length; j++){
+          if(results[i]['DriverID'] == userDetails[j]['UserID']){
+            results[i]['driverDetails'] = userDetails[j];
+          }
+        }
       }
+      console.log(userDetails);
       // Send the results back to the client
       console.log(results);
-      res.status(200).json(results);
+      return res.status(200).json(results);
     });
   });
 };
