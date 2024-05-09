@@ -35,7 +35,9 @@ class _SignInScreenState extends State<SignInScreen> {
 
     BackendIdentifier.userId = userId;
     print('You userID is: ${BackendIdentifier.userId}');
-    Navigator.pushNamed(context, '/selectMode');
+    Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
+      return const SelectMode();
+    }));
     updateFCMToken();
   }
 

@@ -27,7 +27,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   bool isValidPassword(String password) {
     // Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one digit
-    RegExp passwordRegex = RegExp(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$');
+    RegExp passwordRegex = RegExp(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{4,}$');
     return passwordRegex.hasMatch(password);
   }
 
@@ -55,7 +55,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       BackendIdentifier.userId = userId;
       print('You userID is: ${BackendIdentifier.userId}');
-      Navigator.pushNamed(context, '/selectMode');
+      Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
+        return const SelectMode();
+      }));
     } catch (error) {
       //setState(() {
         //errorMessage = 'Error registering user: $error';
