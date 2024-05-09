@@ -50,19 +50,17 @@ class RideListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Ride> sortedRides =
-    List.from(rides)..sort((a, b) => a.distanceInMts.compareTo(b.distanceInMts));
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Available Rides'),
       ),
       body: ListView.builder(
-        itemCount: sortedRides.length,
+        itemCount: rides.length,
         itemBuilder: (context, index) {
           return RideWidget(
-            ride: sortedRides[index],
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RideDetailPage(ride: sortedRides[index], requestedRide: requestedRide))),
+            ride: rides[index],
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RideDetailPage(rides[index], requestedRide, null))),
           );
         },
       ),

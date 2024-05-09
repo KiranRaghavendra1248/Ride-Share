@@ -46,10 +46,17 @@ class RequestedRide {
   RequestedRide(this.userID, this.numSeatsReq, this.startAddress, this.destinationAddress, this.polyline);
 }
 
-class RideDetailPage extends StatelessWidget {
+class RideDetailPage extends StatefulWidget {
   final Ride ride;
   final RequestedRide requestedRide;
 
+  const RideDetailPage(this.ride, this.requestedRide, Key? key): super(key: key);
+
+  @override
+  State<RideDetailPage> createState() => _RideDetailsPage();
+}
+
+class _RideDetailsPage extends State<RideDetailPage>{
   final gmaps_api_key = dotenv.env["GOOGLE_MAPS_API_KEY"] ?? "";
   final base_url = dotenv.env["BASE_URL"] ?? "";
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -61,9 +68,19 @@ class RideDetailPage extends StatelessWidget {
   Set<Polyline> polylines_map_input = {};
   Set<Marker> markers = {};
 
-  static const CameraPosition initialPosition = CameraPosition(target: LatLng(33.684566, -117.826508), zoom: 14.0);
+  @override
+  void initState() {
+    super.initState();
+  }
 
-  RideDetailPage({Key? key, required this.ride, required this.requestedRide}) : super(key: key);
+  @override
+  void dispose() {
+    // Dispose the controller when the widget is disposed
+    _controller.dispose();
+    super.dispose();
+  }
+
+  static const CameraPosition initialPosition = CameraPosition(target: LatLng(33.684566, -117.826508), zoom: 14.0);
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +105,7 @@ class RideDetailPage extends StatelessWidget {
               mapType: MapType.normal,
               onMapCreated: (GoogleMapController controller) {
                 _controller = controller;
-                _determineLocation();
+                drawPolyline();
               }
           ),
           Positioned(
@@ -117,15 +134,15 @@ class RideDetailPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Text('${ride.driverId}', style: Theme.of(context).textTheme.headline6),
-                          Text('${ride.rideId}', style: Theme.of(context).textTheme.bodyText1),
-                          Text('Starts at: ${ride.startTime}', style: Theme.of(context).textTheme.bodyText1),
+                          Text('${widget.ride.driverId}', style: Theme.of(context).textTheme.headline6),
+                          Text('${widget.ride.rideId}', style: Theme.of(context).textTheme.bodyText1),
+                          Text('Starts at: ${widget.ride.startTime}', style: Theme.of(context).textTheme.bodyText1),
                         ],
                       ),
                       CircleAvatar(
                         radius: 36,
-                        backgroundColor: getColor(ride.distanceInMts),
-                        child: Text('${ride.distanceInMts.toInt()}%'),
+                        backgroundColor: getColor(widget.ride.distanceInMts),
+                        child: Text('${widget.ride.distanceInMts.toInt()}%'),
                       ),
                     ],
                   ),
@@ -134,14 +151,14 @@ class RideDetailPage extends StatelessWidget {
                     width: MediaQuery.of(context).size.width * 0.8,  // 80% of screen width
                     child: ElevatedButton(
                       onPressed: () async {
-                        String route = "api/v1/users/${requestedRide.userID}/requestRide";
+                        String route = "api/v1/users/${widget.requestedRide.userID}/requestRide";
                         Map<String, dynamic> requestBody = {
-                          'userID': requestedRide.userID,
-                          'rideID': ride.rideId,
-                          'start': requestedRide.startAddress,
-                          'destination': requestedRide.destinationAddress,
-                          'polyline': requestedRide.polyline,
-                          'numSeats': requestedRide.numSeatsReq
+                          'userID': widget.requestedRide.userID,
+                          'rideID': widget.ride.rideId,
+                          'start': widget.requestedRide.startAddress,
+                          'destination': widget.requestedRide.destinationAddress,
+                          'polyline': widget.requestedRide.polyline,
+                          'numSeats': widget.requestedRide.numSeatsReq
                         };
 
                         var response = await makePostRequest(base_url, route, requestBody);
@@ -213,18 +230,30 @@ class RideDetailPage extends StatelessWidget {
     return radians * 180 / pi;
   }
 
-  void _addPolyLine(List<LatLng> polylineCoordinates) {
-    PolylineId id = PolylineId("poly");
-    Polyline polyline = Polyline(
-      polylineId: id,
-      points: polylineCoordinates,
-      color: Colors.deepPurple,
-      width: 4,
-    );
-    polylines_map_input.add(polyline);
+  void _addPolyLine(List<LatLng> polylineCoordinates, String color) {
+    PolylineId id = PolylineId(color);
+    if(color == "Purple"){
+      Polyline polyline = Polyline(
+        polylineId: id,
+        points: polylineCoordinates,
+        color: Colors.deepPurple,
+        width: 4,
+      );
+      polylines_map_input.add(polyline);
+    }
+    else{
+      Polyline polyline = Polyline(
+        polylineId: id,
+        points: polylineCoordinates,
+        color: Colors.blue,
+        width: 4,
+      );
+      polylines_map_input.add(polyline);
+    }
+
   }
 
-  void createPolyline(double _originLatitude, double _originLongitude, double _destLatitude, double _destLongitude) async {
+  void createPolyline(double _originLatitude, double _originLongitude, double _destLatitude, double _destLongitude, String color) async {
     List<LatLng> polylineCoordinates = [];
 
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
@@ -240,7 +269,7 @@ class RideDetailPage extends StatelessWidget {
     } else {
       print(result.errorMessage);
     }
-    _addPolyLine(polylineCoordinates);
+    _addPolyLine(polylineCoordinates, color);
   }
 
 
@@ -262,35 +291,9 @@ class RideDetailPage extends StatelessWidget {
     return LatLng(avgLatDegrees, avgLonDegrees);
   }
 
-  Future<void> _determineLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      // Request permission
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permission denied');
-      }
-    }
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error('Location permissions are permanently denied');
-    }
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high
-    );
-    drawPolyline(position);
-  }
-
-  void drawPolyline(Position position) async{
-    LatLng start = parseLatLngFromString(requestedRide.startAddress);
-    LatLng destination = parseLatLngFromString(requestedRide.destinationAddress);
+  void drawPolyline() async{
+    LatLng start = parseLatLngFromString(widget.requestedRide.startAddress);
+    LatLng destination = parseLatLngFromString(widget.requestedRide.destinationAddress);
     LatLng midPoint = calculateMidpoint(start, destination);
 
     _controller.animateCamera(
@@ -300,29 +303,26 @@ class RideDetailPage extends StatelessWidget {
                 zoom: 10.0)
         )
     );
-    markers.clear();
-    markers.add(
-      Marker(markerId: MarkerId('startLocation'),
-          position: start),
-
-    );
-    markers.add(
-      Marker(markerId: MarkerId('endLocation'),
-          position: destination),
-
-    );
 
     var response = await http.post(Uri.parse(
         "https://maps.googleapis.com/maps/api/directions/json?key="+gmaps_api_key+
             "&units=metric"+
-            "&origin="+requestedRide.startAddress+
-            "&destination="+requestedRide.destinationAddress+
+            "&origin="+widget.requestedRide.startAddress+
+            "&destination="+widget.requestedRide.destinationAddress+
             "&mode=driving"
     ));
-
     polylineResponse = PolylineResponse.fromJson(jsonDecode(response.body));
+    createPolyline(start.latitude, start.longitude, destination.latitude, destination.longitude, "Purple");
 
-    createPolyline(start.latitude, start.longitude, destination.latitude, destination.longitude);
-    // setState(() {});
+    var secondResponse = await http.post(Uri.parse(
+        "https://maps.googleapis.com/maps/api/directions/json?key="+gmaps_api_key+
+            "&units=metric"+
+            "&origin="+widget.ride.startAddress+
+            "&destination="+widget.ride.destinationAddress+
+            "&mode=driving"
+    ));
+    polylineResponse = PolylineResponse.fromJson(jsonDecode(secondResponse.body));
+    createPolyline(start.latitude, start.longitude, destination.latitude, destination.longitude, "Blue");
+    setState(() {});
   }
 }

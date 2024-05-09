@@ -26,84 +26,6 @@ class ConfirmRideMapScreen extends StatefulWidget {
   State<ConfirmRideMapScreen> createState() => _ConfirmRideMapScreen();
 }
 
-
-final List<Ride> sample_rides = [];
-/*
-  Ride(
-    name: "John Doe",
-    matchPercentage: 22,
-    carName: "Audi Q5",
-    startTime: "10:00 AM",
-  ),
-  Ride(
-    name: "Jane Smith",
-    matchPercentage: 65,
-    carName: "BMW X3",
-    startTime: "12:00 PM",
-  ),
-  Ride(
-    name: "Michael Johnson",
-    matchPercentage: 90,
-    carName: "Mercedes-Benz GLC",
-    startTime: "11:30 AM",
-  ),
-  Ride(
-    name: "Emily Brown",
-    matchPercentage: 75,
-    carName: "Toyota RAV4",
-    startTime: "9:45 AM",
-  ),
-  Ride(
-    name: "David Wilson",
-    matchPercentage: 85,
-    carName: "Honda CR-V",
-    startTime: "1:15 PM",
-  ),
-  Ride(
-    name: "Sarah Williams",
-    matchPercentage: 70,
-    carName: "Ford Escape",
-    startTime: "3:30 PM",
-  ),
-  Ride(
-    name: "James Taylor",
-    matchPercentage: 95,
-    carName: "Lexus RX",
-    startTime: "2:00 PM",
-  ),
-  Ride(
-    name: "Olivia Miller",
-    matchPercentage: 60,
-    carName: "Subaru Forester",
-    startTime: "8:30 AM",
-  ),
-  Ride(
-    name: "William Brown",
-    matchPercentage: 88,
-    carName: "Chevrolet Equinox",
-    startTime: "4:00 PM",
-  ),
-  Ride(
-    name: "Sophia Davis",
-    matchPercentage: 72,
-    carName: "Volvo XC60",
-    startTime: "10:45 AM",
-  ),
-  Ride(
-    name: "Alexander Martinez",
-    matchPercentage: 82,
-    carName: "Hyundai Tucson",
-    startTime: "11:00 AM",
-  ),
-  Ride(
-    name: "Emma Garcia",
-    matchPercentage: 78,
-    carName: "Jeep Compass",
-    startTime: "12:30 PM",
-  ),
-];
-*/
-
 class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
 
   late GoogleMapController _controller;
@@ -293,8 +215,6 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
 
                                     List<dynamic> rideList = await makePostRequest(base_url, route, requestBody);
 
-                                    print("Results from find ride query");
-                                    print(rideList);
 
                                     // Convert JSON objects to Ride objects
                                     List<Ride> rides = rideList.map((json) => Ride.fromJson(json)).toList();
