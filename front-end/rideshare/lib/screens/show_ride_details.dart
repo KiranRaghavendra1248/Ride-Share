@@ -21,8 +21,9 @@ class Ride {
   final String startTime;
   final String startAddress;
   final String destinationAddress;
+  final driverDetails;
 
-  Ride(this.driverId, this.rideId, this.distanceInMts, this.startTime, this.startAddress, this.destinationAddress);
+  Ride(this.driverId, this.rideId, this.distanceInMts, this.startTime, this.startAddress, this.destinationAddress, this.driverDetails);
 
   factory Ride.fromJson(Map<String, dynamic> json) {
     return Ride(
@@ -32,6 +33,7 @@ class Ride {
       json['JourneyStart'] as String,
       "${json['StartAddress']['x']}, ${json['StartAddress']['y']}",
       "${json['DestinationAddress']['x']}, ${json['DestinationAddress']['y']}",
+      json['driverDetails']
     );
   }
 }
@@ -91,7 +93,16 @@ class _RideDetailsPage extends State<RideDetailPage>{
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ride Details'),
+        title: Text(
+            'Ride Details',
+            style : TextStyle(
+              fontFamily: 'DMSans',
+              fontWeight: FontWeight.normal,
+            )
+        ),
+        elevation: 6,
+        shadowColor: Colors.transparent,
+        backgroundColor: Colors.deepPurple[50],
       ),
       body: Stack(
         children: [
@@ -134,15 +145,10 @@ class _RideDetailsPage extends State<RideDetailPage>{
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Text('${widget.ride.driverId}', style: Theme.of(context).textTheme.headline6),
-                          Text('${widget.ride.rideId}', style: Theme.of(context).textTheme.bodyText1),
+                          Text('${widget.ride.driverDetails['Name'].toString()}', style: Theme.of(context).textTheme.headline6),
+                          Text('${widget.ride.distanceInMts} m to be covered on your own', style: Theme.of(context).textTheme.bodyText1),
                           Text('Starts at: ${widget.ride.startTime}', style: Theme.of(context).textTheme.bodyText1),
                         ],
-                      ),
-                      CircleAvatar(
-                        radius: 36,
-                        backgroundColor: getColor(widget.ride.distanceInMts),
-                        child: Text('${widget.ride.distanceInMts.toInt()}%'),
                       ),
                     ],
                   ),

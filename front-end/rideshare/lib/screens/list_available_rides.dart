@@ -19,9 +19,9 @@ class RideWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(ride.driverId.toString(), style: Theme.of(context).textTheme.headline6),
+              Text(ride.driverDetails['Name'].toString(), style: Theme.of(context).textTheme.headline6),
               SizedBox(height: 8),
-              Text('Distance to cover: ${ride.distanceInMts}%',
+              Text('Distance to cover: ${ride.distanceInMts} meters',
                   style: Theme.of(context).textTheme.subtitle1),
               SizedBox(height: 8),
               Row(
@@ -53,7 +53,16 @@ class RideListWidget extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Available Rides'),
+        title: Text(
+            'Available Rides',
+            style : TextStyle(
+              fontFamily: 'DMSans',
+              fontWeight: FontWeight.normal,
+            )
+        ),
+        elevation: 6,
+        shadowColor: Colors.transparent,
+        backgroundColor: Colors.deepPurple[50],
       ),
       body: ListView.builder(
         itemCount: rides.length,
