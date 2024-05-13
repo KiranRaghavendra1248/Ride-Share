@@ -9,6 +9,7 @@
 .history
 .svn/
 migrate_working_dir/
+firebase.json
 
 # IntelliJ related
 *.iml
@@ -41,4 +42,8 @@ app.*.map.json
 # Android Studio will place build artifacts here
 /android/
 /ios/
+/linux/
+/macos/
+/web/
+/windows/
 /test/

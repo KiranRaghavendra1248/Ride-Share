@@ -19,6 +19,17 @@ const buildQueryForFindRide = (startTime, endTime, startLocation, endLocation, n
   return query;
 }
 
+const buildQueryRetrieveUserDetails = (userIDs) => {
+    const userIDString = userIDs.join(', ');
+
+    // Construct the SQL query with the dynamic IN clause
+    const query = `SELECT *
+                    FROM RIDE_SHARE.Users
+                    WHERE UserID IN (${userIDString});`;
+
+    return query;
+}
+
 const buildQueryRetrieveConfirmedRide = (rideID) => {
   const query = `SELECT *
                     FROM RIDE_SHARE.Confirmed_Rides
@@ -155,23 +166,17 @@ const createBackendFiles = () => {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports = { buildQueryForFindRide, convertTimeToDateTime, convertCoordinates, validatePassword, getLastUserID, updateLastUserID, createBackendFiles, buildQueryRetrieveConfirmedRide, buildQueryRetrieveOfferedRide, buildQueryDeleteConfirmedRide, buildQueryForSubmitRide, updateLastDriverRideID }
+module.exports = { buildQueryForFindRide,
+                   convertTimeToDateTime,
+                   convertCoordinates,
+                   validatePassword,
+                   getLastUserID,
+                   updateLastUserID,
+                   createBackendFiles,
+                   buildQueryRetrieveConfirmedRide,
+                   buildQueryRetrieveOfferedRide,
+                   buildQueryDeleteConfirmedRide,
+                   buildQueryForSubmitRide,
+                   updateLastDriverRideID,
+                   buildQueryRetrieveUserDetails
+                 }

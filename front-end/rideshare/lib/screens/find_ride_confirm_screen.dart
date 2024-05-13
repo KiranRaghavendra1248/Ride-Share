@@ -11,10 +11,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:rideshare/components/src/utils/request_enums.dart';
 import 'package:rideshare/model/polyline_response.dart';
+import 'package:rideshare/screens/list_available_rides.dart';
 import 'dart:math';
 
 import '../ID/backend_identifier.dart';
 import '../components/network_utililty.dart';
+import 'show_ride_details.dart';
 
 class ConfirmRideMapScreen extends StatefulWidget {
   final startTime, endTime, numSeats, startLocation, endLocation, startCoordinates, endCoordinates;
@@ -75,8 +77,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
     _controller.dispose();
     super.dispose();
   }
-  static const CameraPosition initialPosition = CameraPosition(
-      target: LatLng(33.684566, -117.826508), zoom: 14.0);
+  static const CameraPosition initialPosition = CameraPosition(target: LatLng(33.684566, -117.826508), zoom: 14.0);
 
   Set<Marker> markers = {};
 
@@ -211,9 +212,16 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                                       'numSeats': widget.numSeats,
                                       'polyline': polyline
                                     };
-                                    var response = await makePostRequest(base_url, route, requestBody);
-                                    print("Results from find ride query");
-                                    print(response);
+
+                                    List<dynamic> rideList = await makePostRequest(base_url, route, requestBody);
+
+
+                                    // Convert JSON objects to Ride objects
+                                    List<Ride> rides = rideList.map((json) => Ride.fromJson(json)).toList();
+
+                                    RequestedRide requestedRide = RequestedRide(userID, int.parse(widget.numSeats.toString()), widget.startCoordinates.toString(), widget.endCoordinates.toString(), polyline);
+
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => RideListWidget(rides: rides, requestedRide: requestedRide)));
                                   },
                                   child: Text("Confirm", style: TextStyle(
                                     fontSize: 17,

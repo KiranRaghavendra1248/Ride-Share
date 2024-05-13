@@ -7,6 +7,8 @@ import 'package:rideshare/screens/signin_screen.dart';
 import 'package:rideshare/theme/theme.dart';
 import 'package:rideshare/ID/backend_identifier.dart';
 
+import '../firebase_messaging/notification_handler.dart';
+
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
 
@@ -25,7 +27,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   bool isValidPassword(String password) {
     // Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one digit
-    RegExp passwordRegex = RegExp(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$');
+    RegExp passwordRegex = RegExp(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{4,}$');
     return passwordRegex.hasMatch(password);
   }
 
@@ -53,14 +55,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       BackendIdentifier.userId = userId;
       print('You userID is: ${BackendIdentifier.userId}');
-      Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
         return const SelectMode();
       }));
     } catch (error) {
-      setState(() {
-        errorMessage = 'Error registering user: $error';
-      });
+      //setState(() {
+        //errorMessage = 'Error registering user: $error';
+      //});
     }
+    updateFCMToken();
   }
 
   @override

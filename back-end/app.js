@@ -1,9 +1,11 @@
 const express = require("express");
 const cors = require("cors");
+const EventEmitter = require('events'); 
+const bodyParser = require('body-parser');
+
 const rides = require("./routes_app/rides");
 const { connectDB, setupDB } = require("./db/connection");
-const EventEmitter = require('events');
-const bodyParser = require('body-parser');
+const { sendRideRequestToDriver } = require("./firebase_integration/firebaseMessaging.js")
 
 const emitter = new EventEmitter();
 
@@ -33,6 +35,21 @@ const start = async () => {
     await setupDB();
     console.log("Created RideShare DB and Created Users, Offered_Rides, Confirmed_Rides Tables Successfully!!");
 
+    testNotification = {
+        offeredRideId: "OfferedRide",
+        requestedRideId: "RequestedRide"
+    };
+
+      /*
+    sendRideRequestToDriver(0, testNotification)
+      .then((response) => {
+        console.log("Success - ", response);
+      })
+      .catch((error) => {
+        console.log("Failure - ", error);
+      });
+      */
+    
     app.listen(port, host, () => {
       console.log(`Listening on port http://${host}:${port}..`);
     });

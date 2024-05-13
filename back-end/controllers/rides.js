@@ -1,4 +1,5 @@
 const { retrieveData, connection, execute } = require("../db/connection");
+const { sendRideRequestToDriver, sendRideConfirmationToRider, sendRideRejectionToRider } = require("../firebase_integration/firebaseMessaging");
 const {
   buildQueryForFindRide,
   buildQueryForSubmitRide,
@@ -8,7 +9,9 @@ const {
   getLastUserID,
   updateLastUserID,
   updateLastDriverRideID,
-  createBackendFiles
+  createBackendFiles,
+  buildQueryRetrieveOfferedRide,
+  buildQueryRetrieveUserDetails
 } = require("./utils");
 
 const bcrypt = require('bcrypt');
@@ -74,7 +77,9 @@ const signUpUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   console.log("Recieved API request for Login");
-  var email = req.body.email;
+  console.log(req.body);
+
+  var email = req.body.email.toString();
   var password = req.body.password;
 
   // Validate email
@@ -110,6 +115,22 @@ const loginUser = async (req, res) => {
     }
   });
 };
+
+const updateFcmToken = async (req, res) => {
+    var userId = req.body.user;
+    var token = req.body.fcmToken;
+
+    console.log("Update FCM Token API hit for", userId);
+
+    var updateSql = `UPDATE RIDE_SHARE.Users SET FCMToken = ? WHERE UserID = ?`
+
+    connection.query(updateSql, [token, userId], (err, data) => {
+        if (err) {
+            console.log(err.message)
+            return res.status(500).send('Failed to update FCMToken');
+        }
+    });
+}
 
 const getUserDetails = async (req, res) => {
   console.log("Recieved API request for Get User Details");
@@ -208,18 +229,142 @@ const findRides = async (req, res) => {
       res.status(500).json({ error: 'Error retrieving data' });
       return;
     }
-    // Send the results back to the client
-    console.log(results);
-    res.status(200).json(results);
+    console.log(results,results.length);
+    userIDs = [];
+    for(let i = 0; i < results.length; i++){
+      userIDs.push(results[i]['DriverID']);
+    }
+    if(0 == results.length){
+      response = {
+        "message" : "No rides available"
+      }
+      return res.status(200).json(response);
+    }
+    getUserDetailsQuery = buildQueryRetrieveUserDetails(userIDs);
+    retrieveData(getUserDetailsQuery, (err, userDetails) => {
+      if (err) {
+        // Handle error
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Error retrieving data' });
+        return;
+      }
+      for(let i = 0; i < results.length; i++){
+        results[i]['distance_in_meters'] = parseInt(results[i]['distance_in_meters']);
+        for(let j = 0; j < userDetails.length; j++){
+          if(results[i]['DriverID'] == userDetails[j]['UserID']){
+            results[i]['driverDetails'] = userDetails[j];
+          }
+        }
+      }
+      console.log(userDetails);
+      // Send the results back to the client
+      console.log(results);
+      return res.status(200).json(results);
+    });
   });
 };
+
+const requestRide = async (req, res) => {
+  console.log("Recieved API request for Request Ride");
+  const riderId = req.body.userID;
+  const selectedRideId = req.body.rideID;
+  const startLocation = convertCoordinates(req.body.start);
+  const endLocation = convertCoordinates(req.body.destination);
+  const polyLine = req.body.polyLine;
+  const numSeats = req.body.numSeats;
+
+
+  // verify if the selectedRideId is valid
+  retrieveDriverRideQuery = buildQueryRetrieveOfferedRide(selectedRideId);
+  retrieveData(retrieveDriverRideQuery, (err, driverRide) => {
+    if (err) {
+      // Handle error
+      console.error('Error retrieving data:', err);
+      res.status(500).json({ error: 'Error retrieving data' });
+      return;
+    } else {
+      const start = `POINT(${startLocation})`;
+      const end = `POINT(${endLocation})`;
+
+      const insertSqlStmt = `INSERT INTO
+                                RIDE_SHARE.RequestedRides
+                                (PassengerID, RideID, StartAddress, DestinationAddress, Polyline, SeatsRequested)
+                                VALUES (?, ?, ST_GeomFromText(?), ST_GeomFromText(?), ?, ?)`;
+
+      const values = [riderId, selectedRideId, start, end, polyLine, numSeats]
+
+      connection.query(insertSqlStmt, values, (err, results) => {
+        if (err) {
+          console.log("Error while inserting into RequestedRides table");
+          return console.error(err.message);
+        }
+      });
+
+      // send the notification to the driver
+      const driverID = driverRide[0].DriverID;
+
+      const notifData = {
+          offeredRideId: selectedRideId,
+          requestedPassengerId: riderId
+      };
+
+      sendRideRequestToDriver(driverID, notifData);
+      res.status(200);
+    }
+  });
+}
 
 const getRideDetails = async (req, res) => {
 
 };
 
 const confirmRide = async (req, res) => {
+  console.log("Recieved API request for Confirm Ride");
+    const { confirmed, offeredRideID, requestedPassengerID } = req.body;
+    if (confirmed) {
+        const query = `
+            INSERT INTO RIDE_SHARE.Confirmed_Rides (PassengerID, StartAddress, DestinationAddress, DriverRideID, Polyline)
+            SELECT PassengerID, StartAddress, DestinationAddress, ?, Polyline
+            FROM RIDE_SHARE.RequestedRides
+            WHERE PassengerID = ? AND RideID = ?;
+        `;
 
+        connection.query(query, [offeredRideID, requestedPassengerID, offeredRideID], (error, results) => {
+            if (error) {
+                console.error("Database error while moving requested ride to confirmed ride: ", error);
+            } else {
+                // Fetch the newly generated RideID
+                const insertedRideID = results.insertId;
+
+                // send the notification to requestedPassengerID that the ride has been confirmed
+                // and send the ride id of the entry from Confirmed_Rides table
+                  const notifData = {
+                      offeredRideId: selectedRideId,
+                      confirmedRideId: insertedRideID
+                  };
+
+                  sendRideConfirmationToRider(requestedPassengerID, notifData);
+            }
+        });
+    } else {
+        const deleteQuery = `
+            DELETE FROM RIDE_SHARE.RequestedRides
+            WHERE PassengerID = ? AND RideID = ?;
+        `;
+
+        connection.query(deleteQuery, [requestedPassengerID, offeredRideID], (error, results) => {
+            if (error) {
+                console.error("Database error while deleting entry from RequestedRides: ", error);
+            } else {
+                // send the notification to requestedPassengerID that the request was denied
+                  const notifData = {
+                      offeredRideId: selectedRideId,
+                  };
+
+                  sendRideRejectionToRider(requestedPassengerID, notifData);
+            }
+        });
+    }
 };
 
 const riderCancelled = async (req, res) => {
@@ -270,10 +415,12 @@ const driverCancelled = async (req, res) => {
 module.exports = {
   signUpUser,
   loginUser,
+  updateFcmToken,
   getUserDetails,
   modifyUserDetails,
   submitRide,
   findRides,
+  requestRide,
   getRideDetails,
   confirmRide,
   riderCancelled,

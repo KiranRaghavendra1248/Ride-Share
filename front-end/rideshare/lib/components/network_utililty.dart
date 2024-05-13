@@ -8,7 +8,10 @@ Future<dynamic> makePostRequest(String baseUrl, String route, Map<String, dynami
     // Make the API call and await the response
     http.Response response = await http.post(
       Uri.parse(apiUrl),
-      body: requestBody,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(requestBody),
     );
 
     // Check if the request was successful (status code 200)
@@ -19,12 +22,12 @@ Future<dynamic> makePostRequest(String baseUrl, String route, Map<String, dynami
       return responseData;
     } else {
       // Handle error response
-      print('Error: ${response.statusCode} - ${response.reasonPhrase}');
+      print('Error response from server: ${response.body}');
       return null;
     }
   } catch (e) {
     // Handle any exceptions
-    print('Error: $e');
+    print('Exception: $e');
     return null;
   }
 }
