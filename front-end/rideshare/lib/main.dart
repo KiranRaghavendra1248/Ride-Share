@@ -15,7 +15,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   // await getFCMToken();
-  FirebaseMessaging.onBackgroundMessage(notifHandler);
+  // FirebaseMessaging.onMessage(fgNotifHandler);
+  FirebaseMessaging.onBackgroundMessage(bgNotifHandler);
 
   runApp(const MyApp());
 }

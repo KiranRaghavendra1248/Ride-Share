@@ -390,7 +390,7 @@ const requestRide = async (req, res) => {
       };
 
       sendRideRequestToDriver(driverID, notifData);
-      res.status(200);
+      res.status(200).json({status: "success"});
     }
   });
 }

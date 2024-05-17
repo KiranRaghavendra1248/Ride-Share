@@ -86,9 +86,9 @@ class _RideDetailsPage extends State<RideDetailPage>{
 
   @override
   Widget build(BuildContext context) {
-    Color getColor(double percentage) {
+    Color getColor(double mtsToCover) {
       // This function determines the color from green to red based on the match percentage
-      return Color.lerp(Colors.redAccent, Colors.lightGreenAccent, percentage / 100) ?? Colors.lightGreenAccent;
+      return Color.lerp(Colors.lightGreen, Colors.red[700], mtsToCover / 3000) ?? Colors.lightGreenAccent;
     }
 
     return Scaffold(
@@ -138,7 +138,7 @@ class _RideDetailsPage extends State<RideDetailPage>{
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Row(
+                  Row (
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(

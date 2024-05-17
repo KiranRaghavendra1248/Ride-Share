@@ -215,6 +215,8 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
 
                                     List<dynamic> rideList = await makePostRequest(base_url, route, requestBody);
 
+                                    print('List of rides: ${rideList}');
+
 
                                     // Convert JSON objects to Ride objects
                                     List<Ride> rides = rideList.map((json) => Ride.fromJson(json)).toList();

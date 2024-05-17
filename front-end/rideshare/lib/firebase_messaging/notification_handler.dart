@@ -22,6 +22,10 @@ Future<void> updateFCMToken() async {
   var response = await makePostRequest(baseurl, route, body);
 }
 
-Future<void> notifHandler(RemoteMessage message) async {
+Future<void> bgNotifHandler(RemoteMessage message) async {
+  print("Handling a background message: ${message.messageId}");
+}
+
+Future<void> fgNotifHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
 }

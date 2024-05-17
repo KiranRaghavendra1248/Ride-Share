@@ -28,7 +28,7 @@ class RideWidget extends StatelessWidget {
                 children: [
                   Icon(Icons.directions_car, color: Colors.blue), // Car icon
                   SizedBox(width: 10), // Space between the icon and the text
-                  Text(ride.rideId.toString(), style: Theme.of(context).textTheme.bodyText1), // Car name next to the icon
+                  Text(/*ride.rideId.toString()*/ 'Tesla Model 3', style: Theme.of(context).textTheme.bodyText1), // Car name next to the icon
                 ],
               ),
               SizedBox(height: 8),
