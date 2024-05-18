@@ -36,14 +36,11 @@ async function sendRideRequestToDriver(userID, data) {
         title: 'Please confirm ride request',
         body: 'A user has requested to hop on your ride, please confirm!!'
       },
-      android: {
-        priority: 'high'
+      data: {
+        type: notifTypeRideReq,
+        offeredRideId: data.offeredRideId.toString(),
+        requestedPassengerId: data.requestedPassengerId.toString(),
       }
-      // data: {
-        // type: data.notifTypeRideReq, // Correct this if needed
-        // offeredRideId: data.offeredRideId.toString(),
-        // requestedPassengerId: data.requestedPassengerId.toString(),
-      // }
     };
 
     const response = await firebase.messaging().send(message);
@@ -63,7 +60,7 @@ async function sendRideConfirmationToRider(userID, data) {
         body: 'The driver has confirmed your ride!!'
       },
       data: {
-        type: data.notifTypeRideConfirm, // Ensure this is correctly defined or passed
+        type: notifTypeRideConfirm,
         offeredRideId: data.offeredRideId.toString(),
         confirmedRideId: data.confirmedRideId.toString(),
       }
@@ -87,7 +84,7 @@ async function sendRideRejectionToRider(userID, data) {
         body: 'The driver denied your ride request :('
       },
       data: {
-        type: data.notifTypeRideReject, // Ensure this is correctly defined or passed
+        type: notifTypeRideReject, 
         offeredRideId: data.offeredRideId.toString(),
       }
     };

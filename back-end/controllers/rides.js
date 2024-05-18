@@ -20,6 +20,7 @@ const {
 const bcrypt = require('bcrypt');
 const validator = require('validator');
 const fs = require('fs');
+const moment = require('moment');
 
 
 const signUpUser = async (req, res) => {
@@ -400,7 +401,7 @@ const getRideDetails = async (req, res) => {
 };
 
 const confirmRide = async (req, res) => {
-  console.log("Recieved API request for Confirm Ride");
+  console.log("Recieved API request for Confirm Ride", req.body);
     const { confirmed, offeredRideID, requestedPassengerID } = req.body;
     if (confirmed) {
         const query = `
@@ -421,7 +422,7 @@ const confirmRide = async (req, res) => {
                 // send the notification to requestedPassengerID that the ride has been confirmed
                 // and send the ride id of the entry from Confirmed_Rides table
                   const notifData = {
-                      offeredRideId: selectedRideId,
+                      offeredRideId: offeredRideID,
                       confirmedRideId: insertedRideID
                   };
 
@@ -440,7 +441,7 @@ const confirmRide = async (req, res) => {
             } else {
                 // send the notification to requestedPassengerID that the request was denied
                   const notifData = {
-                      offeredRideId: selectedRideId,
+                      offeredRideId: offeredRideID,
                   };
 
                   sendRideRejectionToRider(requestedPassengerID, notifData);
@@ -491,8 +492,72 @@ const riderCancelled = async (req, res) => {
 
 const driverCancelled = async (req, res) => {
   console.log("Recieved API request for Driver Side Ride Cancellation");
-
 };
+
+const getRequestedRide = async (req, res) => {
+  const { offeredRideId, requestedPassengerId } = req.params;
+
+  console.log("Received API request from driver to fetch the details of the requested ride");
+
+  const query = `
+    SELECT
+      u.Name AS DriverName,
+      ST_X(o.StartAddress) AS DriverStartLat,
+      ST_Y(o.StartAddress) AS DriverStartLng,
+      ST_X(o.DestinationAddress) AS DriverEndLat,
+      ST_Y(o.DestinationAddress) AS DriverEndLng,
+      o.SeatsAvailable,
+      DATE_FORMAT(o.TimeOfJourneyStart, '%Y-%m-%dT%H:%i:%sZ') AS TimeOfJourneyStart,
+      o.Polyline,
+      u2.Name AS RiderName,
+      ST_X(r.StartAddress) AS RiderStartLat,
+      ST_Y(r.StartAddress) AS RiderStartLng,
+      ST_X(r.DestinationAddress) AS RiderEndLat,
+      ST_Y(r.DestinationAddress) AS RiderEndLng,
+      r.SeatsRequested
+    FROM
+      RIDE_SHARE.Offered_Rides o
+    LEFT JOIN
+      RIDE_SHARE.RequestedRides r ON o.RideID = r.RideID
+    LEFT JOIN
+      RIDE_SHARE.Users u ON o.DriverID = u.UserID
+    LEFT JOIN
+      RIDE_SHARE.Users u2 ON r.PassengerID = u2.UserID
+    WHERE
+      o.RideID = ? AND r.PassengerID = ?;
+  `;
+
+  connection.query(query, [offeredRideId, requestedPassengerId], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Database query error' });
+      return;
+    }
+    if (results.length > 0) {
+      const result = results[0];
+      const response = {
+        DriverName: result.DriverName,
+        DriverStartLat: result.DriverStartLat,
+        DriverStartLng: result.DriverStartLng,
+        DriverEndLat: result.DriverEndLat,
+        DriverEndLng: result.DriverEndLng,
+        SeatsAvailable: result.SeatsAvailable,
+        TimeOfJourneyStart: moment(result.TimeOfJourneyStart).format('MMMM D, YYYY h:mm A'),
+        Polyline: result.Polyline,
+        RiderName: result.RiderName,
+        RiderStartLat: result.RiderStartLat,
+        RiderStartLng: result.RiderStartLng,
+        RiderEndLat: result.RiderEndLat,
+        RiderEndLng: result.RiderEndLng,
+        SeatsRequested: result.SeatsRequested
+      };
+      res.json(response);
+    } else {
+      res.status(404).json({ error: 'Ride not found' });
+    }
+  });
+};
+
 
 module.exports = {
   signUpUser,
@@ -509,5 +574,6 @@ module.exports = {
   driverCancelled,
   driverActiveRides,
   passengerActiveRides,
-  viewPassengers
+  viewPassengers,
+  getRequestedRide
 };

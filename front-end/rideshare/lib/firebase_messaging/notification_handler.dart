@@ -1,31 +1,65 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../ID/backend_identifier.dart';
 import '../components/network_utililty.dart';
+import '../model/constants.dart';
+import 'ride_request_dialog.dart';
 
-Future<String> getFCMToken() async {
-  String? token = await FirebaseMessaging.instance.getToken();
-  return token ?? "";
-}
+class NotificationHandler extends StatelessWidget {
+  final RemoteMessage remoteMessage;
 
-Future<void> updateFCMToken() async {
-  print("Sending fcm token to backend");
+  NotificationHandler({required this.remoteMessage});
 
-  String token = await getFCMToken();
-  int userId = BackendIdentifier.userId;
+  @override
+  Widget build(BuildContext context) {
+    if (remoteMessage.data['type'] == Notif_RideRequest) {
+      return RideRequestDialog(
+        remoteMessage: remoteMessage,
+        onAccept: (data) async {
+          await makePostRequest(
+            dotenv.env["BASE_URL"] ?? "",
+            'api/v1/users/${BackendIdentifier.userId}/confirmRide',
+            {
+              'confirmed': true,
+              'offeredRideID': data['offeredRideId'],
+              'requestedPassengerID': data['requestedPassengerId']
+            },
+          );
+          Navigator.of(context).pop();
+        },
+        onDecline: (data) async {
+          await makePostRequest(
+            dotenv.env["BASE_URL"] ?? "",
+            'api/v1/users/${BackendIdentifier.userId}/confirmRide',
+            {
+              'confirmed': false,
+              'offeredRideID': data['offeredRideId'],
+              'requestedPassengerID': data['requestedPassengerId']
+            },
+          );
+          Navigator.of(context).pop();
+        },
+      );
+    }
+    else if (remoteMessage.data['type'] == Notif_RideConfirm) {
+      return AlertDialog(
+        title: Text("Your ride request has been confirmed"),
+        content: Text("Please check your active rides for more details and to track the ride"),
+      );
+    }
+    else if (remoteMessage.data['type'] == Notif_RideReject) {
+      return AlertDialog(
+        title: Text("Your ride request has been rejected"),
+        content: Text("Please check other available rides to register another request"),
+      );
+    }
+    // for other notification types, we should add a different dialog boxes
+    // Return an empty container if the notification type is not handled
+    return Container(
 
-  String baseurl = dotenv.env["BASE_URL"]?? "";
-  String route = 'api/v1/users/updateFcmToken';
-  Map<String, dynamic> body = {'user': userId, 'fcmToken': token};
-
-  var response = await makePostRequest(baseurl, route, body);
-}
-
-Future<void> bgNotifHandler(RemoteMessage message) async {
-  print("Handling a background message: ${message.messageId}");
-}
-
-Future<void> fgNotifHandler(RemoteMessage message) async {
-  print("Handling a background message: ${message.messageId}");
+    );
+  }
 }
