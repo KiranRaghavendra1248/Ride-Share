@@ -3,6 +3,8 @@ import 'package:rideshare/firebase_messaging/notification_handler.dart';
 import 'add_ride_first_screen.dart';
 import 'find_ride_first_screen.dart';
 import 'active_rides_screen.dart';
+import 'hamburger_menu.dart'; // Import HamburgerMenu
+import 'signin_screen.dart'; // Import SignInScreen
 
 
 class SelectMode extends StatelessWidget {
@@ -13,12 +15,16 @@ class SelectMode extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-            "Select Mode",
-            style : TextStyle(
-              fontFamily: 'DMSans',
-              fontWeight: FontWeight.normal,
-            )),
+        "Select Mode",
+        style : TextStyle(
+        fontFamily: 'DMSans',
+        fontWeight: FontWeight.normal,
+        )),
+        // Replace the default back button with the hamburger menu icon
+        leading: HamburgerMenu(), // Use the HamburgerMenu widget here
       ),
+      // Add Drawer widget with menu options
+      drawer: DrawerMenu(),
       body: Center( // Wrap Column with Center widget
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
