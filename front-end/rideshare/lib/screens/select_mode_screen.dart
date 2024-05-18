@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'add_ride_first_screen.dart';
 import 'find_ride_first_screen.dart';
-import '../theme/theme.dart';
-import 'package:rideshare/ID/backend_identifier.dart';
+import 'hamburger_menu.dart'; // Import HamburgerMenu
+import 'signin_screen.dart'; // Import SignInScreen
 
 class SelectMode extends StatelessWidget {
   const SelectMode({Key? key}) : super(key: key);
@@ -12,7 +12,11 @@ class SelectMode extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Select Mode"),
+        // Replace the default back button with the hamburger menu icon
+        leading: HamburgerMenu(), // Use the HamburgerMenu widget here
       ),
+      // Add Drawer widget with menu options
+      drawer: DrawerMenu(),
       body: Center( // Wrap Column with Center widget
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
