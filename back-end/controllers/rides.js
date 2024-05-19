@@ -223,27 +223,27 @@ const driverActiveRides = async (req, res) => {
       message: "UserID is required"
     });
   }
-
   // Using parameterized queries to prevent SQL injection
-  const query = "SELECT RideID, DriverID, StartAddress, DestinationAddress, SeatsAvailable, DATE_FORMAT(TimeOfJourneyStart, '%Y-%m-%d %H:%i:%s') AS JourneyStart FROM RIDE_SHARE.Offered_Rides WHERE TimeOfJourneyStart > NOW();";
+  const query = `SELECT 
+  RideID, DriverID, StartAddress, DestinationAddress, SeatsAvailable, DATE_FORMAT(TimeOfJourneyStart, '%Y-%m-%d %H:%i:%s') AS JourneyStart 
+  FROM RIDE_SHARE.Offered_Rides 
+  WHERE DriverID = ${userID} AND TimeOfJourneyStart > NOW();`;
 
-
-  try {
-    const results = await execute(query, [userID]);
-
-    console.log("Requested Data for userID:", userID); // More precise logging
-    res.status(200).json({
-      message: "Rides fetched successfully",
-      data: results
-    });
-    console.log(results)
-  } catch (error) {
-    console.error('Failed to fetch rides:', error);
-    res.status(500).json({
-      error: 'Database operation failed',
-      details: error.message 
-    });
-  }
+  retrieveData(query, (err,results) => {
+    if(err){
+      console.error("Error retrieving Driver Active Rides");
+      res.status(500).json({ error: 'Error retrieving data' });
+      return;
+    }
+    if(0 == results.length){
+      response = {
+        "message" : "No rides available"
+      }
+      return res.status(200).json(response);
+    }
+    console.log(results);
+    return res.status(200).json(results);
+  })
 };
 
 const passengerActiveRides = async (req, res) => {
@@ -281,7 +281,7 @@ const passengerActiveRides = async (req, res) => {
           }
         }
       }
-    return res.status(200).json(results);
+      return res.status(200).json(results);
     })
 })
 }
@@ -338,7 +338,6 @@ const findRides = async (req, res) => {
           }
         }
       }
-      console.log(userDetails);
       // Send the results back to the client
       console.log(results);
       return res.status(200).json(results);

@@ -168,11 +168,10 @@ const convertTimeToDateTime_Suraj = (timeString, date) => {
 
   // Set the time from the provided string to the provided date
   providedDate.setHours(hours24, minutes, 0, 0);
-
   // Extract the components of the date
   const year = providedDate.getFullYear();
   const month = String(providedDate.getMonth() + 1).padStart(2, '0');
-  const day = String(providedDate.getDate()).padStart(2, '0');
+  const day = String(providedDate.getDate()+1).padStart(2, '0');
   const hoursFormatted = String(providedDate.getHours()).padStart(2, '0');
   const minutesFormatted = String(providedDate.getMinutes()).padStart(2, '0');
   const seconds = '00'; // Set seconds to '00'
