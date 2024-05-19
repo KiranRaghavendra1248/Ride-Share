@@ -30,6 +30,15 @@ const buildQueryRetrieveUserDetails = (userIDs) => {
     return query;
 }
 
+const buildQueryRetrieveUserDetailswithDriverRideID = (driverRideIDs) => {
+  const driverRideIDString = driverRideIDs.join(", ");
+
+  const query = `SELECT Off.RideID AS DriverRideID, U.UserID AS UserID, U.Name AS Name, U.EmailID AS EmailID, U.Phone AS Phone
+                  FROM RIDE_SHARE.Users U
+                  JOIN RIDE_SHARE.Offered_Rides Off ON Off.DriverID = U.UserID
+                  WHERE Off.RideID in (${driverRideIDString})`;
+  return query;
+}
 const buildQueryRetrieveConfirmedRide = (rideID) => {
   const query = `SELECT *
                     FROM RIDE_SHARE.Confirmed_Rides
@@ -55,6 +64,13 @@ const buildQueryDeleteConfirmedRide = (rideID) => {
   const query = `DELETE 
                     FROM RIDE_SHARE.Confirmed_Rides 
                     WHERE RideID = ${rideID};`;
+  return query;
+}
+
+const buildQueryForPassengerActiveRides = (userID) => {
+  const query = `SELECT 
+  RideID, StartAddress, DestinationAddress, DriverRideID, TimeOfJourneyStart
+  FROM RIDE_SHARE.Confirmed_Rides WHERE PassengerID = ${userID} AND TimeOfJourneyStart > NOW();`
   return query;
 }
 
@@ -213,5 +229,7 @@ module.exports = { buildQueryForFindRide,
                    buildQueryDeleteConfirmedRide,
                    buildQueryForSubmitRide,
                    updateLastDriverRideID,
-                   buildQueryRetrieveUserDetails
+                   buildQueryRetrieveUserDetails,
+                   buildQueryForPassengerActiveRides,
+                   buildQueryRetrieveUserDetailswithDriverRideID
                  }
