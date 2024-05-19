@@ -98,6 +98,7 @@ const setupDB = () => {
                                             StartAddress POINT,
                                             DestinationAddress POINT,
                                             DriverRideID INT,
+                                            TimeOfJourneyStart DATETIME,
                                             Polyline TEXT,
                                             FOREIGN KEY (PassengerID) REFERENCES RIDE_SHARE.Users(UserID),
                                             FOREIGN KEY (DriverRideID) REFERENCES RIDE_SHARE.Offered_Rides(RideID)

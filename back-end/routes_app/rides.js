@@ -14,7 +14,8 @@ const {
   confirmRide,
   riderCancelled,
   driverCancelled,
-  driverList,
+  driverActiveRides,
+  passengerActiveRides,
   viewPassengers
 } = require("../controllers/rides");
 
@@ -35,8 +36,9 @@ router.route("/:userID/requestRide").post(requestRide);
 router.route("/:userID/submitrides").post(submitRide);
 router.route("/:userID/:rideID/info").post(getRideDetails)
 router.route("/:userID/:rideID/confirm").post(confirmRide);
-router.route("/:userID/driverlist").post(driverList);
-router.route("/:userID/viewpassengers").post(viewPassengers);
+router.route("/:userID/driveractiverides").post(driverActiveRides);
+router.route("/:userID/passengeractiverides").post(passengerActiveRides);
+router.route("/:userID/driverviewpassengers").post(viewPassengers);
 
 router.route("/:userID/:rideID/ridercancel").post(riderCancelled);
 router.route("/:userID/:rideID/drivercancel").post(driverCancelled);

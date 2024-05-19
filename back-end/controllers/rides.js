@@ -12,7 +12,9 @@ const {
   updateLastDriverRideID,
   createBackendFiles,
   buildQueryRetrieveOfferedRide,
-  buildQueryRetrieveUserDetails
+  buildQueryRetrieveUserDetails,
+  buildQueryForPassengerActiveRides,
+  buildQueryRetrieveUserDetailswithDriverRideID
 } = require("./utils");
 
 const bcrypt = require('bcrypt');
@@ -213,8 +215,8 @@ const submitRide = async (req, res) => {
   }
 };
 
-const driverList = async (req, res) => {
-  console.log("API Request to list all Rides with DriverID");
+const driverActiveRides = async (req, res) => {
+  console.log("Recieved API Request for Driver Active Rides");
   const { userID } = req.body;
   if (!userID) {
     return res.status(400).json({
@@ -227,7 +229,6 @@ const driverList = async (req, res) => {
 
 
   try {
-    // Assuming 'execute' is a properly set up function to handle your database operations
     const results = await execute(query, [userID]);
 
     console.log("Requested Data for userID:", userID); // More precise logging
@@ -245,11 +246,49 @@ const driverList = async (req, res) => {
   }
 };
 
+const passengerActiveRides = async (req, res) => {
+  console.log("Recieved API Request for Passenger Active Rides")
+  const userId = req.body.userID; 
+  const query = buildQueryForPassengerActiveRides(userId);
+  retrieveData(query, (err, results) => {
+    if (err) {
+      // Handle error
+      console.error('Error retrieving data:', err);
+      res.status(500).json({ error: 'Error retrieving data' });
+      return;
+    }
+    if(0 == results.length){
+      response = {
+        "message" : "No rides available"
+      }
+      return res.status(200).json(response);
+    }
+    driverRideIDs = [];
+    for(let i = 0; i < results.length; i++){
+      driverRideIDs.push(results[i]['DriverRideID']);
+    }
+    getUserDetailsQuery = buildQueryRetrieveUserDetailswithDriverRideID(driverRideIDs);
+    retrieveData(getUserDetailsQuery, (err1, results1) =>{
+      if(err1){
+        console.error('Error retrieving data:', err1);
+        res.status(500).json({ error: 'Error retrieving data' });
+        return;
+      }
+      for(let i = 0; i < results.length; i++){
+        for(let j = 0; j < results1.length; j++){
+          if(results[i]['DriverRideID'] == results1[j]['DriverRideID']){
+            results[i]['driverDetails'] = results1[j];
+          }
+        }
+      }
+    return res.status(200).json(results);
+    })
+})
+}
+
 const viewPassengers = async (req, res) => {
   console.log("Received API request for View Passengers")
   const {userID} = req.body
-
-
 };
 
 
@@ -366,10 +405,11 @@ const confirmRide = async (req, res) => {
     const { confirmed, offeredRideID, requestedPassengerID } = req.body;
     if (confirmed) {
         const query = `
-            INSERT INTO RIDE_SHARE.Confirmed_Rides (PassengerID, StartAddress, DestinationAddress, DriverRideID, Polyline)
-            SELECT PassengerID, StartAddress, DestinationAddress, ?, Polyline
-            FROM RIDE_SHARE.RequestedRides
-            WHERE PassengerID = ? AND RideID = ?;
+            INSERT INTO RIDE_SHARE.Confirmed_Rides (PassengerID, StartAddress, DestinationAddress, DriverRideID, TimeOfJourneyStart, Polyline)
+            SELECT Req.PassengerID, Req.StartAddress, Req.DestinationAddress, ?, Off.TimeOfJourneyStart, Req.Polyline
+            FROM RIDE_SHARE.RequestedRides Req
+            JOIN RIDE_SHARE.OfferedRides Off ON Req.RideID = Off.RideID
+            WHERE Req.PassengerID = ?;
         `;
 
         connection.query(query, [offeredRideID, requestedPassengerID, offeredRideID], (error, results) => {
@@ -468,6 +508,7 @@ module.exports = {
   confirmRide,
   riderCancelled,
   driverCancelled,
-  driverList,
+  driverActiveRides,
+  passengerActiveRides,
   viewPassengers
 };
