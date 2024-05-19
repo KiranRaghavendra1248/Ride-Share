@@ -134,6 +134,40 @@ const convertTimeToDateTime = (timeString) => {
   return formattedDateTime;
 };
 
+const convertTimeToDateTime_Suraj = (timeString, date) => {
+  // Use the provided date instead of today's date
+  const providedDate = new Date(date);
+
+  // Split the time string into hours, minutes, and AM/PM parts
+  const [time, period] = timeString.split(' ');
+  const [hours, minutes] = time.split(':').map(Number);
+
+  // Convert hours to 24-hour format if needed
+  let hours24 = hours;
+  if (period === 'PM' && hours !== 12) {
+    hours24 += 12;
+  } else if (period === 'AM' && hours === 12) {
+    hours24 = 0;
+  }
+
+  // Set the time from the provided string to the provided date
+  providedDate.setHours(hours24, minutes, 0, 0);
+
+  // Extract the components of the date
+  const year = providedDate.getFullYear();
+  const month = String(providedDate.getMonth() + 1).padStart(2, '0');
+  const day = String(providedDate.getDate()).padStart(2, '0');
+  const hoursFormatted = String(providedDate.getHours()).padStart(2, '0');
+  const minutesFormatted = String(providedDate.getMinutes()).padStart(2, '0');
+  const seconds = '00'; // Set seconds to '00'
+
+  // Format the date and time components into the desired format
+  const formattedDateTime = `${year}-${month}-${day} ${hoursFormatted}:${minutesFormatted}:${seconds}`;
+
+  return formattedDateTime;
+};
+
+
 
 const convertCoordinates = (originalCoordinates) => {
   const [latitude, longitude] = originalCoordinates.split(',');
@@ -168,6 +202,7 @@ const createBackendFiles = () => {
 
 module.exports = { buildQueryForFindRide,
                    convertTimeToDateTime,
+                   convertTimeToDateTime_Suraj,
                    convertCoordinates,
                    validatePassword,
                    getLastUserID,

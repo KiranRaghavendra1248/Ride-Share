@@ -4,6 +4,7 @@ const {
   buildQueryForFindRide,
   buildQueryForSubmitRide,
   convertTimeToDateTime,
+  convertTimeToDateTime_Suraj,
   convertCoordinates,
   validatePassword,
   getLastUserID,
@@ -180,7 +181,9 @@ const submitRide = async (req, res) => {
   const { Date, start_latitude, start_longitude, destination_latitude, destination_longitude, startTime, numSeats, polyline, userID } = req.body;
   const DriverID = userID; // Use userID as DriverID
 
-  const dateTime = convertTimeToDateTime(startTime, Date);
+  console.log(Date)
+  const dateTime = convertTimeToDateTime_Suraj(startTime, Date);
+  console.log(dateTime)
 
   // Correctly construct the POINT from parameters and ensure the order is (longitude, latitude)
   const startCoords = `POINT(${start_longitude} ${start_latitude})`;
@@ -209,6 +212,46 @@ const submitRide = async (req, res) => {
       res.status(500).json({ error: 'Database operation failed', details: error });
   }
 };
+
+const driverList = async (req, res) => {
+  console.log("API Request to list all Rides with DriverID");
+  const { userID } = req.body;
+  if (!userID) {
+    return res.status(400).json({
+      message: "UserID is required"
+    });
+  }
+
+  // Using parameterized queries to prevent SQL injection
+  const query = "SELECT RideID, DriverID, StartAddress, DestinationAddress, SeatsAvailable, DATE_FORMAT(TimeOfJourneyStart, '%Y-%m-%d %H:%i:%s') AS JourneyStart FROM RIDE_SHARE.Offered_Rides WHERE TimeOfJourneyStart > NOW();";
+
+
+  try {
+    // Assuming 'execute' is a properly set up function to handle your database operations
+    const results = await execute(query, [userID]);
+
+    console.log("Requested Data for userID:", userID); // More precise logging
+    res.status(200).json({
+      message: "Rides fetched successfully",
+      data: results
+    });
+    console.log(results)
+  } catch (error) {
+    console.error('Failed to fetch rides:', error);
+    res.status(500).json({
+      error: 'Database operation failed',
+      details: error.message 
+    });
+  }
+};
+
+const viewPassengers = async (req, res) => {
+  console.log("Received API request for View Passengers")
+  const {userID} = req.body
+
+
+};
+
 
 
 const findRides = async (req, res) => {
@@ -424,5 +467,7 @@ module.exports = {
   getRideDetails,
   confirmRide,
   riderCancelled,
-  driverCancelled
+  driverCancelled,
+  driverList,
+  viewPassengers
 };

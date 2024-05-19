@@ -13,7 +13,9 @@ const {
   getRideDetails,
   confirmRide,
   riderCancelled,
-  driverCancelled
+  driverCancelled,
+  driverList,
+  viewPassengers
 } = require("../controllers/rides");
 
 router.route("/login").post(loginUser);
@@ -33,8 +35,10 @@ router.route("/:userID/requestRide").post(requestRide);
 router.route("/:userID/submitrides").post(submitRide);
 router.route("/:userID/:rideID/info").post(getRideDetails)
 router.route("/:userID/:rideID/confirm").post(confirmRide);
+router.route("/:userID/driverlist").post(driverList);
+router.route("/:userID/viewpassengers").post(viewPassengers);
 
-router.route("/:userID/:rideID/ridercancel").post(riderCancelled)
+router.route("/:userID/:rideID/ridercancel").post(riderCancelled);
 router.route("/:userID/:rideID/drivercancel").post(driverCancelled);
 
 module.exports = router;
