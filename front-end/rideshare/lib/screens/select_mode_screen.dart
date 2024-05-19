@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rideshare/firebase_messaging/notification_handler.dart';
 import 'add_ride_first_screen.dart';
 import 'find_ride_first_screen.dart';
-import 'CancelRideScreen.dart';
+import 'active_rides_screen.dart';
 
 
 class SelectMode extends StatelessWidget {
@@ -99,7 +99,7 @@ class SelectMode extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: (){
                   Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
-                    return const ModeSelectionScreen();
+                    return const ActiveRidesScreen();
                   }));
                 },
                 child: const Text(
