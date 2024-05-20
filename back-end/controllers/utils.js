@@ -151,8 +151,11 @@ const convertTimeToDateTime = (timeString) => {
 };
 
 const convertTimeToDateTime_Suraj = (timeString, date) => {
-  // Use the provided date instead of today's date
+  // Assuming the date is passed in as a UTC string
   const providedDate = new Date(date);
+
+  // Log the provided UTC date for debugging
+  console.log('Provided UTC date:', providedDate.toISOString());
 
   // Split the time string into hours, minutes, and AM/PM parts
   const [time, period] = timeString.split(' ');
@@ -166,14 +169,15 @@ const convertTimeToDateTime_Suraj = (timeString, date) => {
     hours24 = 0;
   }
 
-  // Set the time from the provided string to the provided date
-  providedDate.setHours(hours24, minutes, 0, 0);
-  // Extract the components of the date
-  const year = providedDate.getFullYear();
-  const month = String(providedDate.getMonth() + 1).padStart(2, '0');
-  const day = String(providedDate.getDate()+1).padStart(2, '0');
-  const hoursFormatted = String(providedDate.getHours()).padStart(2, '0');
-  const minutesFormatted = String(providedDate.getMinutes()).padStart(2, '0');
+  // Set the time from the provided string to the provided date using UTC methods
+  providedDate.setUTCHours(hours24, minutes, 0, 0);
+
+  // Extract the components of the date using UTC methods
+  const year = providedDate.getUTCFullYear();
+  const month = String(providedDate.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(providedDate.getUTCDate()).padStart(2, '0');
+  const hoursFormatted = String(providedDate.getUTCHours()).padStart(2, '0');
+  const minutesFormatted = String(providedDate.getUTCMinutes()).padStart(2, '0');
   const seconds = '00'; // Set seconds to '00'
 
   // Format the date and time components into the desired format
