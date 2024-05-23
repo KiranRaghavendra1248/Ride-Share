@@ -7,7 +7,7 @@ import 'package:rideshare/screens/signin_screen.dart';
 import 'package:rideshare/theme/theme.dart';
 import 'package:rideshare/ID/backend_identifier.dart';
 
-import '../firebase_messaging/notification_handler.dart';
+import '../firebase_messaging/notification_listener.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);

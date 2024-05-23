@@ -86,9 +86,9 @@ class _RideDetailsPage extends State<RideDetailPage>{
 
   @override
   Widget build(BuildContext context) {
-    Color getColor(double percentage) {
+    Color getColor(double mtsToCover) {
       // This function determines the color from green to red based on the match percentage
-      return Color.lerp(Colors.redAccent, Colors.lightGreenAccent, percentage / 100) ?? Colors.lightGreenAccent;
+      return Color.lerp(Colors.lightGreen, Colors.red[700], mtsToCover / 3000) ?? Colors.lightGreenAccent;
     }
 
     return Scaffold(
@@ -138,7 +138,7 @@ class _RideDetailsPage extends State<RideDetailPage>{
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Row(
+                  Row (
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
@@ -298,9 +298,12 @@ class _RideDetailsPage extends State<RideDetailPage>{
   }
 
   void drawPolyline() async{
-    LatLng start = parseLatLngFromString(widget.requestedRide.startAddress);
-    LatLng destination = parseLatLngFromString(widget.requestedRide.destinationAddress);
-    LatLng midPoint = calculateMidpoint(start, destination);
+    LatLng passengerstart = parseLatLngFromString(widget.requestedRide.startAddress);
+    LatLng passengerdestination = parseLatLngFromString(widget.requestedRide.destinationAddress);
+    LatLng midPoint = calculateMidpoint(passengerstart, passengerdestination);
+
+    LatLng driverstart = parseLatLngFromString(widget.ride.startAddress);
+    LatLng driverdestination = parseLatLngFromString(widget.ride.destinationAddress);
 
     _controller.animateCamera(
         CameraUpdate.newCameraPosition(
@@ -310,25 +313,8 @@ class _RideDetailsPage extends State<RideDetailPage>{
         )
     );
 
-    var response = await http.post(Uri.parse(
-        "https://maps.googleapis.com/maps/api/directions/json?key="+gmaps_api_key+
-            "&units=metric"+
-            "&origin="+widget.requestedRide.startAddress+
-            "&destination="+widget.requestedRide.destinationAddress+
-            "&mode=driving"
-    ));
-    polylineResponse = PolylineResponse.fromJson(jsonDecode(response.body));
-    createPolyline(start.latitude, start.longitude, destination.latitude, destination.longitude, "Purple");
-
-    var secondResponse = await http.post(Uri.parse(
-        "https://maps.googleapis.com/maps/api/directions/json?key="+gmaps_api_key+
-            "&units=metric"+
-            "&origin="+widget.ride.startAddress+
-            "&destination="+widget.ride.destinationAddress+
-            "&mode=driving"
-    ));
-    polylineResponse = PolylineResponse.fromJson(jsonDecode(secondResponse.body));
-    createPolyline(start.latitude, start.longitude, destination.latitude, destination.longitude, "Blue");
+    createPolyline(passengerstart.latitude, passengerstart.longitude, passengerdestination.latitude, passengerdestination.longitude, "Purple");
+    createPolyline(driverstart.latitude, driverstart.longitude, driverdestination.latitude, driverdestination.longitude, "Blue");
     setState(() {});
   }
 }

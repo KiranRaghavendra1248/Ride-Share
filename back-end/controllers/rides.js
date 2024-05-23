@@ -4,6 +4,7 @@ const {
   buildQueryForFindRide,
   buildQueryForSubmitRide,
   convertTimeToDateTime,
+  convertTimeToDateTime_Suraj,
   convertCoordinates,
   validatePassword,
   getLastUserID,
@@ -11,12 +12,15 @@ const {
   updateLastDriverRideID,
   createBackendFiles,
   buildQueryRetrieveOfferedRide,
-  buildQueryRetrieveUserDetails
+  buildQueryRetrieveUserDetails,
+  buildQueryForPassengerActiveRides,
+  buildQueryRetrieveUserDetailswithDriverRideID
 } = require("./utils");
 
 const bcrypt = require('bcrypt');
 const validator = require('validator');
 const fs = require('fs');
+const moment = require('moment');
 
 
 const signUpUser = async (req, res) => {
@@ -180,7 +184,9 @@ const submitRide = async (req, res) => {
   const { Date, start_latitude, start_longitude, destination_latitude, destination_longitude, startTime, numSeats, polyline, userID } = req.body;
   const DriverID = userID; // Use userID as DriverID
 
-  const dateTime = convertTimeToDateTime(startTime, Date);
+  console.log(Date)
+  const dateTime = convertTimeToDateTime_Suraj(startTime, Date);
+  console.log(dateTime)
 
   // Correctly construct the POINT from parameters and ensure the order is (longitude, latitude)
   const startCoords = `POINT(${start_longitude} ${start_latitude})`;
@@ -209,6 +215,84 @@ const submitRide = async (req, res) => {
       res.status(500).json({ error: 'Database operation failed', details: error });
   }
 };
+
+const driverActiveRides = async (req, res) => {
+  console.log("Recieved API Request for Driver Active Rides");
+  const { userID } = req.body;
+  if (!userID) {
+    return res.status(400).json({
+      message: "UserID is required"
+    });
+  }
+  // Using parameterized queries to prevent SQL injection
+  const query = `SELECT 
+  RideID, DriverID, StartAddress, DestinationAddress, SeatsAvailable, DATE_FORMAT(TimeOfJourneyStart, '%Y-%m-%d %H:%i:%s') AS JourneyStart 
+  FROM RIDE_SHARE.Offered_Rides 
+  WHERE DriverID = ${userID} AND TimeOfJourneyStart > NOW();`;
+
+  retrieveData(query, (err,results) => {
+    if(err){
+      console.error("Error retrieving Driver Active Rides");
+      res.status(500).json({ error: 'Error retrieving data' });
+      return;
+    }
+    if(0 == results.length){
+      response = {
+        "message" : "No rides available"
+      }
+      return res.status(200).json(response);
+    }
+    console.log(results);
+    return res.status(200).json(results);
+  })
+};
+
+const passengerActiveRides = async (req, res) => {
+  console.log("Recieved API Request for Passenger Active Rides")
+  const userId = req.body.userID; 
+  const query = buildQueryForPassengerActiveRides(userId);
+  retrieveData(query, (err, results) => {
+    if (err) {
+      // Handle error
+      console.error('Error retrieving data:', err);
+      res.status(500).json({ error: 'Error retrieving data' });
+      return;
+    }
+    if(0 == results.length){
+      response = {
+        "message" : "No rides available"
+      }
+      return res.status(200).json(response);
+    }
+    driverRideIDs = [];
+    for(let i = 0; i < results.length; i++){
+      driverRideIDs.push(results[i]['DriverRideID']);
+    }
+    getUserDetailsQuery = buildQueryRetrieveUserDetailswithDriverRideID(driverRideIDs);
+    retrieveData(getUserDetailsQuery, (err1, results1) =>{
+      if(err1){
+        console.error('Error retrieving data:', err1);
+        res.status(500).json({ error: 'Error retrieving data' });
+        return;
+      }
+      for(let i = 0; i < results.length; i++){
+        for(let j = 0; j < results1.length; j++){
+          if(results[i]['DriverRideID'] == results1[j]['DriverRideID']){
+            results[i]['driverDetails'] = results1[j];
+          }
+        }
+      }
+      console.log(results);
+      return res.status(200).json(results);
+    })
+})
+}
+
+const viewPassengers = async (req, res) => {
+  console.log("Received API request for View Passengers")
+  const {userID} = req.body
+};
+
 
 
 const findRides = async (req, res) => {
@@ -256,7 +340,6 @@ const findRides = async (req, res) => {
           }
         }
       }
-      console.log(userDetails);
       // Send the results back to the client
       console.log(results);
       return res.status(200).json(results);
@@ -309,7 +392,7 @@ const requestRide = async (req, res) => {
       };
 
       sendRideRequestToDriver(driverID, notifData);
-      res.status(200);
+      res.status(200).json({status: "success"});
     }
   });
 }
@@ -319,14 +402,15 @@ const getRideDetails = async (req, res) => {
 };
 
 const confirmRide = async (req, res) => {
-  console.log("Recieved API request for Confirm Ride");
+  console.log("Recieved API request for Confirm Ride", req.body);
     const { confirmed, offeredRideID, requestedPassengerID } = req.body;
     if (confirmed) {
         const query = `
-            INSERT INTO RIDE_SHARE.Confirmed_Rides (PassengerID, StartAddress, DestinationAddress, DriverRideID, Polyline)
-            SELECT PassengerID, StartAddress, DestinationAddress, ?, Polyline
-            FROM RIDE_SHARE.RequestedRides
-            WHERE PassengerID = ? AND RideID = ?;
+            INSERT INTO RIDE_SHARE.Confirmed_Rides (PassengerID, StartAddress, DestinationAddress, DriverRideID, TimeOfJourneyStart, Polyline)
+            SELECT Req.PassengerID, Req.StartAddress, Req.DestinationAddress, ?, Off.TimeOfJourneyStart, Req.Polyline
+            FROM RIDE_SHARE.RequestedRides Req
+            JOIN RIDE_SHARE.Offered_Rides Off ON Req.RideID = Off.RideID
+            WHERE Req.PassengerID = ?;
         `;
 
         connection.query(query, [offeredRideID, requestedPassengerID, offeredRideID], (error, results) => {
@@ -339,7 +423,7 @@ const confirmRide = async (req, res) => {
                 // send the notification to requestedPassengerID that the ride has been confirmed
                 // and send the ride id of the entry from Confirmed_Rides table
                   const notifData = {
-                      offeredRideId: selectedRideId,
+                      offeredRideId: offeredRideID,
                       confirmedRideId: insertedRideID
                   };
 
@@ -358,7 +442,7 @@ const confirmRide = async (req, res) => {
             } else {
                 // send the notification to requestedPassengerID that the request was denied
                   const notifData = {
-                      offeredRideId: selectedRideId,
+                      offeredRideId: offeredRideID,
                   };
 
                   sendRideRejectionToRider(requestedPassengerID, notifData);
@@ -409,8 +493,72 @@ const riderCancelled = async (req, res) => {
 
 const driverCancelled = async (req, res) => {
   console.log("Recieved API request for Driver Side Ride Cancellation");
-
 };
+
+const getRequestedRide = async (req, res) => {
+  const { offeredRideId, requestedPassengerId } = req.params;
+
+  console.log("Received API request from driver to fetch the details of the requested ride");
+
+  const query = `
+    SELECT
+      u.Name AS DriverName,
+      ST_X(o.StartAddress) AS DriverStartLat,
+      ST_Y(o.StartAddress) AS DriverStartLng,
+      ST_X(o.DestinationAddress) AS DriverEndLat,
+      ST_Y(o.DestinationAddress) AS DriverEndLng,
+      o.SeatsAvailable,
+      DATE_FORMAT(o.TimeOfJourneyStart, '%Y-%m-%dT%H:%i:%sZ') AS TimeOfJourneyStart,
+      o.Polyline,
+      u2.Name AS RiderName,
+      ST_X(r.StartAddress) AS RiderStartLat,
+      ST_Y(r.StartAddress) AS RiderStartLng,
+      ST_X(r.DestinationAddress) AS RiderEndLat,
+      ST_Y(r.DestinationAddress) AS RiderEndLng,
+      r.SeatsRequested
+    FROM
+      RIDE_SHARE.Offered_Rides o
+    LEFT JOIN
+      RIDE_SHARE.RequestedRides r ON o.RideID = r.RideID
+    LEFT JOIN
+      RIDE_SHARE.Users u ON o.DriverID = u.UserID
+    LEFT JOIN
+      RIDE_SHARE.Users u2 ON r.PassengerID = u2.UserID
+    WHERE
+      o.RideID = ? AND r.PassengerID = ?;
+  `;
+
+  connection.query(query, [offeredRideId, requestedPassengerId], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Database query error' });
+      return;
+    }
+    if (results.length > 0) {
+      const result = results[0];
+      const response = {
+        DriverName: result.DriverName,
+        DriverStartLat: result.DriverStartLat,
+        DriverStartLng: result.DriverStartLng,
+        DriverEndLat: result.DriverEndLat,
+        DriverEndLng: result.DriverEndLng,
+        SeatsAvailable: result.SeatsAvailable,
+        TimeOfJourneyStart: moment(result.TimeOfJourneyStart).format('MMMM D, YYYY h:mm A'),
+        Polyline: result.Polyline,
+        RiderName: result.RiderName,
+        RiderStartLat: result.RiderStartLat,
+        RiderStartLng: result.RiderStartLng,
+        RiderEndLat: result.RiderEndLat,
+        RiderEndLng: result.RiderEndLng,
+        SeatsRequested: result.SeatsRequested
+      };
+      res.json(response);
+    } else {
+      res.status(404).json({ error: 'Ride not found' });
+    }
+  });
+};
+
 
 module.exports = {
   signUpUser,
@@ -424,5 +572,9 @@ module.exports = {
   getRideDetails,
   confirmRide,
   riderCancelled,
-  driverCancelled
+  driverCancelled,
+  driverActiveRides,
+  passengerActiveRides,
+  viewPassengers,
+  getRequestedRide
 };

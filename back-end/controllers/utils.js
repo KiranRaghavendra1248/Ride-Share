@@ -30,6 +30,15 @@ const buildQueryRetrieveUserDetails = (userIDs) => {
     return query;
 }
 
+const buildQueryRetrieveUserDetailswithDriverRideID = (driverRideIDs) => {
+  const driverRideIDString = driverRideIDs.join(", ");
+
+  const query = `SELECT Off.RideID AS DriverRideID, U.UserID AS UserID, U.Name AS Name, U.EmailID AS EmailID, U.Phone AS Phone
+                  FROM RIDE_SHARE.Users U
+                  JOIN RIDE_SHARE.Offered_Rides Off ON Off.DriverID = U.UserID
+                  WHERE Off.RideID in (${driverRideIDString})`;
+  return query;
+}
 const buildQueryRetrieveConfirmedRide = (rideID) => {
   const query = `SELECT *
                     FROM RIDE_SHARE.Confirmed_Rides
@@ -55,6 +64,13 @@ const buildQueryDeleteConfirmedRide = (rideID) => {
   const query = `DELETE 
                     FROM RIDE_SHARE.Confirmed_Rides 
                     WHERE RideID = ${rideID};`;
+  return query;
+}
+
+const buildQueryForPassengerActiveRides = (userID) => {
+  const query = `SELECT 
+  RideID, StartAddress, DestinationAddress, DriverRideID, DATE_FORMAT(TimeOfJourneyStart, '%Y-%m-%d %H:%i:%s') AS TimeOfJourneyStart
+  FROM RIDE_SHARE.Confirmed_Rides WHERE PassengerID = ${userID} AND TimeOfJourneyStart > NOW();`
   return query;
 }
 
@@ -134,6 +150,43 @@ const convertTimeToDateTime = (timeString) => {
   return formattedDateTime;
 };
 
+const convertTimeToDateTime_Suraj = (timeString, date) => {
+  // Assuming the date is passed in as a UTC string
+  const providedDate = new Date(date);
+
+  // Log the provided UTC date for debugging
+  console.log('Provided UTC date:', providedDate.toISOString());
+
+  // Split the time string into hours, minutes, and AM/PM parts
+  const [time, period] = timeString.split(' ');
+  const [hours, minutes] = time.split(':').map(Number);
+
+  // Convert hours to 24-hour format if needed
+  let hours24 = hours;
+  if (period === 'PM' && hours !== 12) {
+    hours24 += 12;
+  } else if (period === 'AM' && hours === 12) {
+    hours24 = 0;
+  }
+
+  // Set the time from the provided string to the provided date using UTC methods
+  providedDate.setUTCHours(hours24, minutes, 0, 0);
+
+  // Extract the components of the date using UTC methods
+  const year = providedDate.getUTCFullYear();
+  const month = String(providedDate.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(providedDate.getUTCDate()).padStart(2, '0');
+  const hoursFormatted = String(providedDate.getUTCHours()).padStart(2, '0');
+  const minutesFormatted = String(providedDate.getUTCMinutes()).padStart(2, '0');
+  const seconds = '00'; // Set seconds to '00'
+
+  // Format the date and time components into the desired format
+  const formattedDateTime = `${year}-${month}-${day} ${hoursFormatted}:${minutesFormatted}:${seconds}`;
+
+  return formattedDateTime;
+};
+
+
 
 const convertCoordinates = (originalCoordinates) => {
   const [latitude, longitude] = originalCoordinates.split(',');
@@ -168,6 +221,7 @@ const createBackendFiles = () => {
 
 module.exports = { buildQueryForFindRide,
                    convertTimeToDateTime,
+                   convertTimeToDateTime_Suraj,
                    convertCoordinates,
                    validatePassword,
                    getLastUserID,
@@ -178,5 +232,7 @@ module.exports = { buildQueryForFindRide,
                    buildQueryDeleteConfirmedRide,
                    buildQueryForSubmitRide,
                    updateLastDriverRideID,
-                   buildQueryRetrieveUserDetails
+                   buildQueryRetrieveUserDetails,
+                   buildQueryForPassengerActiveRides,
+                   buildQueryRetrieveUserDetailswithDriverRideID
                  }

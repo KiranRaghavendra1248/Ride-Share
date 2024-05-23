@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rideshare/firebase_messaging/notification_handler.dart';
 import 'add_ride_first_screen.dart';
 import 'find_ride_first_screen.dart';
+import 'active_rides_screen.dart';
 
 
 class SelectMode extends StatelessWidget {
@@ -78,6 +79,31 @@ class SelectMode extends StatelessWidget {
                 },
                 child: const Text(
                   "Submit Ride",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontFamily: 'DMSans',
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.grey[900],
+                  backgroundColor: Colors.white,
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            Container(
+              width: 150,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: (){
+                  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){
+                    return const ActiveRidesScreen();
+                  }));
+                },
+                child: const Text(
+                  "Active Rides",
                   style: TextStyle(
                     fontSize: 18,
                     fontFamily: 'DMSans',

@@ -1,13 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 import 'package:icons_plus/icons_plus.dart';
 import 'package:rideshare/components/network_utililty.dart';
 import 'package:rideshare/screens/select_mode_screen.dart';
 import 'package:rideshare/screens/signup_screen.dart';
 import 'package:rideshare/widgets/custom_scaffold.dart';
-import '../firebase_messaging/notification_handler.dart';
+import '../firebase_messaging/notification_listener.dart';
 import '../theme/theme.dart';
 import 'package:rideshare/ID/backend_identifier.dart';
 

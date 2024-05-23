@@ -215,6 +215,8 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
 
                                     List<dynamic> rideList = await makePostRequest(base_url, route, requestBody);
 
+                                    print('List of rides: ${rideList}');
+
 
                                     // Convert JSON objects to Ride objects
                                     List<Ride> rides = rideList.map((json) => Ride.fromJson(json)).toList();
@@ -343,7 +345,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
 
     var response = await http.post(Uri.parse(
         "https://maps.googleapis.com/maps/api/directions/json?key="+gmaps_api_key+
-            "&units=metric"+
+            "&units=imperial"+
             "&origin="+widget.startLocation+
             "&destination="+widget.endLocation+
             "&mode=driving"
