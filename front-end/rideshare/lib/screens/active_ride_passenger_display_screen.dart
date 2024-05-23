@@ -4,18 +4,15 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../ID/backend_identifier.dart';
 
-class RideDetailScreen extends StatelessWidget {
-  final String rideId;
-  final String startAddress;
-  final String destinationAddress;
-  final String journeyStart;
+class RideDetailScreenPassenger extends StatelessWidget {
+  final bookedRide, StartAddress, DestinationAddress, journeyStart;
 
-  const RideDetailScreen({
+  const RideDetailScreenPassenger({
     Key? key,
-    required this.rideId,
-    required this.startAddress,
-    required this.destinationAddress,
-    required this.journeyStart,
+    required this.bookedRide,
+    required this.StartAddress,
+    required this.DestinationAddress,
+    required this.journeyStart
   }) : super(key: key);
 
   Future<List<dynamic>> fetchPassengers(String rideId) async {
@@ -84,59 +81,21 @@ class RideDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Ride ID: $rideId', style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, fontFamily: 'DMSans')),
+                    Text('Ride ID: ${bookedRide.RideID}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, fontFamily: 'DMSans')),
                     SizedBox(height: 18),
-                    Text('Start : $startAddress', style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
+                    Text('Start : ${StartAddress}', style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
                     SizedBox(height: 18),
-                    Text('Destination : $destinationAddress', style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
+                    Text('Destination : ${DestinationAddress}', style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
                     SizedBox(height: 18),
-                    Text('Starting at $journeyStart', style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
+                    Text('Pickup at ${journeyStart}', style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
+                    SizedBox(height: 18),
+                    Text('Travelling with ${bookedRide.driverDetails['Name']}', style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
+                    SizedBox(height: 18),
+                    Text('Contact Info : ${bookedRide.driverDetails['Phone']}', style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
                   ],
                 ),
               ),
               SizedBox(height: 40),
-              Container(
-                width: 300,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      var passengers = await fetchPassengers(rideId);
-                      if (passengers.isEmpty) {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text("No Passengers", style: TextStyle(fontFamily: 'DMSans')),
-                            content: Text("There are no passengers for this ride.", style: TextStyle(fontFamily: 'DMSans')),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: Text("Close", style: TextStyle(fontFamily: 'DMSans')),
-                              ),
-                            ],
-                          ),
-                        );
-                      } else {
-                        // Logic to show passenger details
-                      }
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Failed to fetch passengers: $e', style: TextStyle(fontFamily: 'DMSans')),
-                      ));
-                    }
-                  },
-                  child: const Text('View Passengers', style: TextStyle(fontFamily: 'DMSans')),
-                  style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6), // Adjust the border radius here
-                      ),
-                      foregroundColor: Colors.white, // Change the background color here
-                      backgroundColor: Colors.blue[900], // Change the text color here
-                      padding: EdgeInsets.fromLTRB(0, 15, 0, 15)
-                  )
-                ),
-              ),
-              SizedBox(height: 20),
               Container(
                 width: 300,
                 height: 50,

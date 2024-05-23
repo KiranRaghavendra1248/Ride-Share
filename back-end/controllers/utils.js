@@ -69,7 +69,7 @@ const buildQueryDeleteConfirmedRide = (rideID) => {
 
 const buildQueryForPassengerActiveRides = (userID) => {
   const query = `SELECT 
-  RideID, StartAddress, DestinationAddress, DriverRideID, TimeOfJourneyStart
+  RideID, StartAddress, DestinationAddress, DriverRideID, DATE_FORMAT(TimeOfJourneyStart, '%Y-%m-%d %H:%i:%s') AS TimeOfJourneyStart
   FROM RIDE_SHARE.Confirmed_Rides WHERE PassengerID = ${userID} AND TimeOfJourneyStart > NOW();`
   return query;
 }

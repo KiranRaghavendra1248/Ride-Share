@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:rideshare/screens/active_ride_passenger_display_screen.dart';
 import '../ID/backend_identifier.dart'; // Make sure this path is correct.
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../components/network_utililty.dart';
 import 'package:intl/intl.dart';
 
 import 'active_ride_driver_display_screen.dart';
+import 'active_ride_passenger_display_screen.dart';
 
 class ActiveRidesScreen extends StatefulWidget {
   const ActiveRidesScreen({Key? key}) : super(key: key);
@@ -30,7 +32,7 @@ class _ActiveRidesScreen extends State<ActiveRidesScreen> with SingleTickerProvi
     String routePassenger = "api/v1/users/$userID/passengeractiverides";
     List<dynamic> response = await makePostRequest(base_url, routePassenger, requestBody);
     setState(() {
-      ridesBooked = response.map((ride) => BookedRide.fromJson(ride)).toList();;
+      ridesBooked = response.map((ride) => BookedRide.fromJson(ride)).toList();
     });
   }
 
@@ -55,7 +57,11 @@ class _ActiveRidesScreen extends State<ActiveRidesScreen> with SingleTickerProvi
         Placemark place = placemarks.first;
         String address = "";
         if (place.street != null) {
-          address += place.street!;
+          var split = place.street!.split(" ");
+          for(int i=1; i<split.length; i++){
+            address += place.street!.split(" ")[i];
+            if(i != split.length - 1) address += " ";
+          }
         }
         return address;
       } else {
@@ -156,7 +162,9 @@ class _ActiveRidesScreen extends State<ActiveRidesScreen> with SingleTickerProvi
                           rideId : ridesOffered[index].RideID,
                           startAddress : snapshot.data![0],
                           destinationAddress : snapshot.data![1],
-                          journeyStart: formattedDate)));
+                          journeyStart: formattedDate)
+                      )
+                  );
                 },
                 // Add other ride details here
                 );
@@ -192,11 +200,30 @@ class _ActiveRidesScreen extends State<ActiveRidesScreen> with SingleTickerProvi
                   String formattedDate = DateFormat('h:mm a on MMM d yyyy').format(journeyStart);
                   return ListTile(
                     title: Text(
-                        "${snapshot.data![0]} to ${snapshot.data![1]}"
+                        "${snapshot.data![0]} - ${snapshot.data![1]}",
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: 'DMSans',
+                          fontWeight: FontWeight.bold,
+                        )
                     ),
-                    subtitle: Text("Starting Journey at ${formattedDate}"),
+                    subtitle: Text(
+                        "Pickup at ${formattedDate}",
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontFamily: 'DMSans',
+                          fontWeight: FontWeight.normal,
+                        )
+                    ),
                     onTap: () {
-
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => RideDetailScreenPassenger(
+                              bookedRide : ridesBooked[index], StartAddress : snapshot.data![0], DestinationAddress : snapshot.data![1], journeyStart : formattedDate
+                          )
+                          )
+                      );
                     },
                   );
                 }

@@ -10,7 +10,8 @@ import 'notification_handler.dart';
 
 Future<String> getFCMToken() async {
   String? token = await FirebaseMessaging.instance.getToken();
-  return token ?? "";
+  String token_string = token ?? "";
+  return token_string;
 }
 
 Future<void> updateFCMToken() async {

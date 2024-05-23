@@ -282,6 +282,7 @@ const passengerActiveRides = async (req, res) => {
           }
         }
       }
+      console.log(results);
       return res.status(200).json(results);
     })
 })
@@ -408,7 +409,7 @@ const confirmRide = async (req, res) => {
             INSERT INTO RIDE_SHARE.Confirmed_Rides (PassengerID, StartAddress, DestinationAddress, DriverRideID, TimeOfJourneyStart, Polyline)
             SELECT Req.PassengerID, Req.StartAddress, Req.DestinationAddress, ?, Off.TimeOfJourneyStart, Req.Polyline
             FROM RIDE_SHARE.RequestedRides Req
-            JOIN RIDE_SHARE.OfferedRides Off ON Req.RideID = Off.RideID
+            JOIN RIDE_SHARE.Offered_Rides Off ON Req.RideID = Off.RideID
             WHERE Req.PassengerID = ?;
         `;
 

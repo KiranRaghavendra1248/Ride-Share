@@ -48,7 +48,11 @@ class GeocodedWaypoints {
     geocoderStatus = json['geocoder_status'];
     partialMatch = json['partial_match'];
     placeId = json['place_id'];
-    types = json['types'].cast<String>();
+    if (json['types'] != null) {
+      types = List<String>.from(json['types'].map((type) => type as String));
+    } else {
+      types = null;
+    }
   }
 
   Map<String, dynamic> toJson() {

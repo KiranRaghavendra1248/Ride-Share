@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:intl/intl.dart';
 
 import 'show_ride_details.dart';
 
@@ -48,6 +50,31 @@ class RideListWidget extends StatelessWidget {
 
   const RideListWidget({Key? key, required this.rides, required this.requestedRide}) : super(key: key);
 
+  Future<String> getAddressFromLatLong(double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(longitude, latitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        String address = "";
+        if (place.street != null) {
+          var split = place.street!.split(" ");
+          for(int i=1; i<split.length; i++){
+            address += place.street!.split(" ")[i];
+            if(i != split.length - 1) address += " ";
+          }
+        }
+        return address;
+      } else {
+        print("No placemarks found for the given coordinates: Lat=$latitude, Long=$longitude");
+        return "No address available";
+      }
+    } catch (e, stacktrace) {
+      print("Failed to get address due to an error: $e");
+      print("Stacktrace: $stacktrace");
+      return "Failed to get address";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -67,9 +94,59 @@ class RideListWidget extends StatelessWidget {
       body: ListView.builder(
         itemCount: rides.length,
         itemBuilder: (context, index) {
-          return RideWidget(
-            ride: rides[index],
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RideDetailPage(rides[index], requestedRide, null))),
+          var ride = rides[index];
+          double startX = double.parse(ride.startAddress.split(",")[0]); // Longitude
+          double startY = double.parse(ride.startAddress.split(",")[1]); // Latitude
+          double destX = double.parse(ride.destinationAddress.split(",")[0]); // Longitude
+          double destY = double.parse(ride.destinationAddress.split(",")[1]); // Latitude
+
+          return FutureBuilder(
+              future: Future.wait([
+                getAddressFromLatLong(startX, startY),
+                getAddressFromLatLong(destX, destY),
+              ]),
+              builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  DateTime journeyStart = DateTime.parse(rides[index].startTime);
+                  String formattedDate = DateFormat('h:mm a on MMM d yyyy').format(journeyStart);
+                  return ListTile(
+                    title: Padding(
+                      padding: const EdgeInsets.fromLTRB(3, 3, 0, 0),
+                      child: Text(
+                          "${snapshot.data![0]} - ${snapshot.data![1]}",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontFamily: 'DMSans',
+                            fontWeight: FontWeight.bold,
+                          )
+                      ),
+                    ),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 2, 0, 0),
+                      child: Text(
+                          "Starting Journey at ${formattedDate}",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'DMSans',
+                            fontWeight: FontWeight.normal,
+                          )
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) =>  RideDetailPage(rides[index], requestedRide, null)));
+                    },
+                    // Add other ride details here
+                  );
+                }
+              }
           );
         },
       ),
