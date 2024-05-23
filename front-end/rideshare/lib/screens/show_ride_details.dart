@@ -228,6 +228,9 @@ class _RideDetailsPage extends State<RideDetailPage>{
                   child: Text('OK',style : TextStyle(fontSize: 18, fontFamily: 'DMSans',color: Colors.blue)),
                   onPressed: () {
                     Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
                   }),]
         );
       },

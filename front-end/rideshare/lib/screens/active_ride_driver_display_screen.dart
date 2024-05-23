@@ -110,7 +110,7 @@ class RideDetailScreen extends StatelessWidget {
                               borderRadius: BorderRadius.zero,
                             ),
                             title: Text("No Passengers", style: TextStyle(fontFamily: 'DMSans')),
-                            content: Text("There are no passengers for this ride.", style: TextStyle(fontFamily: 'DMSans')),
+                            content: Text("There are no passengers for this ride.", style: TextStyle(fontSize:16, fontFamily: 'DMSans')),
                             actions: <Widget>[
                               TextButton(
                                 onPressed: () => Navigator.of(context).pop(),
@@ -145,16 +145,34 @@ class RideDetailScreen extends StatelessWidget {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () async {
-                    try {
-                      Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Ride cancelled successfully', style: TextStyle(fontFamily: 'DMSans')),
-                      ));
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Failed to cancel ride: $e', style: TextStyle(fontFamily: 'DMSans')),
-                      ));
-                    }
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
+                        ),
+                        title: Text("Are you sure you want to cancel?", style: TextStyle(fontSize : 22, fontFamily: 'DMSans')),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              try {
+                                // Perform Cancellation API/Function call here
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text('Ride cancelled successfully', style: TextStyle(fontFamily: 'DMSans')),
+                                ));
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text('Failed to cancel ride: $e', style: TextStyle(fontFamily: 'DMSans')),
+                                ));
+                              }
+                            },
+                            child: Text("Yes", style: TextStyle(fontSize : 18, fontFamily: 'DMSans', color: Colors.redAccent)),
+                          ),
+                        ],
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
