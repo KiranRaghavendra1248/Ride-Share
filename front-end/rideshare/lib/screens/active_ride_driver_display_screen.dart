@@ -106,6 +106,9 @@ class RideDetailScreen extends StatelessWidget {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
                             title: Text("No Passengers", style: TextStyle(fontFamily: 'DMSans')),
                             content: Text("There are no passengers for this ride.", style: TextStyle(fontFamily: 'DMSans')),
                             actions: <Widget>[

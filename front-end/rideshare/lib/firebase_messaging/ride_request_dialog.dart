@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -46,42 +47,28 @@ class _RideRequestDialogState extends State<RideRequestDialog> {
     }
   }
 
-  Future<String> fetchAddress(double lat, double lng) async {
-    String gmapsApiKey = dotenv.env["GOOGLE_MAPS_API_KEY"] ?? "";
-    final url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lng,$lat&key=$gmapsApiKey';
-    print('Fetching address from: $url');
-
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['results'] != null && data['results'].length > 0) {
-        // Extract the required components
-        final components = data['results'][0]['address_components'];
-        String street = '';
-        String locality = '';
-        String administrativeArea = '';
-        for (var component in components) {
-          if (component['types'].contains('route')) {
-            street = component['long_name'];
-          }
-          if (component['types'].contains('locality')) {
-            locality = component['long_name'];
-          }
-          if (component['types'].contains('administrative_area_level_1')) {
-            administrativeArea = component['short_name'];
+  Future<String> getAddressFromLatLong(double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(longitude, latitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        String address = "";
+        if (place.street != null) {
+          var split = place.street!.split(" ");
+          for(int i=1; i<split.length; i++){
+            address += place.street!.split(" ")[i];
+            if(i != split.length - 1) address += " ";
           }
         }
-        String address = '$street, $locality, $administrativeArea';
-        print('Successfully fetched address: $address');
         return address;
       } else {
-        print('Address not found');
-        return 'Address not found';
+        print("No placemarks found for the given coordinates: Lat=$latitude, Long=$longitude");
+        return "No address available";
       }
-    } else {
-      print('Failed to load address: ${response.statusCode}');
-      throw Exception('Failed to load address');
+    } catch (e, stacktrace) {
+      print("Failed to get address due to an error: $e");
+      print("Stacktrace: $stacktrace");
+      return "Failed to get address";
     }
   }
 
@@ -121,10 +108,10 @@ class _RideRequestDialogState extends State<RideRequestDialog> {
           final data = snapshot.data!;
           return FutureBuilder<List<String>>(
             future: Future.wait([
-              fetchAddress(data['DriverStartLat'], data['DriverStartLng']),
-              fetchAddress(data['DriverEndLat'], data['DriverEndLng']),
-              fetchAddress(data['RiderStartLat'], data['RiderStartLng']),
-              fetchAddress(data['RiderEndLat'], data['RiderEndLng']),
+              getAddressFromLatLong(data['DriverStartLat'], data['DriverStartLng']),
+              getAddressFromLatLong(data['DriverEndLat'], data['DriverEndLng']),
+              getAddressFromLatLong(data['RiderStartLat'], data['RiderStartLng']),
+              getAddressFromLatLong(data['RiderEndLat'], data['RiderEndLng']),
             ]),
             builder: (context, addressSnapshot) {
               if (addressSnapshot.connectionState == ConnectionState.waiting) {
@@ -143,57 +130,57 @@ class _RideRequestDialogState extends State<RideRequestDialog> {
                 );
               } else if (addressSnapshot.hasError) {
                 return AlertDialog(
-                  title: Text('Error', style: TextStyle(color: Colors.blueAccent)),
+                  title: Text('Error', style: TextStyle(color: Colors.blue)),
                   content: Text('Failed to load addresses'),
                   actions: [
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: Text('OK', style: TextStyle(color: Colors.blueAccent)),
+                      child: Text('OK', style: TextStyle(color: Colors.blue)),
                     ),
                   ],
                 );
               } else if (addressSnapshot.hasData) {
                 final addresses = addressSnapshot.data!;
                 return AlertDialog(
-                  title: Text('New Ride Request', style: TextStyle(color: Colors.blueAccent)),
+                  title: Text('New Ride Request', style : TextStyle(fontWeight: FontWeight.normal, fontFamily: 'DMSans', color: Colors.indigo)),
                   content: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         _buildSectionTitle('Your Ride'),
-                        _buildDetailRow('Starting from:', addresses[0]),
-                        _buildDetailRow('Going to:', addresses[1]),
-                        _buildDetailRow('You\'re leaving at:', data['TimeOfJourneyStart']),
+                        _buildDetailRow('Start:', addresses[0]),
+                        _buildDetailRow('Destination:', addresses[1]),
+                        _buildDetailRow('Leaving at:', data['TimeOfJourneyStart']),
                         _buildDetailRow('Available Seats:', data['SeatsAvailable'].toString()),
                         Divider(color: Colors.grey),
                         _buildSectionTitle('Requested Ride'),
-                        _buildDetailRow('Passenger Name:', data['RiderName']),
+                        _buildDetailRow('Passenger :', data['RiderName']),
                         _buildDetailRow('Start:', addresses[2]),
-                        _buildDetailRow('End:', addresses[3]),
+                        _buildDetailRow('Destination:', addresses[3]),
                         _buildDetailRow('Requested Seats:', data['SeatsRequested'].toString()),
                       ],
                     ),
                   ),
                   actions: <Widget>[
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         TextButton(
                           onPressed: () {
                             widget.onDecline(widget.remoteMessage.data);
                             Navigator.of(context).pop();
                           },
-                          child: Text('Decline', style: TextStyle(color: Colors.blueAccent)),
+                          child: Text('Decline', style: TextStyle(fontSize: 18, fontFamily: 'DMSans',color: Colors.red)),
                         ),
                         TextButton(
                           onPressed: () {
                             widget.onAccept(widget.remoteMessage.data);
                             Navigator.of(context).pop();
                           },
-                          child: Text('Accept', style: TextStyle(color: Colors.blueAccent)),
+                          child: Text('Accept', style: TextStyle(fontSize: 18, fontFamily: 'DMSans', color: Colors.blue)),
                         ),
                       ],
                     ),
@@ -216,7 +203,7 @@ class _RideRequestDialogState extends State<RideRequestDialog> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Text(
         title,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.blueAccent),
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal, fontFamily: 'DMSans', color: Colors.indigo),
       ),
     );
   }
@@ -227,9 +214,9 @@ class _RideRequestDialogState extends State<RideRequestDialog> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(label, style: TextStyle(fontSize: 16, fontFamily: 'DMSans')),
           SizedBox(width: 5),
-          Expanded(child: Text(value)),
+          Expanded(child: Text(value, style: TextStyle(fontSize: 16, fontFamily: 'DMSans'))),
         ],
       ),
     );

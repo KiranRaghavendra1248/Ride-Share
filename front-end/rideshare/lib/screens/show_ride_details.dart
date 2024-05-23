@@ -13,6 +13,7 @@ import '../components/src/PointLatLng.dart';
 import '../components/src/utils/polyline_result.dart';
 import '../components/src/utils/request_enums.dart';
 import '../model/polyline_response.dart';
+import 'package:intl/intl.dart';
 
 class Ride {
   final int driverId;
@@ -90,6 +91,10 @@ class _RideDetailsPage extends State<RideDetailPage>{
       // This function determines the color from green to red based on the match percentage
       return Color.lerp(Colors.lightGreen, Colors.red[700], mtsToCover / 3000) ?? Colors.lightGreenAccent;
     }
+    DateTime journeyStart = DateTime.parse(widget.ride.startTime);
+    String formattedDate = DateFormat('h:mm a on MMM d yyyy').format(journeyStart);
+    double distOnOwn = widget.ride.distanceInMts*0.000621371;
+    int distanceOnOwn = distOnOwn.toInt();
 
     return Scaffold(
       appBar: AppBar(
@@ -145,9 +150,17 @@ class _RideDetailsPage extends State<RideDetailPage>{
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Text('${widget.ride.driverDetails['Name'].toString()}', style: Theme.of(context).textTheme.headline6),
-                          Text('${widget.ride.distanceInMts} m to be covered on your own', style: Theme.of(context).textTheme.bodyText1),
-                          Text('Starts at: ${widget.ride.startTime}', style: Theme.of(context).textTheme.bodyText1),
+                          Text(
+                              'Travel with ${widget.ride.driverDetails['Name'].toString()}',
+                              style: TextStyle(fontSize: 18, fontFamily: 'DMSans')
+                          ),
+                          Text(
+                              '${distanceOnOwn} mi to be covered on your own',
+                              style: TextStyle(fontSize: 18, fontFamily: 'DMSans')
+                          ),
+                          Text(
+                              'Pickup at: ${formattedDate}',
+                            style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
                         ],
                       ),
                     ],
@@ -173,7 +186,15 @@ class _RideDetailsPage extends State<RideDetailPage>{
 
                         showConfirmationDialog(context);
                       },
-                      child: Text('Submit Request'),
+                      style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6), // Adjust the border radius here
+                          ),
+                          foregroundColor: Colors.white, // Change the background color here
+                          backgroundColor: Colors.black38, // Change the text color here
+                          padding: EdgeInsets.fromLTRB(0, 15, 0, 15)
+                      ),
+                      child: Text('Submit Request',style: TextStyle(fontSize: 14, fontFamily: 'DMSans'),),
                     ),
                   ),
                 ],
@@ -192,26 +213,22 @@ class _RideDetailsPage extends State<RideDetailPage>{
       barrierDismissible: false,  // User must tap button!
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text('Waiting for Confirmation'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          title: Text('Ride Request Submitted',style: TextStyle(fontFamily: 'DMSans'),),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text("You'll be notified when the driver accepts the ride request"),
-              SizedBox(height: 20),
-              CircularProgressIndicator(),
+              Text("You'll be notified when the driver accepts the ride request", style : TextStyle(fontSize: 16, fontFamily: 'DMSans',color: Colors.indigo)),
             ],
           ),
-          actions: <Widget>[
-            ElevatedButton(
-              child: Text('Return to Home Page'),
-              onPressed: () {
-                // Here we pop the dialog first
-                Navigator.of(context).pop();
-                // And then navigate to the home page
-                Navigator.of(context).popUntil(ModalRoute.withName('/selectMode'));
-              },
-            ),
-          ],
+            actions: <Widget>[
+              TextButton(
+                  child: Text('OK',style : TextStyle(fontSize: 18, fontFamily: 'DMSans',color: Colors.blue)),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  }),]
         );
       },
     );
