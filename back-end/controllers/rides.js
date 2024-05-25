@@ -291,9 +291,48 @@ const passengerActiveRides = async (req, res) => {
 }
 
 const viewPassengers = async (req, res) => {
-  console.log("Received API request for View Passengers")
-  const {userID} = req.body
+  console.log("Received API request for View Passengers");
+  const { userID, RideID } = req.body;
+
+  if (!userID) {
+    return res.status(400).json({
+      message: "UserID is required"
+    });
+  }
+
+  const query = "SELECT PassengerID FROM RIDE_SHARE.Confirmed_Rides WHERE DriverRideID = ?;";
+  try {
+    const results = await execute(query, [RideID]);
+    console.log("Query results:", results); // Check what results look like
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "No passengers found" });
+    }
+
+    const passengerIDs = results.map(row => row.PassengerID);
+    console.log("Passenger IDs:", passengerIDs); // Log to see the passenger IDs
+
+    if (passengerIDs.length > 0) {
+      // SQL IN clause handling
+      const placeholders = passengerIDs.map(() => '?').join(',');
+      const users_query = `SELECT Name, Phone FROM RIDE_SHARE.Users WHERE UserID IN (${placeholders});`;
+      const final_res = await execute(users_query, passengerIDs);
+      console.log("Final results:", final_res); // Log final results
+
+      if (final_res.length > 0) {
+        res.status(200).json(final_res);
+      } else {
+        res.status(404).json({ message: "No user details found for provided IDs" });
+      }
+    } else {
+      res.status(404).json({ message: "No Passenger IDs found" });
+    }
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
+
 
 
 
@@ -497,6 +536,8 @@ const riderCancelled = async (req, res) => {
 
 const driverCancelled = async (req, res) => {
   console.log("Recieved API request for Driver Side Ride Cancellation");
+  const { userID, RideID } = req.body;
+  console.log(RideID)
 };
 
 const getRequestedRide = async (req, res) => {
