@@ -12,8 +12,10 @@ const {
   updateLastDriverRideID,
   createBackendFiles,
   buildQueryRetrieveOfferedRide,
+  buildQueryRetrieveConfirmedRide,
   buildQueryRetrieveUserDetails,
   buildQueryForPassengerActiveRides,
+  buildQueryDeleteConfirmedRide,
   buildQueryRetrieveUserDetailswithDriverRideID
 } = require("./utils");
 
@@ -262,7 +264,7 @@ const passengerActiveRides = async (req, res) => {
       response = {
         "message" : "No rides available"
       }
-      return res.status(200).json(response);
+      return res.status(200).json([response]);
     }
     driverRideIDs = [];
     for(let i = 0; i < results.length; i++){
@@ -322,7 +324,7 @@ const findRides = async (req, res) => {
       response = {
         "message" : "No rides available"
       }
-      return res.status(200).json(response);
+      return res.status(200).json([response]);
     }
     getUserDetailsQuery = buildQueryRetrieveUserDetails(userIDs);
     retrieveData(getUserDetailsQuery, (err, userDetails) => {
@@ -463,6 +465,9 @@ const riderCancelled = async (req, res) => {
       res.status(500).json({ error: 'Error retrieving data' });
       return;
     }
+    if(0 == passengerRide.length){
+      return res.status(200).json({"message":"This ride does not exist anyway"});
+    }
     const driverRideID = passengerRide[0].DriverRideID;
     retrieveDriverRideQuery = buildQueryRetrieveOfferedRide(driverRideID);
     retrieveData(retrieveDriverRideQuery, (err, driverRide) => {
@@ -481,12 +486,12 @@ const riderCancelled = async (req, res) => {
       deleteRideConfirmedRideTableQuery = buildQueryDeleteConfirmedRide(passengerrideID);
       console.log(deleteRideConfirmedRideTableQuery);
       try {
-        runQuery(deleteRideConfirmedRideTableQuery);
+        execute(deleteRideConfirmedRideTableQuery);
       }
       catch (err) {
         console.error(err);
       }
-      res.status(200);
+      res.status(200).json([{"message":"Cancellation Successful"}]);
     });
   });
 };

@@ -89,7 +89,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Email'),
+                          label: const Text('Email',style: TextStyle(fontFamily: 'DMSans')),
                           hintText: 'Enter Email',
                           hintStyle: const TextStyle(
                             color: Colors.black26,
@@ -122,7 +122,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Password'),
+                          label: const Text('Password', style: TextStyle(fontFamily: 'DMSans'),),
                           hintText: 'Enter Password',
                           hintStyle: const TextStyle(
                             color: Colors.black26,

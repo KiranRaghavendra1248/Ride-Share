@@ -31,6 +31,9 @@ class _ActiveRidesScreen extends State<ActiveRidesScreen> with SingleTickerProvi
     };
     String routePassenger = "api/v1/users/$userID/passengeractiverides";
     List<dynamic> response = await makePostRequest(base_url, routePassenger, requestBody);
+    if(response[0]["message"] == "No rides available"){
+      return;
+    }
     setState(() {
       ridesBooked = response.map((ride) => BookedRide.fromJson(ride)).toList();
     });
@@ -43,8 +46,9 @@ class _ActiveRidesScreen extends State<ActiveRidesScreen> with SingleTickerProvi
       'userID': userID.toString(),
     };
     List<dynamic> response = await makePostRequest(base_url, routeDriver, requestBody);
-    print("Response from Driver Active Rides");
-    print(response);
+    if(response[0]["message"] == "No rides available"){
+      return;
+    }
     setState(() {
       ridesOffered = response.map((ride) => OfferedRide.fromJson(ride)).toList();;
     });
@@ -164,7 +168,13 @@ class _ActiveRidesScreen extends State<ActiveRidesScreen> with SingleTickerProvi
                           destinationAddress : snapshot.data![1],
                           journeyStart: formattedDate)
                       )
-                  );
+                  ).then(
+                      (result){
+                        setState(() {
+                          fetchDriverRides();
+                          fetchPassengerRides();
+                        });
+                      });
                 },
                 // Add other ride details here
                 );
