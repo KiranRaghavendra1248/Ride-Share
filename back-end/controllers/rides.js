@@ -1,5 +1,5 @@
 const { retrieveData, connection, execute } = require("../db/connection");
-const { sendRideRequestToDriver, sendRideConfirmationToRider, sendRideRejectionToRider } = require("../firebase_integration/firebaseMessaging");
+const { sendRideRequestToDriver, sendRideConfirmationToRider, sendRideRejectionToRider, sendCancellationNotificationtoDriver } = require("../firebase_integration/firebaseMessaging");
 const {
   buildQueryForFindRide,
   buildQueryForSubmitRide,
@@ -242,7 +242,7 @@ const driverActiveRides = async (req, res) => {
       response = {
         "message" : "No rides available"
       }
-      return res.status(200).json(response);
+      return res.status(200).json([response]);
     }
     console.log(results);
     return res.status(200).json(results);
@@ -477,21 +477,20 @@ const riderCancelled = async (req, res) => {
         res.status(500).json({ error: 'Error retrieving data' });
         return;
       }
-      const driverID = driverRide[0].UserID;
-      // Send push notification to Driver
-      // sendPushNotification(driverID,"A passenger just cancelled a ride")
-      console.log(driverRide);
-      // Increment seats count in Offered Rides table(lets take this up later)
+      const driverID = driverRide[0].DriverID;
       // Remove entry from confirmed rides table
       deleteRideConfirmedRideTableQuery = buildQueryDeleteConfirmedRide(passengerrideID);
       console.log(deleteRideConfirmedRideTableQuery);
       try {
         execute(deleteRideConfirmedRideTableQuery);
+        // Send push notification to Driver
+        sendCancellationNotificationtoDriver(driverID,)
+        res.status(200).json([{"message":"Cancellation Successful"}]);
       }
       catch (err) {
         console.error(err);
+        res.status(401).json([{"message":"Cancellation Failed"}]);
       }
-      res.status(200).json([{"message":"Cancellation Successful"}]);
     });
   });
 };
