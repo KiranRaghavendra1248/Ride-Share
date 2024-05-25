@@ -22,6 +22,7 @@ class _SignInScreenState extends State<SignInScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   String? errorMessage; // Add error message variable
+  bool passwordVisible=false;
 
   Future<void> loginUser(String email, String password) async {
     String baseurl = dotenv.env["BASE_URL"]?? "";
@@ -53,7 +54,7 @@ class _SignInScreenState extends State<SignInScreen> {
           Expanded(
             flex: 7,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
+              padding: const EdgeInsets.fromLTRB(25.0, 40.0, 25.0, 20.0),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
@@ -70,8 +71,9 @@ class _SignInScreenState extends State<SignInScreen> {
                       Text(
                         'Welcome back',
                         style: TextStyle(
+                          fontFamily: 'DMSans',
                           fontSize: 30.0,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.bold,
                           color: lightColorScheme.primary,
                         ),
                       ),
@@ -91,6 +93,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           hintText: 'Enter Email',
                           hintStyle: const TextStyle(
                             color: Colors.black26,
+                              fontFamily: 'DMSans'
                           ),
                           border: OutlineInputBorder(
                             borderSide: const BorderSide(
@@ -111,8 +114,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                       TextFormField(
                         controller: passwordController,
-                        obscureText: true,
-                        obscuringCharacter: '*',
+                        obscureText: !passwordVisible,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Password';
@@ -124,6 +126,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           hintText: 'Enter Password',
                           hintStyle: const TextStyle(
                             color: Colors.black26,
+                              fontFamily: 'DMSans',
                           ),
                           border: OutlineInputBorder(
                             borderSide: const BorderSide(
@@ -137,6 +140,18 @@ class _SignInScreenState extends State<SignInScreen> {
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
+                          suffixIcon: IconButton(
+                            icon: Icon(passwordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            onPressed: () {
+                              setState(
+                                    () {
+                                  passwordVisible = !passwordVisible;
+                                },
+                              );
+                            },
+                          )
                         ),
                       ),
                       const SizedBox(height: 15),
@@ -145,6 +160,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         Text(
                           errorMessage!,
                           style: TextStyle(
+                            fontFamily: 'DMSans',
                             color: Colors.red,
                           ),
                         ),
@@ -168,6 +184,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               const Text(
                                 'Remember me',
                                 style: TextStyle(
+                                  fontFamily: 'DMSans',
                                   color: Colors.black45,
                                 ),
                               ),
@@ -179,13 +196,14 @@ class _SignInScreenState extends State<SignInScreen> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: lightColorScheme.primary,
+                                fontFamily: 'DMSans'
                               ),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(
-                        height: 25.0,
+                        height: 23.0,
                       ),
                       SizedBox(
                         width: double.infinity,
@@ -230,6 +248,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             child: Text(
                               'Sign up with',
                               style: TextStyle(
+                                fontFamily: 'DMSans',
                                 color: Colors.black45,
                               ),
                             ),
@@ -255,7 +274,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         ],
                       ),
                       const SizedBox(
-                        height: 25.0,
+                        height: 20.0,
                       ),
                       // don't have an account
                       Row(
@@ -264,6 +283,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           const Text(
                             'Don\'t have an account? ',
                             style: TextStyle(
+                              fontFamily: 'DMSans',
                               color: Colors.black45,
                             ),
                           ),
@@ -279,15 +299,13 @@ class _SignInScreenState extends State<SignInScreen> {
                             child: Text(
                               'Sign up',
                               style: TextStyle(
+                                fontFamily: 'DMSans',
                                 fontWeight: FontWeight.bold,
                                 color: lightColorScheme.primary,
                               ),
                             ),
                           ),
                         ],
-                      ),
-                      const SizedBox(
-                        height: 20.0,
                       ),
                     ],
                   ),

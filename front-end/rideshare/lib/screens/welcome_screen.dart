@@ -136,11 +136,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                   ),
                   Expanded(
-                    child: WelcomeButton(
-                      buttonText: 'Sign up',
-                      onTap: const SignUpScreen(),
-                      color: Colors.white,
-                      textColor: lightColorScheme.primary,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      child: WelcomeButton(
+                        buttonText: 'Sign up',
+                        onTap: const SignUpScreen(),
+                        color: Colors.white,
+                        textColor: lightColorScheme.primary,
+                      ),
                     ),
                   ),
                 ],
