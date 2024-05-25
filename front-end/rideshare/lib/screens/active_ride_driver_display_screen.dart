@@ -21,7 +21,7 @@ class RideDetailScreen extends StatelessWidget {
   Future<List<dynamic>> fetchPassengers(String rideId) async {
     final base_url = dotenv.env['BASE_URL'] ?? "http://your-api-url.com";
     final userID = BackendIdentifier.userId;
-    final String route = "api/v1/users/$userID/viewPassengers";
+    final String route = "api/v1/users/$userID/driverviewPassengers";
     var url = Uri.parse('$base_url/$route');
     Map<String, dynamic> requestBody = {
       'userID': userID.toString(),
@@ -45,14 +45,82 @@ class RideDetailScreen extends StatelessWidget {
     }
   }
 
-  Future<void> cancelRide(String rideId) async {
-    var url = Uri.parse('https://yourbackend.example.com/api/v1/rides/$rideId/cancel');
-    var response = await http.post(url);
-    if (response.statusCode == 200) {
-      return;
-    } else {
-      throw Exception('Failed to cancel ride');
-    }
+  void showPassengerDetails(BuildContext context, List<dynamic> passengers) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero, // Adjust the border radius here
+        ),
+        title: Text("Passenger Details", style: TextStyle(fontSize : 22,fontFamily: 'DMSans')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: passengers.map<Widget>((passenger) => ListTile(
+            title: Text(passenger['Name'], style: TextStyle(fontSize : 16,fontFamily: 'DMSans', fontWeight: FontWeight.bold)),
+            subtitle: Text(passenger['Phone'], style: TextStyle(fontSize : 16,fontFamily: 'DMSans')),
+            leading: Icon(Icons.person),
+          )).toList(),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("Close", style: TextStyle(fontSize : 16, fontFamily: 'DMSans')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void cancelRide(BuildContext context, String rideId) async {
+    final base_url = dotenv.env['BASE_URL'] ?? "http://your-api-url.com";
+    final userID = BackendIdentifier.userId;
+    final String route = "api/v1/users/$userID/$rideId/drivercancel";
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero, // Adjust the border radius here
+        ),
+        title: Text("Confirm Cancellation", style: TextStyle(fontSize : 22, fontFamily: 'DMSans')),
+        content: Text("Are you sure you want to cancel this ride?", style: TextStyle(fontSize : 16, fontFamily: 'DMSans')),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop(); // Close the dialog
+              var url = Uri.parse('$base_url/$route');
+              Map<String, dynamic> requestBody = {
+                'userID': userID.toString(),
+                'RideID': rideId,
+              };
+
+                var response = await http.post(
+                  url,
+                  headers: {"Content-Type": "application/json"},
+                  body: json.encode(requestBody),
+                );
+
+
+              if (response.statusCode == 200) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Ride cancelled successfully', style: TextStyle(fontFamily: 'DMSans')),
+                ));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Failed to cancel ride', style: TextStyle(fontFamily: 'DMSans')),
+                ));
+              }
+            },
+            child: Text("Yes", style: TextStyle(fontSize : 16, fontFamily: 'DMSans', color: Colors.red)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Just close the dialog
+            },
+            child: Text("No", style: TextStyle(fontSize : 16, fontFamily: 'DMSans')),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -86,104 +154,61 @@ class RideDetailScreen extends StatelessWidget {
                   children: [
                     Text('Ride ID: $rideId', style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, fontFamily: 'DMSans')),
                     SizedBox(height: 18),
-                    Text('Start : $startAddress', style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
+                    Text('Start Address: $startAddress', style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
                     SizedBox(height: 18),
-                    Text('Destination : $destinationAddress', style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
+                    Text('Destination Address: $destinationAddress', style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
                     SizedBox(height: 18),
                     Text('Starting at $journeyStart', style: TextStyle(fontSize: 18, fontFamily: 'DMSans')),
                   ],
                 ),
               ),
               SizedBox(height: 40),
-              Container(
-                width: 300,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      var passengers = await fetchPassengers(rideId);
-                      if (passengers.isEmpty) {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ),
-                            title: Text("No Passengers", style: TextStyle(fontFamily: 'DMSans')),
-                            content: Text("There are no passengers for this ride.", style: TextStyle(fontSize:16, fontFamily: 'DMSans')),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: Text("Close", style: TextStyle(fontFamily: 'DMSans')),
-                              ),
-                            ],
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    var passengers = await fetchPassengers(rideId);
+                    if (passengers.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero, // Adjust the border radius here
                           ),
-                        );
-                      } else {
-                        // Logic to show passenger details
-                      }
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Failed to fetch passengers: $e', style: TextStyle(fontFamily: 'DMSans')),
-                      ));
+                          title: Text("No Passengers", style: TextStyle(fontFamily: 'DMSans')),
+                          content: Text("There are no passengers for this ride.", style: TextStyle(fontSize:16, fontFamily: 'DMSans')),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text("Close", style: TextStyle(fontFamily: 'DMSans')),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      showPassengerDetails(context, passengers);
                     }
-                  },
-                  child: const Text('View Passengers', style: TextStyle(fontFamily: 'DMSans')),
-                  style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6), // Adjust the border radius here
-                      ),
-                      foregroundColor: Colors.white, // Change the background color here
-                      backgroundColor: Colors.blue[900], // Change the text color here
-                      padding: EdgeInsets.fromLTRB(0, 15, 0, 15)
-                  )
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('Failed to fetch passengers: $e', style: TextStyle(fontFamily: 'DMSans')),
+                    ));
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                    minimumSize: Size(double.infinity, 50), // Full width
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    backgroundColor: Colors.blue[900]
                 ),
+                child: Text('View Passengers', style: TextStyle(fontFamily: 'DMSans')),
               ),
               SizedBox(height: 20),
-              Container(
-                width: 300,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                        ),
-                        title: Text("Are you sure you want to cancel?", style: TextStyle(fontSize : 22, fontFamily: 'DMSans')),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              try {
-                                // Perform Cancellation API/Function call here
-                                Navigator.of(context).pop();
-                                Navigator.of(context).pop();
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: Text('Ride cancelled successfully', style: TextStyle(fontFamily: 'DMSans')),
-                                ));
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: Text('Failed to cancel ride: $e', style: TextStyle(fontFamily: 'DMSans')),
-                                ));
-                              }
-                            },
-                            child: Text("Yes", style: TextStyle(fontSize : 18, fontFamily: 'DMSans', color: Colors.redAccent)),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6), // Adjust the border radius here
-                      ),
-                      foregroundColor: Colors.white, // Change the background color here
-                      backgroundColor: Colors.red[600], // Change the text color here
-                      padding: EdgeInsets.fromLTRB(0, 15, 0, 15)
-                  ),
-                  child: const Text('Cancel Ride', style: TextStyle(fontFamily: 'DMSans')),
+              ElevatedButton(
+                onPressed: () => cancelRide(context, rideId),
+                style: ElevatedButton.styleFrom(
+                    minimumSize: Size(double.infinity, 50), // Full width
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    backgroundColor: Colors.red[600]
                 ),
+                child: Text('Cancel Ride', style: TextStyle(fontFamily: 'DMSans')),
               ),
             ],
           ),
