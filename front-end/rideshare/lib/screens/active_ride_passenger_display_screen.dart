@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../ID/backend_identifier.dart';
+import '../components/network_utililty.dart';
 
 class RideDetailScreenPassenger extends StatelessWidget {
   final bookedRide, StartAddress, DestinationAddress, journeyStart;
@@ -15,41 +16,16 @@ class RideDetailScreenPassenger extends StatelessWidget {
     required this.journeyStart
   }) : super(key: key);
 
-  Future<List<dynamic>> fetchPassengers(String rideId) async {
-    final base_url = dotenv.env['BASE_URL'] ?? "http://your-api-url.com";
-    final userID = BackendIdentifier.userId;
-    final String route = "api/v1/users/$userID/viewPassengers";
-    var url = Uri.parse('$base_url/$route');
-    Map<String, dynamic> requestBody = {
-      'userID': userID.toString(),
-      'RideID': rideId,
-    };
-
-    try {
-      var response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(requestBody),
-      );
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else {
-        throw Exception('Server error');
-      }
-    } catch (e) {
-      print('Error fetching passengers: $e');
-      return [];  // Return empty list on error
-    }
-  }
-
   Future<void> cancelRide(String rideId) async {
-    var url = Uri.parse('https://yourbackend.example.com/api/v1/rides/$rideId/cancel');
-    var response = await http.post(url);
-    if (response.statusCode == 200) {
-      return;
-    } else {
-      throw Exception('Failed to cancel ride');
-    }
+    int userID = BackendIdentifier.userId;
+    int rideID = int.parse(rideId);
+    String baseurl = dotenv.env["BASE_URL"]?? "";
+    String route = 'api/v1/users/$userID/$rideID/ridercancel';
+    Map<String, dynamic> requestBody = {
+      'passengerID': userID.toString(),
+      'rideID': rideId
+    };
+    List<dynamic> responseData = await makePostRequest(baseurl, route, requestBody);
   }
 
   @override
@@ -110,11 +86,13 @@ class RideDetailScreenPassenger extends StatelessWidget {
                         title: Text("Are you sure you want to cancel?", style: TextStyle(fontSize : 22, fontFamily: 'DMSans')),
                         actions: <Widget>[
                           TextButton(
-                            onPressed: () {
+                            onPressed: () async{
                               try {
                                 // Perform Cancellation API/Function call here
-                                Navigator.of(context).pop();
-                                Navigator.of(context).pop();
+                                await cancelRide(bookedRide.RideID);
+                                Navigator.of(context).pop("dummy result");
+                                Navigator.of(context).pop("dummy result");
+                                Navigator.of(context).pop("dummy result");
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                   content: Text('Ride cancelled successfully', style: TextStyle(fontFamily: 'DMSans')),
                                 ));

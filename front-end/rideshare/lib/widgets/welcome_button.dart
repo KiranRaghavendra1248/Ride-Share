@@ -20,7 +20,7 @@ class WelcomeButton extends StatelessWidget {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(30.0),
+        padding: const EdgeInsets.all(20.0),
         decoration: BoxDecoration(
           color: color!,
           borderRadius: const BorderRadius.only(
@@ -32,6 +32,7 @@ class WelcomeButton extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 20.0,
+            fontFamily: 'DMSans',
             fontWeight: FontWeight.bold,
             color: textColor!,
           ),

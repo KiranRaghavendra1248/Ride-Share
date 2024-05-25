@@ -24,6 +24,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   String? errorMessage; // Add error message variable
+  bool passwordVisible = false;
 
   bool isValidPassword(String password) {
     // Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one digit
@@ -86,12 +87,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   },
                 ),
               ),
-              const SizedBox(height: 20.0),
+              const SizedBox(height: 30.0),
               Text(
                 'Get Started',
                 style: TextStyle(
                   fontSize: 30.0,
-                  fontWeight: FontWeight.w900,
+                  fontFamily: 'DMSans',
+                  fontWeight: FontWeight.bold,
                   color: lightColorScheme.primary,
                 ),
               ),
@@ -102,73 +104,161 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // full name
-                    TextFormField(
-                      controller: nameController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter Full name';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Full Name',
-                        hintText: 'Enter Full Name',
+                    SizedBox(
+                      height : 60,
+                      child: TextFormField(
+                        controller: nameController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Full name';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          label: const Text('Name', style: TextStyle(fontFamily: 'DMSans'),),
+                          hintText: 'Enter full name',
+                          hintStyle: const TextStyle(
+                              color: Colors.black26,
+                              fontFamily: 'DMSans'
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black12, // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black12, // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 25.0),
                     // email
-                    TextFormField(
-                      controller: emailController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter Email';
-                        }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                          return 'Invalid email';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        hintText: 'Enter Email',
+                    SizedBox(
+                      height : 60,
+                      child: TextFormField(
+                        controller: emailController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Email';
+                          }
+                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                            return 'Invalid email';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          label: const Text('Email', style: TextStyle(fontFamily: 'DMSans'),),
+                          hintText: 'Enter Email',
+                          hintStyle: const TextStyle(
+                              color: Colors.black26,
+                              fontFamily: 'DMSans'
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black12, // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black12, // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 25.0),
                     // password
-                    TextFormField(
-                      controller: passwordController,
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter Password';
-                        }
-                        if (!isValidPassword(value)) {
-                          return 'Invalid password';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        hintText: 'Enter Password',
+                    SizedBox(
+                      height : 60,
+                      child: TextFormField(
+                        controller: passwordController,
+                        obscureText: !passwordVisible,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Password';
+                          }
+                          if (!isValidPassword(value)) {
+                            return 'Invalid password';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                            label: const Text('Password'),
+                            hintText: 'Enter Password',
+                            hintStyle: const TextStyle(
+                              color: Colors.black26,
+                              fontFamily: 'DMSans',
+                            ),
+                            border: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.black12, // Default border color
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Colors.black12, // Default border color
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(passwordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off),
+                              onPressed: () {
+                                setState(
+                                      () {
+                                    passwordVisible = !passwordVisible;
+                                  },
+                                );
+                              },
+                            )
+                        ),
                       ),
                     ),
                     const SizedBox(height: 25.0),
                     // phone number
-                    TextFormField(
-                      controller: phoneController,
-                      keyboardType: TextInputType.phone,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter Phone Number';
-                        }
-                        if (value.length != 10) {
-                          return 'Invalid phone number';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Phone Number',
-                        hintText: 'Enter Phone Number',
+                    SizedBox(
+                      height : 60,
+                      child: TextFormField(
+                        controller: phoneController,
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Phone Number';
+                          }
+                          if (value.length != 10) {
+                            return 'Invalid phone number';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          label: const Text('Phone Number', style: TextStyle(fontFamily: 'DMSans'),),
+                          hintText: 'Enter phone number',
+                          hintStyle: const TextStyle(
+                              color: Colors.black26,
+                              fontFamily: 'DMSans'
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black12, // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black12, // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 25.0),

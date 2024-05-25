@@ -1,5 +1,5 @@
 const { retrieveData, connection, execute } = require("../db/connection");
-const { sendRideRequestToDriver, sendRideConfirmationToRider, sendRideRejectionToRider } = require("../firebase_integration/firebaseMessaging");
+const { sendRideRequestToDriver, sendRideConfirmationToRider, sendRideRejectionToRider, sendCancellationNotificationtoDriver } = require("../firebase_integration/firebaseMessaging");
 const {
   buildQueryForFindRide,
   buildQueryForSubmitRide,
@@ -12,8 +12,10 @@ const {
   updateLastDriverRideID,
   createBackendFiles,
   buildQueryRetrieveOfferedRide,
+  buildQueryRetrieveConfirmedRide,
   buildQueryRetrieveUserDetails,
   buildQueryForPassengerActiveRides,
+  buildQueryDeleteConfirmedRide,
   buildQueryRetrieveUserDetailswithDriverRideID
 } = require("./utils");
 
@@ -240,7 +242,7 @@ const driverActiveRides = async (req, res) => {
       response = {
         "message" : "No rides available"
       }
-      return res.status(200).json(response);
+      return res.status(200).json([response]);
     }
     console.log(results);
     return res.status(200).json(results);
@@ -262,7 +264,7 @@ const passengerActiveRides = async (req, res) => {
       response = {
         "message" : "No rides available"
       }
-      return res.status(200).json(response);
+      return res.status(200).json([response]);
     }
     driverRideIDs = [];
     for(let i = 0; i < results.length; i++){
@@ -322,7 +324,7 @@ const findRides = async (req, res) => {
       response = {
         "message" : "No rides available"
       }
-      return res.status(200).json(response);
+      return res.status(200).json([response]);
     }
     getUserDetailsQuery = buildQueryRetrieveUserDetails(userIDs);
     retrieveData(getUserDetailsQuery, (err, userDetails) => {
@@ -463,6 +465,9 @@ const riderCancelled = async (req, res) => {
       res.status(500).json({ error: 'Error retrieving data' });
       return;
     }
+    if(0 == passengerRide.length){
+      return res.status(200).json({"message":"This ride does not exist anyway"});
+    }
     const driverRideID = passengerRide[0].DriverRideID;
     retrieveDriverRideQuery = buildQueryRetrieveOfferedRide(driverRideID);
     retrieveData(retrieveDriverRideQuery, (err, driverRide) => {
@@ -472,21 +477,20 @@ const riderCancelled = async (req, res) => {
         res.status(500).json({ error: 'Error retrieving data' });
         return;
       }
-      const driverID = driverRide[0].UserID;
-      // Send push notification to Driver
-      // sendPushNotification(driverID,"A passenger just cancelled a ride")
-      console.log(driverRide);
-      // Increment seats count in Offered Rides table(lets take this up later)
+      const driverID = driverRide[0].DriverID;
       // Remove entry from confirmed rides table
       deleteRideConfirmedRideTableQuery = buildQueryDeleteConfirmedRide(passengerrideID);
       console.log(deleteRideConfirmedRideTableQuery);
       try {
-        runQuery(deleteRideConfirmedRideTableQuery);
+        execute(deleteRideConfirmedRideTableQuery);
+        // Send push notification to Driver
+        sendCancellationNotificationtoDriver(driverID,)
+        res.status(200).json([{"message":"Cancellation Successful"}]);
       }
       catch (err) {
         console.error(err);
+        res.status(401).json([{"message":"Cancellation Failed"}]);
       }
-      res.status(200);
     });
   });
 };
