@@ -13,7 +13,7 @@ require("dotenv").config();
 
 const app = express();
 
-const port = 3000;
+const port = 1600;
 const host = '0.0.0.0';
 
 //middleware

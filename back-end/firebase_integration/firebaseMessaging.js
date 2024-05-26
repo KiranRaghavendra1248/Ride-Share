@@ -11,6 +11,7 @@ const notifTypeRideReq = "RideRequest";
 const notifTypeRideConfirm = "RideConfirmation";
 const notifTypeRideReject = "RideRejection";
 const notifTypeRidePassengerCancel = "PassengerCancel";
+const notifTypeRideDriverCancel = "DriverCancellation"
 
 function getToken(userID) {
   const query = 'SELECT FCMToken FROM RIDE_SHARE.Users WHERE UserID = ?';
@@ -118,5 +119,26 @@ async function sendCancellationNotificationtoDriver(userID, data) {
   }
 }
 
+async function sendCancellationNotificationtoRider(userID, data) {
+  try {
+    const token = await getToken(userID);
+    const message = {
+      token: token,
+      notification: {
+        title: 'Driver chose to cancel a ride',
+        body: 'View other rides available in Find rides'
+      },
+      data: {
+        type: notifTypeRideDriverCancel
+      }
+    };
 
-module.exports = {sendRideRequestToDriver, sendRideConfirmationToRider, sendRideRejectionToRider, sendCancellationNotificationtoDriver};
+    const response = await firebase.messaging().send(message);
+    console.log('Rejection notification sent:', response);
+  } catch (error) {
+    console.error("Error while trying to fetch FCM token for user: ", userID, error);
+  }
+}
+
+
+module.exports = {sendRideRequestToDriver, sendRideConfirmationToRider, sendRideRejectionToRider, sendCancellationNotificationtoRider, sendCancellationNotificationtoDriver};

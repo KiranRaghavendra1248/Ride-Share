@@ -1,5 +1,7 @@
 const { retrieveData, connection, execute } = require("../db/connection");
-const { sendRideRequestToDriver, sendRideConfirmationToRider, sendRideRejectionToRider, sendCancellationNotificationtoDriver } = require("../firebase_integration/firebaseMessaging");
+const { sendRideRequestToDriver, sendRideConfirmationToRider, sendRideRejectionToRider, sendCancellationNotificationtoDriver, sendCancellationNotificationtoRider } = require("../firebase_integration/firebaseMessaging");
+
+
 const {
   buildQueryForFindRide,
   buildQueryForSubmitRide,
@@ -15,8 +17,9 @@ const {
   buildQueryRetrieveConfirmedRide,
   buildQueryRetrieveUserDetails,
   buildQueryForPassengerActiveRides,
-  buildQueryDeleteConfirmedRide,
-  buildQueryRetrieveUserDetailswithDriverRideID
+  buildQueryRetrieveUserDetailswithDriverRideID,
+  buildQueryDeleteOfferedRide,
+  buildQueryDeleteConfirmedRide
 } = require("./utils");
 
 const bcrypt = require('bcrypt');
@@ -303,7 +306,7 @@ const viewPassengers = async (req, res) => {
   const query = "SELECT PassengerID FROM RIDE_SHARE.Confirmed_Rides WHERE DriverRideID = ?;";
   try {
     const results = await execute(query, [RideID]);
-    console.log("Query results:", results); // Check what results look like
+    console.log("Query results:", results); 
 
     if (results.length === 0) {
       return res.status(404).json({ message: "No passengers found" });
@@ -535,10 +538,43 @@ const riderCancelled = async (req, res) => {
 };
 
 const driverCancelled = async (req, res) => {
-  console.log("Recieved API request for Driver Side Ride Cancellation");
-  const { userID, RideID } = req.body;
-  console.log(RideID)
+  console.log("Received API request for Driver Side Ride Cancellation");
+  const { RideID } = req.body;
+  console.log(RideID);
+  const query = "SELECT RideID, PassengerID FROM RIDE_SHARE.Confirmed_Rides WHERE DriverRideID = ?;";
+  
+  try {
+    const results = await execute(query, [RideID]);
+    console.log("Query results:", results); 
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "No passengers found" });
+    }
+
+    const promises = results.map(async (result) => {
+      const { RideID, PassengerID } = result;
+      console.log(RideID);
+      console.log(PassengerID);
+      const deleteRideConfirmedRideTableQuery = buildQueryDeleteConfirmedRide(RideID);
+      console.log(deleteRideConfirmedRideTableQuery);
+      await execute(deleteRideConfirmedRideTableQuery);
+      await sendCancellationNotificationtoRider(PassengerID);
+      console.log(`Processed RideID: ${RideID} and PassengerID: ${PassengerID}`);
+    });
+
+    // Wait for all promises to complete
+    await Promise.all(promises);
+
+    const deleteOfferedRideTableQuery = buildQueryDeleteOfferedRide(RideID);
+    console.log(deleteOfferedRideTableQuery);
+    await execute(deleteOfferedRideTableQuery);
+    res.status(200).json({ message: "All rides processed successfully" });
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
+
 
 const getRequestedRide = async (req, res) => {
   const { offeredRideId, requestedPassengerId } = req.params;

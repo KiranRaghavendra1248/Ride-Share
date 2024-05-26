@@ -150,6 +150,15 @@ const convertTimeToDateTime = (timeString) => {
   return formattedDateTime;
 };
 
+const buildQueryDeleteOfferedRide = (rideID) => {
+  const query = `DELETE 
+                    FROM RIDE_SHARE.Offered_Rides 
+                    WHERE RideID = ${rideID};`;
+  return query;
+}
+
+
+
 const convertTimeToDateTime_Suraj = (timeString, date) => {
   // Assuming the date is passed in as a UTC string
   const providedDate = new Date(date);
@@ -234,5 +243,6 @@ module.exports = { buildQueryForFindRide,
                    updateLastDriverRideID,
                    buildQueryRetrieveUserDetails,
                    buildQueryForPassengerActiveRides,
-                   buildQueryRetrieveUserDetailswithDriverRideID
+                   buildQueryRetrieveUserDetailswithDriverRideID,
+                   buildQueryDeleteOfferedRide
                  }
