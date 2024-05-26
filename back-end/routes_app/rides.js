@@ -22,9 +22,13 @@ const {
 
 router.route("/login").post(loginUser);
 router.route("/register").post(signUpUser);
+<<<<<<< HEAD
 router.route("/updateFcmToken").post(updateFcmToken);
 router.route("/:userID").post(getUserDetails);
 router.route("/:userID").patch(modifyUserDetails);
+=======
+router.route("/:userID").get(getUserDetails).patch(modifyUserDetails);
+>>>>>>> 067b949 (Get user details BE working)
 
 // when rider wants to find available rides for the
 // route he/she wants to travel

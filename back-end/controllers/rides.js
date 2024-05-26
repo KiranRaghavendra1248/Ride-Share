@@ -142,8 +142,12 @@ const updateFcmToken = async (req, res) => {
 }
 
 const getUserDetails = async (req, res) => {
+<<<<<<< HEAD
   console.log("Recieved API request for Get User Details");
   const userId = req.body.userId; // Assuming the userId is passed in the request body
+=======
+  const userId = req.params.userID; // Retrieving userId from URL parameters
+>>>>>>> 067b949 (Get user details BE working)
 
   // Check if userId is provided
   if (!userId) {
@@ -177,6 +181,7 @@ const getUserDetails = async (req, res) => {
     }
   });
 };
+
 
 const modifyUserDetails = async (req, res) => {
   console.log("Recieved API request for Modify User Details");
