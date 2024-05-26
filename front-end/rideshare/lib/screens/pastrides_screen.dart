@@ -44,7 +44,7 @@ class _PastRidesScreenState extends State<PastRidesScreen> with SingleTickerProv
             Tab(text: 'Rides Booked'),
           ],
           indicatorColor: Colors.deepPurple,
-            labelColor: Colors.deepPurple,// Change the color of the highlighted tabs
+          labelColor: Colors.deepPurple, // Change the color of the highlighted tabs
         ),
       ),
       body: TabBarView(
@@ -57,7 +57,7 @@ class _PastRidesScreenState extends State<PastRidesScreen> with SingleTickerProv
               return ListTile(
                 title: Text(ridesOffered[index]),
                 onTap: () {
-                  _showRideDetails(context, ridesOffered[index]);
+                  _navigateToRideDetails(context, ridesOffered[index]);
                 },
               );
             },
@@ -69,7 +69,7 @@ class _PastRidesScreenState extends State<PastRidesScreen> with SingleTickerProv
               return ListTile(
                 title: Text(ridesBooked[index]),
                 onTap: () {
-                  _showRideDetails(context, ridesBooked[index]);
+                  _navigateToRideDetails(context, ridesBooked[index]);
                 },
               );
             },
@@ -79,23 +79,12 @@ class _PastRidesScreenState extends State<PastRidesScreen> with SingleTickerProv
     );
   }
 
-  void _showRideDetails(BuildContext context, String rideTitle) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Ride Details'),
-          content: Text('Details for the ride: $rideTitle'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Close'),
-            ),
-          ],
-        );
-      },
+  void _navigateToRideDetails(BuildContext context, String rideTitle) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RideDetailsScreen(rideTitle: rideTitle),
+      ),
     );
   }
 
@@ -103,5 +92,26 @@ class _PastRidesScreenState extends State<PastRidesScreen> with SingleTickerProv
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+}
+
+class RideDetailsScreen extends StatelessWidget {
+  final String rideTitle;
+
+  const RideDetailsScreen({Key? key, required this.rideTitle}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Ride Details'),
+      ),
+      body: Center(
+        child: Text(
+          'Details for the ride: $rideTitle',
+          style: TextStyle(fontSize: 20),
+        ),
+      ),
+    );
   }
 }

@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:rideshare/ID/backend_identifier.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -11,9 +13,9 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String name = "John Doe"; // Example name
-  String email = "johndoe@gmail.com"; // Example email
-  String phone = "1234567890"; // Example phone number
+  String name = ""; // Example name
+  String email = ""; // Example email
+  String phone = ""; // Example phone number
   File? _image;
 
   TextEditingController nameController = TextEditingController();
@@ -22,19 +24,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    nameController.text = name;
-    phoneController.text = phone;
+    _fetchUserDetails(); // Fetch user details when the screen initializes
+  }
+
+  Future<void> _fetchUserDetails() async {
+    String baseurl = dotenv.env["BASE_URL"] ?? "";
+    int user_id = BackendIdentifier.userId;
+    String route = 'api/v1/users/$user_id';
+    String apiUrl = '$baseurl/$route';
+
+    try {
+      final response = await http.get(
+          Uri.parse(apiUrl)
+      );
+      final responseData = json.decode(response.body);
+      print(responseData);
+      if (response.statusCode == 200) {
+        setState(() {
+          name = responseData['userDetails']['name'] ?? ""; // Replace 'name' with the actual field name
+          print(name);
+          email = responseData['userDetails']['email'] ?? ""; // Replace 'email' with the actual field name
+          phone = responseData['userDetails']['phone'] ?? ""; // Replace 'phone' with the actual field name
+        });
+        nameController.text = name;
+        phoneController.text = phone;
+      } else {
+        // Handle error
+        print('Failed to fetch user details');
+      }
+    } catch (error) {
+      // Handle network error
+      print('Error: $error');
+    }
   }
 
   Future<void> _getImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
+    // Add image picking functionality
   }
 
   @override
