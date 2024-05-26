@@ -87,6 +87,8 @@ class RideDetailScreen extends StatelessWidget {
           TextButton(
             onPressed: () async {
               Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop("dummy result");
+              Navigator.of(context).pop("dummy result");
               var url = Uri.parse('$base_url/$route');
               Map<String, dynamic> requestBody = {
                 'userID': userID.toString(),
