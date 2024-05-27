@@ -11,6 +11,7 @@ import '../components/flutter_polyline_points.dart';
 import '../components/network_utililty.dart';
 import '../components/src/PointLatLng.dart';
 import '../components/src/utils/polyline_result.dart';
+import '../components/src/utils/polyline_waypoint.dart';
 import '../components/src/utils/request_enums.dart';
 import '../model/polyline_response.dart';
 import 'package:intl/intl.dart';
@@ -279,14 +280,14 @@ class _RideDetailsPage extends State<RideDetailPage>{
     Polyline polyline1 = Polyline(
       polylineId: PolylineId("driver"),
       points: polylineCoordinates1,
-      color: Colors.deepPurpleAccent,
-      width: 8,
+      color: Colors.deepPurple,
+      width: 4,
     );
     Polyline polyline2 = Polyline(
       polylineId: PolylineId("rider"),
       points: polylineCoordinates2,
-      color: Colors.blue,
-      width: 3,
+      color: Colors.deepOrange,
+      width: 4,
     );
 
     LatLng midPoint = calculateMidpoint(polylineCoordinates2[0], polylineCoordinates2[polylineCoordinates2.length-1]);
@@ -294,7 +295,7 @@ class _RideDetailsPage extends State<RideDetailPage>{
         CameraUpdate.newCameraPosition(
             CameraPosition(
                 target: midPoint,
-                zoom: 10.0)
+                zoom: 14.0)
         )
     );
 
@@ -330,7 +331,7 @@ class _RideDetailsPage extends State<RideDetailPage>{
         gmaps_api_key,
         PointLatLng(lat21, long21),
         PointLatLng(lat22, long22),
-        travelMode: TravelMode.driving
+        travelMode: TravelMode.driving,
     );
     if (result2.points.isNotEmpty) {
       result2.points.forEach((PointLatLng point) {
