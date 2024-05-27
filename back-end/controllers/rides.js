@@ -1,5 +1,7 @@
 const { retrieveData, connection, execute } = require("../db/connection");
-const { sendRideRequestToDriver, sendRideConfirmationToRider, sendRideRejectionToRider, sendCancellationNotificationtoDriver } = require("../firebase_integration/firebaseMessaging");
+const { sendRideRequestToDriver, sendRideConfirmationToRider, sendRideRejectionToRider, sendCancellationNotificationtoDriver, sendCancellationNotificationtoRider } = require("../firebase_integration/firebaseMessaging");
+
+
 const {
   buildQueryForFindRide,
   buildQueryForSubmitRide,
@@ -15,8 +17,9 @@ const {
   buildQueryRetrieveConfirmedRide,
   buildQueryRetrieveUserDetails,
   buildQueryForPassengerActiveRides,
-  buildQueryDeleteConfirmedRide,
-  buildQueryRetrieveUserDetailswithDriverRideID
+  buildQueryRetrieveUserDetailswithDriverRideID,
+  buildQueryDeleteOfferedRide,
+  buildQueryDeleteConfirmedRide
 } = require("./utils");
 
 const bcrypt = require('bcrypt');
@@ -291,9 +294,48 @@ const passengerActiveRides = async (req, res) => {
 }
 
 const viewPassengers = async (req, res) => {
-  console.log("Received API request for View Passengers")
-  const {userID} = req.body
+  console.log("Received API request for View Passengers");
+  const { userID, RideID } = req.body;
+
+  if (!userID) {
+    return res.status(400).json({
+      message: "UserID is required"
+    });
+  }
+
+  const query = "SELECT PassengerID FROM RIDE_SHARE.Confirmed_Rides WHERE DriverRideID = ?;";
+  try {
+    const results = await execute(query, [RideID]);
+    console.log("Query results:", results); 
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "No passengers found" });
+    }
+
+    const passengerIDs = results.map(row => row.PassengerID);
+    console.log("Passenger IDs:", passengerIDs); // Log to see the passenger IDs
+
+    if (passengerIDs.length > 0) {
+      // SQL IN clause handling
+      const placeholders = passengerIDs.map(() => '?').join(',');
+      const users_query = `SELECT Name, Phone FROM RIDE_SHARE.Users WHERE UserID IN (${placeholders});`;
+      const final_res = await execute(users_query, passengerIDs);
+      console.log("Final results:", final_res); // Log final results
+
+      if (final_res.length > 0) {
+        res.status(200).json(final_res);
+      } else {
+        res.status(404).json({ message: "No user details found for provided IDs" });
+      }
+    } else {
+      res.status(404).json({ message: "No Passenger IDs found" });
+    }
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
+
 
 
 
@@ -496,8 +538,43 @@ const riderCancelled = async (req, res) => {
 };
 
 const driverCancelled = async (req, res) => {
-  console.log("Recieved API request for Driver Side Ride Cancellation");
+  console.log("Received API request for Driver Side Ride Cancellation");
+  const { RideID } = req.body;
+  console.log(RideID);
+  const query = "SELECT RideID, PassengerID FROM RIDE_SHARE.Confirmed_Rides WHERE DriverRideID = ?;";
+  
+  try {
+    const results = await execute(query, [RideID]);
+    console.log("Query results:", results); 
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "No passengers found" });
+    }
+
+    const promises = results.map(async (result) => {
+      const { RideID, PassengerID } = result;
+      console.log(RideID);
+      console.log(PassengerID);
+      const deleteRideConfirmedRideTableQuery = buildQueryDeleteConfirmedRide(RideID);
+      console.log(deleteRideConfirmedRideTableQuery);
+      await execute(deleteRideConfirmedRideTableQuery);
+      await sendCancellationNotificationtoRider(PassengerID);
+      console.log(`Processed RideID: ${RideID} and PassengerID: ${PassengerID}`);
+    });
+
+    // Wait for all promises to complete
+    await Promise.all(promises);
+
+    const deleteOfferedRideTableQuery = buildQueryDeleteOfferedRide(RideID);
+    console.log(deleteOfferedRideTableQuery);
+    await execute(deleteOfferedRideTableQuery);
+    res.status(200).json({ message: "All rides processed successfully" });
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
+
 
 const getRequestedRide = async (req, res) => {
   const { offeredRideId, requestedPassengerId } = req.params;
