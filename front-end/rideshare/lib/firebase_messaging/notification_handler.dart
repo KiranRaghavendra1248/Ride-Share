@@ -74,6 +74,21 @@ class NotificationHandler extends StatelessWidget {
                       }),]
       );
     }
+    else if (remoteMessage.data['type'] == Notif_PassengerCancel) {
+      return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          title: Text("Passenger cancelled ride", style : TextStyle(fontSize: 20, fontFamily: 'DMSans',color: Colors.redAccent)),
+          content: Text("Please check current passengers travelling with you currently", style : TextStyle(fontSize: 16, fontFamily: 'DMSans')),
+          actions: <Widget>[
+            TextButton(
+                child: Text('OK',style : TextStyle(fontSize: 18, fontFamily: 'DMSans',color: Colors.blue)),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }),]
+      );
+    }
     // for other notification types, we should add a different dialog boxes
     // Return an empty container if the notification type is not handled
     return Container(

@@ -40,6 +40,7 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
   String totalDistance = "";
   String totalDuration = "";
   String polyline = "";
+  double travelCost = 0;
 
   BitmapDescriptor startmarkerIcon = BitmapDescriptor.defaultMarker;
   BitmapDescriptor destmarkerIcon = BitmapDescriptor.defaultMarker;
@@ -195,6 +196,23 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
                               ],
                             ),
                           ),
+                          SizedBox(height: 10),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Cost : "+ travelCost.toString()+" \$",
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontFamily: 'DMSans',
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                           SizedBox(height: 20),
                           Row(
                             children: [
@@ -333,7 +351,8 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
         CameraUpdate.newCameraPosition(
             CameraPosition(
                 target: midPoint,
-                zoom: 8.0)
+                bearing: 10,
+                zoom: 14.0)
         )
     );
     markers.clear();
@@ -355,6 +374,9 @@ class _ConfirmRideMapScreen extends State<ConfirmRideMapScreen> {
 
     totalDistance = polylineResponse.routes![0].legs![0].distance!.text!;
     totalDuration = polylineResponse.routes![0].legs![0].duration!.text!;
+
+    travelCost = double.parse(totalDistance.split(" ")[0]);
+    travelCost /= 2;
 
     createPolyline(start.latitude, start.longitude, destination.latitude, destination.longitude);
     setState(() {});
