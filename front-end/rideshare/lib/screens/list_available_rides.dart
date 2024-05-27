@@ -102,8 +102,8 @@ class RideListWidget extends StatelessWidget {
 
           return FutureBuilder(
               future: Future.wait([
-                getAddressFromLatLong(startX, startY),
-                getAddressFromLatLong(destX, destY),
+                getAddressFromLatLong(startY, startX),
+                getAddressFromLatLong(destY, destX),
               ]),
               builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
