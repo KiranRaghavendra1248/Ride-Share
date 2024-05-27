@@ -32,8 +32,8 @@ class Ride {
       json['RideID'] as int,
       json['distance_in_meters'].toDouble(),
       json['JourneyStart'] as String,
-      "${json['StartAddress']['x']}, ${json['StartAddress']['y']}",
-      "${json['DestinationAddress']['x']}, ${json['DestinationAddress']['y']}",
+      "${json['StartAddress']['y']}, ${json['StartAddress']['x']}",
+      "${json['DestinationAddress']['y']}, ${json['DestinationAddress']['x']}",
       json['driverDetails']
     );
   }
@@ -87,6 +87,7 @@ class _RideDetailsPage extends State<RideDetailPage>{
 
   @override
   Widget build(BuildContext context) {
+
     Color getColor(double mtsToCover) {
       // This function determines the color from green to red based on the match percentage
       return Color.lerp(Colors.lightGreen, Colors.red[700], mtsToCover / 3000) ?? Colors.lightGreenAccent;
@@ -256,49 +257,6 @@ class _RideDetailsPage extends State<RideDetailPage>{
     return radians * 180 / pi;
   }
 
-  void _addPolyLine(List<LatLng> polylineCoordinates, String color) {
-    PolylineId id = PolylineId(color);
-    if(color == "Purple"){
-      Polyline polyline = Polyline(
-        polylineId: id,
-        points: polylineCoordinates,
-        color: Colors.deepPurple,
-        width: 4,
-      );
-      polylines_map_input.add(polyline);
-    }
-    else{
-      Polyline polyline = Polyline(
-        polylineId: id,
-        points: polylineCoordinates,
-        color: Colors.blue,
-        width: 4,
-      );
-      polylines_map_input.add(polyline);
-    }
-
-  }
-
-  void createPolyline(double _originLatitude, double _originLongitude, double _destLatitude, double _destLongitude, String color) async {
-    List<LatLng> polylineCoordinates = [];
-
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-        gmaps_api_key,
-        PointLatLng(_originLatitude, _originLongitude),
-        PointLatLng(_destLatitude, _destLongitude),
-        travelMode: TravelMode.driving
-    );
-    if (result.points.isNotEmpty) {
-      result.points.forEach((PointLatLng point) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-      });
-    } else {
-      print(result.errorMessage);
-    }
-    _addPolyLine(polylineCoordinates, color);
-  }
-
-
   LatLng calculateMidpoint(LatLng point1, LatLng point2) {
     // Convert degrees to radians
     final lat1 = radians(point1.latitude);
@@ -317,14 +275,21 @@ class _RideDetailsPage extends State<RideDetailPage>{
     return LatLng(avgLatDegrees, avgLonDegrees);
   }
 
-  void drawPolyline() async{
-    LatLng passengerstart = parseLatLngFromString(widget.requestedRide.startAddress);
-    LatLng passengerdestination = parseLatLngFromString(widget.requestedRide.destinationAddress);
-    LatLng midPoint = calculateMidpoint(passengerstart, passengerdestination);
+  void _addPolyLine(List<LatLng> polylineCoordinates1, List<LatLng> polylineCoordinates2) {
+    Polyline polyline1 = Polyline(
+      polylineId: PolylineId("driver"),
+      points: polylineCoordinates1,
+      color: Colors.deepPurpleAccent,
+      width: 8,
+    );
+    Polyline polyline2 = Polyline(
+      polylineId: PolylineId("rider"),
+      points: polylineCoordinates2,
+      color: Colors.blue,
+      width: 3,
+    );
 
-    LatLng driverstart = parseLatLngFromString(widget.ride.startAddress);
-    LatLng driverdestination = parseLatLngFromString(widget.ride.destinationAddress);
-
+    LatLng midPoint = calculateMidpoint(polylineCoordinates2[0], polylineCoordinates2[polylineCoordinates2.length-1]);
     _controller.animateCamera(
         CameraUpdate.newCameraPosition(
             CameraPosition(
@@ -333,8 +298,62 @@ class _RideDetailsPage extends State<RideDetailPage>{
         )
     );
 
-    createPolyline(passengerstart.latitude, passengerstart.longitude, passengerdestination.latitude, passengerdestination.longitude, "Purple");
-    createPolyline(driverstart.latitude, driverstart.longitude, driverdestination.latitude, driverdestination.longitude, "Blue");
+    polylines_map_input.add(polyline1);
+    polylines_map_input.add(polyline2);
+
+    print(polylines_map_input);
+
+    setState(() {});
+  }
+
+  void createPolyline(double lat11, double long11, double lat12, double long12, double lat21, double long21, double lat22, double long22) async {
+    List<LatLng> polylineCoordinates1 = [];
+    List<LatLng> polylineCoordinates2 = [];
+
+    print("Finding route between (${lat11}, ${long11}) and (${lat12}, ${long12})");
+    PolylineResult result1 = await polylinePoints.getRouteBetweenCoordinates(
+        gmaps_api_key,
+        PointLatLng(lat11, long11),
+        PointLatLng(lat12, long12),
+        travelMode: TravelMode.driving
+    );
+    if (result1.points.isNotEmpty) {
+      result1.points.forEach((PointLatLng point) {
+        polylineCoordinates1.add(LatLng(point.latitude, point.longitude));
+      });
+    } else {
+      print(result1.errorMessage);
+    }
+
+    print("Finding route between (${lat21}, ${long21}) and (${lat22}, ${long22})");
+    PolylineResult result2 = await polylinePoints.getRouteBetweenCoordinates(
+        gmaps_api_key,
+        PointLatLng(lat21, long21),
+        PointLatLng(lat22, long22),
+        travelMode: TravelMode.driving
+    );
+    if (result2.points.isNotEmpty) {
+      result2.points.forEach((PointLatLng point) {
+        polylineCoordinates2.add(LatLng(point.latitude, point.longitude));
+      });
+    } else {
+      print(result2.errorMessage);
+    }
+
+    _addPolyLine(polylineCoordinates1, polylineCoordinates2);
+    setState(() {});
+  }
+
+  void drawPolyline() async{
+    LatLng passengerstart = parseLatLngFromString(widget.requestedRide.startAddress);
+    LatLng passengerdestination = parseLatLngFromString(widget.requestedRide.destinationAddress);
+
+    LatLng driverstart = parseLatLngFromString(widget.ride.startAddress);
+    LatLng driverdestination = parseLatLngFromString(widget.ride.destinationAddress);
+
+    print("Creating polylines now for (${driverstart.latitude}, ${driverstart.longitude}) and (${driverdestination.latitude}, ${driverdestination.longitude})");
+
+    createPolyline(passengerstart.latitude, passengerstart.longitude, passengerdestination.latitude, passengerdestination.longitude, driverstart.latitude, driverstart.longitude, driverdestination.latitude, driverdestination.longitude);
     setState(() {});
   }
 }
