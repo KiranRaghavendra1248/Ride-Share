@@ -91,8 +91,24 @@ class NotificationHandler extends StatelessWidget {
     }
     // for other notification types, we should add a different dialog boxes
     // Return an empty container if the notification type is not handled
+    else if (remoteMessage.data['type'] == Notif_DriverCancel) {
+      return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          title: Text("Driver cancelled ride", style : TextStyle(fontSize: 20, fontFamily: 'DMSans',color: Colors.redAccent)),
+          content: Text("Please check other rides available in Find Rides", style : TextStyle(fontSize: 16, fontFamily: 'DMSans')),
+          actions: <Widget>[
+            TextButton(
+                child: Text('OK',style : TextStyle(fontSize: 18, fontFamily: 'DMSans',color: Colors.blue)),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }),]
+      );
+    }
     return Container(
 
     );
   }
+
 }
