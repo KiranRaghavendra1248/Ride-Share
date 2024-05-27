@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -43,6 +45,8 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
   BitmapDescriptor startmarkerIcon = BitmapDescriptor.defaultMarker;
   BitmapDescriptor destmarkerIcon = BitmapDescriptor.defaultMarker;
 
+  static const CameraPosition initialPosition = CameraPosition(target: LatLng(33.684566, -117.826508), zoom: 14.0);
+
   @override
   void initState() {
     addCustomIcon();
@@ -60,7 +64,7 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
       },
     );
     BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(), "assets/images/destination_map_marker.png")
+        const ImageConfiguration(), "assets/images/start_location_marker.png")
         .then(
           (icon) {
         setState(() {
@@ -75,6 +79,32 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
     // Dispose the controller when the widget is disposed
     mapController.dispose();
     super.dispose();
+  }
+
+  double radians(double degrees) {
+    return degrees * pi / 180;
+  }
+
+  double degrees(double radians) {
+    return radians * 180 / pi;
+  }
+
+  LatLng calculateMidpoint(LatLng point1, LatLng point2) {
+    // Convert degrees to radians
+    final lat1 = radians(point1.latitude);
+    final lon1 = radians(point1.longitude);
+    final lat2 = radians(point2.latitude);
+    final lon2 = radians(point2.longitude);
+
+    // Calculate average latitudes and longitudes
+    final avgLat = (lat1 + lat2) / 2;
+    final avgLon = (lon1 + lon2) / 2;
+
+    // Convert radians back to degrees
+    final avgLatDegrees = degrees(avgLat);
+    final avgLonDegrees = degrees(avgLon);
+
+    return LatLng(avgLatDegrees, avgLonDegrees);
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -175,13 +205,24 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
           polylineCoordinates.addAll(routePoints);
         }
 
+        LatLng midPoint = calculateMidpoint(widget.sourceLatLng, widget.destinationLatLng);
+
+        mapController.animateCamera(
+            CameraUpdate.newCameraPosition(
+                CameraPosition(
+                    target: midPoint,
+                    bearing: 10,
+                    zoom: 14.0)
+            )
+        );
+
         setState(() {
           _polylines.add(Polyline(
             polylineId: PolylineId('route'),
             visible: true,
             points: polylineCoordinates,
             width: 4,
-            color: Colors.blue,
+            color: Colors.deepOrange,
           ));
         });
       } else {
@@ -244,10 +285,7 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
             myLocationEnabled: true,
             zoomControlsEnabled: false,
             myLocationButtonEnabled: false,
-            initialCameraPosition: CameraPosition(
-              target: widget.sourceLatLng,
-              zoom: 8,
-            ),
+            initialCameraPosition: initialPosition,
             markers: _markers,
             polylines: _polylines,
           ),
