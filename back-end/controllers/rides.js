@@ -142,6 +142,7 @@ const updateFcmToken = async (req, res) => {
 }
 
 const getUserDetails = async (req, res) => {
+  console.log("Recieved API request for Get User Details");
 
   const userId = req.params.userID; // Retrieving userId from URL parameters
 
