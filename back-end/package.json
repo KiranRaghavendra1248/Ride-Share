@@ -4,7 +4,7 @@
   "description": "Backend server related files for Ride-Share application",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "nodemon app.js --ignore 'controllers/*.json'"
   },
   "author": "Kiran Raghavendra",
   "license": "ISC",

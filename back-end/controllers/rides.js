@@ -26,6 +26,7 @@ const bcrypt = require('bcrypt');
 const validator = require('validator');
 const fs = require('fs');
 const moment = require('moment');
+const { json } = require("body-parser");
 
 
 const signUpUser = async (req, res) => {
@@ -133,12 +134,14 @@ const updateFcmToken = async (req, res) => {
 
   var updateSql = `UPDATE RIDE_SHARE.Users SET FCMToken = ? WHERE UserID = ?`
 
-  connection.query(updateSql, [token, userId], (err, data) => {
-    if (err) {
-      console.log(err.message)
-      return res.status(500).send('Failed to update FCMToken');
-    }
-  });
+    connection.query(updateSql, [token, userId], (err, data) => {
+        if (err) {
+            console.log(err.message)
+            return res.status(500).send('Failed to update FCMToken');
+        }
+        return res.status(200).json({'message': "success"});
+    });
+
 }
 
 const getUserDetails = async (req, res) => {
