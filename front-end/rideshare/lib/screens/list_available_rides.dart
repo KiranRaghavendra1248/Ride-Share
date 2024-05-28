@@ -127,17 +127,34 @@ class RideListWidget extends StatelessWidget {
                           )
                       ),
                     ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 2, 0, 0),
-                      child: Text(
-                          "Starting Journey at ${formattedDate}",
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: 'DMSans',
-                            fontWeight: FontWeight.normal,
-                          )
-                      ),
+                    subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(4, 2, 0, 0),
+                          child: Text(
+                              "Starting Journey at ${formattedDate}",
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontFamily: 'DMSans',
+                                fontWeight: FontWeight.normal,
+                              )
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(4, 2, 0, 0),
+                          child: Text(
+                              "Travel with ${rides[index].driverDetails['Name']}",
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontFamily: 'DMSans',
+                                fontWeight: FontWeight.normal,
+                              )
+                          ),
+                        ),
+                      ],
                     ),
                     onTap: () {
                       Navigator.push(context,
