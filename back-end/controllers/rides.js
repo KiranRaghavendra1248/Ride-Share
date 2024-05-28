@@ -704,7 +704,7 @@ const driverRideHistory = async (req, res) => {
   const query = `SELECT 
   RideID, DriverID, StartAddress, DestinationAddress, SeatsAvailable, DATE_FORMAT(TimeOfJourneyStart, '%Y-%m-%d %H:%i:%s') AS JourneyStart 
   FROM RIDE_SHARE.Offered_Rides 
-  WHERE DriverID = ${driverId} AND TimeOfJourneyStart > NOW();`;
+  WHERE DriverID = ${driverId} AND TimeOfJourneyStart < NOW();`;
 
   retrieveData(query, (err, results) => {
     if (err) {
