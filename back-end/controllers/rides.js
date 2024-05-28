@@ -459,7 +459,7 @@ const confirmRide = async (req, res) => {
             SELECT Req.PassengerID, Req.StartAddress, Req.DestinationAddress, ?, Off.TimeOfJourneyStart, Req.Polyline
             FROM RIDE_SHARE.RequestedRides Req
             JOIN RIDE_SHARE.Offered_Rides Off ON Req.RideID = Off.RideID
-            WHERE Req.PassengerID = ?;
+            WHERE Req.PassengerID = ? AND Off.RideID = ?;
         `;
 
     connection.query(query, [offeredRideID, requestedPassengerID, offeredRideID], (error, results) => {
