@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'signin_screen.dart'; // Import SignInScreen
 import 'user_screen.dart'; // Import ProfileScreen
 import 'pastrides_screen.dart';
+import 'help_screen.dart';
 
 class HamburgerMenu extends StatelessWidget {
   const HamburgerMenu({Key? key}) : super(key: key);
@@ -39,11 +40,12 @@ class DrawerMenu extends StatelessWidget {
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,
+                fontFamily: 'DMSans', // Use DMSans font
               ),
             ),
           ),
           ListTile(
-            title: Text('Past Rides'),
+            title: Text('Past Rides', style: TextStyle(fontFamily: 'DMSans')), // Use DMSans font
             onTap: () {
               Navigator.push(
                 context,
@@ -52,7 +54,7 @@ class DrawerMenu extends StatelessWidget {
             },
           ),
           ListTile(
-            title: Text('Profile'),
+            title: Text('Profile', style: TextStyle(fontFamily: 'DMSans')), // Use DMSans font
             onTap: () {
               Navigator.push(
                 context,
@@ -61,7 +63,7 @@ class DrawerMenu extends StatelessWidget {
             },
           ),
           ListTile(
-            title: Text('Logout'),
+            title: Text('Logout', style: TextStyle(fontFamily: 'DMSans')), // Use DMSans font
             onTap: () {
               Navigator.pushReplacement(
                 context,
@@ -70,9 +72,12 @@ class DrawerMenu extends StatelessWidget {
             },
           ),
           ListTile(
-            title: Text('Help'),
+            title: Text('Help', style: TextStyle(fontFamily: 'DMSans')), // Use DMSans font
             onTap: () {
-              // Add your logic for help
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HelpScreen()),
+              );
             },
           ),
         ],

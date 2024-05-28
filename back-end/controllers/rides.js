@@ -490,7 +490,6 @@ const confirmRide = async (req, res) => {
         const notifData = {
           offeredRideId: offeredRideID,
         };
-
         sendRideRejectionToRider(requestedPassengerID, notifData);
       }
     });
@@ -649,58 +648,43 @@ const riderRideHistory = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Rider ID is required' });
   }
 
-  // Query to check if the user exists
-  const checkUserSql = 'SELECT * FROM RIDE_SHARE.Users WHERE UserID = ?';
-  const values = [riderId];
+  // User exists, query to retrieve rider's ride history
+  const rideHistorySql = `
+  SELECT 
+  RideID, StartAddress, DestinationAddress, DriverRideID, DATE_FORMAT(TimeOfJourneyStart, '%Y-%m-%d %H:%i:%s') AS TimeOfJourneyStart
+  FROM RIDE_SHARE.Confirmed_Rides WHERE PassengerID = ${riderId} AND TimeOfJourneyStart < NOW();`;
 
-  // Execute the query to check if user exists
-  connection.query(checkUserSql, values, function (err, userData) {
+  // Execute the query to get ride history
+  connection.query(rideHistorySql, function (err, results) {
     if (err) {
-      console.error('Error checking user existence:', err);
+      console.error('Error retrieving rider ride history:', err);
       return res.status(500).json({ success: false, message: 'Internal server error' });
     } else {
-      if (userData.length === 0) {
-        // User does not exist
-        return res.status(404).json({ success: false, message: 'User not found' });
-      } else {
-        // User exists, query to retrieve rider's ride history
-        const rideHistorySql = `
-          SELECT 
-            cr.RideID, 
-            cr.PassengerID, 
-            cr.StartAddress, 
-            cr.DestinationAddress, 
-            cr.DriverRideID, 
-            cr.Polyline 
-          FROM 
-            RIDE_SHARE.confirmed_rides AS cr 
-          WHERE 
-            cr.PassengerID = ?`;
-
-        // Execute the query to get ride history
-        connection.query(rideHistorySql, values, function (err, rideData) {
-          if (err) {
-            console.error('Error retrieving rider ride history:', err);
-            return res.status(500).json({ success: false, message: 'Internal server error' });
-          } else {
-            if (rideData.length > 0) {
-              // Rider's ride history found, return ride details
-              const rideHistory = rideData.map(ride => ({
-                rideId: ride.RideID,
-                passengerId: ride.PassengerID,
-                startAddress: ride.StartAddress,
-                destinationAddress: ride.DestinationAddress,
-                driverRideId: ride.DriverRideID,
-                polyline: ride.Polyline
-                // Add other ride details as needed
-              }));
-              return res.status(200).json({ success: true, message: 'Rider ride history retrieved successfully', rideHistory: rideHistory });
-            } else {
-              // No ride history found for the rider
-              return res.status(404).json({ success: false, message: 'No Ride History found' });
+      if (results.length > 0) {
+        driverRideIDs = [];
+        for (let i = 0; i < results.length; i++) {
+          driverRideIDs.push(results[i]['DriverRideID']);
+        }
+        getUserDetailsQuery = buildQueryRetrieveUserDetailswithDriverRideID(driverRideIDs);
+        retrieveData(getUserDetailsQuery, (err1, results1) => {
+          if (err1) {
+            console.error('Error retrieving data:', err1);
+            res.status(500).json({ error: 'Error retrieving data' });
+            return;
+          }
+          for (let i = 0; i < results.length; i++) {
+            for (let j = 0; j < results1.length; j++) {
+              if (results[i]['DriverRideID'] == results1[j]['DriverRideID']) {
+                results[i]['driverDetails'] = results1[j];
+              }
             }
           }
-        });
+          console.log(results);
+          return res.status(200).json(results);
+        })
+      } else {
+        // No ride history found for the rider
+        return res.status(200).json({ success: true, message: 'No rides available' });
       }
     }
   });
@@ -714,61 +698,30 @@ const driverRideHistory = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Driver ID is required' });
   }
 
-  // Query to check if the driver exists
-  const checkDriverSql = 'SELECT * FROM RIDE_SHARE.Users WHERE UserID = ?';
   const values = [driverId];
 
-  // Execute the query to check if driver exists
-  connection.query(checkDriverSql, values, function (err, driverData) {
-    if (err) {
-      console.error('Error checking driver existence:', err);
-      return res.status(500).json({ success: false, message: 'Internal server error' });
-    } else {
-      if (driverData.length === 0) {
-        // Driver does not exist
-        return res.status(404).json({ success: false, message: 'Driver not found' });
-      } else {
-        // Driver exists, query to retrieve driver's ride history
-        const rideHistorySql = `
-          SELECT 
-            cr.RideID, 
-            cr.PassengerID, 
-            cr.StartAddress, 
-            cr.DestinationAddress, 
-            cr.DriverRideID, 
-            cr.Polyline 
-          FROM 
-            RIDE_SHARE.Confirmed_Rides AS cr 
-          WHERE 
-            cr.DriverRideID = ?`;
+  // Using parameterized queries to prevent SQL injection
+  const query = `SELECT 
+  RideID, DriverID, StartAddress, DestinationAddress, SeatsAvailable, DATE_FORMAT(TimeOfJourneyStart, '%Y-%m-%d %H:%i:%s') AS JourneyStart 
+  FROM RIDE_SHARE.Offered_Rides 
+  WHERE DriverID = ${driverId} AND TimeOfJourneyStart > NOW();`;
 
-        // Execute the query to get ride history
-        connection.query(rideHistorySql, values, function (err, rideData) {
-          if (err) {
-            console.error('Error retrieving driver ride history:', err);
-            return res.status(500).json({ success: false, message: 'Internal server error' });
-          } else {
-            if (rideData.length > 0) {
-              // Driver's ride history found, return ride details
-              const rideHistory = rideData.map(ride => ({
-                rideId: ride.RideID,
-                passengerId: ride.PassengerID,
-                startAddress: ride.StartAddress,
-                destinationAddress: ride.DestinationAddress,
-                driverRideId: ride.DriverRideID,
-                polyline: ride.Polyline
-                // Add other ride details as needed
-              }));
-              return res.status(200).json({ success: true, message: 'Driver ride history retrieved successfully', rideHistory: rideHistory });
-            } else {
-              // No ride history found for the driver
-              return res.status(404).json({ success: false, message: 'Driver ride history not found' });
-            }
-          }
-        });
-      }
+  retrieveData(query, (err, results) => {
+    if (err) {
+      console.error("Error retrieving Driver Active Rides");
+      res.status(500).json([{ error: 'Error retrieving data' }]);
+      return;
     }
-  });
+    if (0 == results.length) {
+      response = {
+        "message": "No rides available"
+      }
+      return res.status(200).json([response]);
+    }
+    console.log(results);
+    return res.status(200).json(results);
+  })
+
 };
 
 

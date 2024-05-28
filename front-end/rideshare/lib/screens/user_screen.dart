@@ -98,7 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onTap: _getImage,
                   child: CircleAvatar(
                     radius: 60,
-                    backgroundColor: Colors.purple,
+                    backgroundColor: Colors.deepPurple,
                     child: _image != null
                         ? ClipOval(
                       child: Image.file(
@@ -121,13 +121,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: ElevatedButton(
                 onPressed: _showEditProfileDialog,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.grey[900],
+                  backgroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30), // Adjust padding
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
                 child: Text(
                   'Update Profile',
                   style: TextStyle(
-                    color: Colors.white,
+                    fontSize: 20, // Increase font size
                     fontFamily: 'DMSans',
+                    fontWeight: FontWeight.normal,
                   ),
                 ),
               ),
