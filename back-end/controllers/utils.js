@@ -14,7 +14,7 @@ const buildQueryForFindRide = (startTime, endTime, startLocation, endLocation, n
                     ) AS subquery
                     WHERE distance_in_meters < ${threshold}
                     ORDER BY distance_in_meters ASC
-                    LIMIT 5;`;
+                    LIMIT 10;`;
 
   return query;
 }
