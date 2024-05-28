@@ -17,14 +17,19 @@ const {
   driverActiveRides,
   passengerActiveRides,
   viewPassengers,
-  getRequestedRide
+  getRequestedRide,
+  riderRideHistory,
+  driverRideHistory
 } = require("../controllers/rides");
+
+
 
 router.route("/login").post(loginUser);
 router.route("/register").post(signUpUser);
 router.route("/updateFcmToken").post(updateFcmToken);
 router.route("/:userID").post(getUserDetails);
 router.route("/:userID").patch(modifyUserDetails);
+router.route("/:userID").get(getUserDetails).patch(modifyUserDetails);
 
 // when rider wants to find available rides for the
 // route he/she wants to travel
@@ -48,5 +53,8 @@ router.route("/:userID/:rideID/drivercancel").post(driverCancelled);
 
 // get details of ride request (used by the driver frontend)
 router.route("/getRequestedRide/:offeredRideId/:requestedPassengerId").get(getRequestedRide);
+router.route("/riderRideHistory/:userID").get(riderRideHistory);
+router.route("/driverRideHistory/:userID").get(driverRideHistory);
+
 
 module.exports = router;

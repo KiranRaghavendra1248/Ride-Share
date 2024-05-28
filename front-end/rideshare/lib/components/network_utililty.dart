@@ -45,17 +45,17 @@ Future<dynamic> makeGetRequest(String baseUrl, String route) async {
     // Check if the request was successful (status code 200)
     if (response.statusCode == 200) {
       // Parse the response JSON
-      Map<String, dynamic> responseData = json.decode(response.body);
+      dynamic responseData = json.decode(response.body);
       // Return the parsed response
       return responseData;
     } else {
       // Handle error response
-      print('Error: ${response.statusCode} - ${response.reasonPhrase}');
+      print('Error response from server: ${response.body}');
       return null;
     }
   } catch (e) {
     // Handle any exceptions
-    print('Error: $e');
+    print('Exception: $e');
     return null;
   }
 }
