@@ -592,7 +592,7 @@ const getRequestedRide = async (req, res) => {
       ST_X(o.DestinationAddress) AS DriverEndLat,
       ST_Y(o.DestinationAddress) AS DriverEndLng,
       o.SeatsAvailable,
-      DATE_FORMAT(o.TimeOfJourneyStart, '%Y-%m-%dT%H:%i:%sZ') AS TimeOfJourneyStart,
+      DATE_FORMAT(o.TimeOfJourneyStart, '%Y-%m-%d %H:%i:%s') AS TimeOfJourneyStart,
       o.Polyline,
       u2.Name AS RiderName,
       ST_X(r.StartAddress) AS RiderStartLat,
