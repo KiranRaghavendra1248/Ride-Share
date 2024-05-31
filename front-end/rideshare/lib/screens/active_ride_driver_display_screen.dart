@@ -45,6 +45,7 @@ class RideDetailScreen extends StatelessWidget {
     }
   }
 
+  /* Added feature to view passengers list */
   void showPassengerDetails(BuildContext context, List<dynamic> passengers) {
     showDialog(
       context: context,
@@ -71,6 +72,7 @@ class RideDetailScreen extends StatelessWidget {
     );
   }
 
+  /* Integrated firebase messaging to cancel rides */
   void cancelRide(BuildContext context, String rideId) async {
     final base_url = dotenv.env['BASE_URL'] ?? "http://your-api-url.com";
     final userID = BackendIdentifier.userId;
