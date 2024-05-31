@@ -188,7 +188,7 @@ const modifyUserDetails = async (req, res) => {
 
 };
 
-
+/* Route api to submit a ride by driver */
 const submitRide = async (req, res) => {
   console.log("Recieved API request for Submit Ride");
   const { Date, start_latitude, start_longitude, destination_latitude, destination_longitude, startTime, numSeats, polyline, userID } = req.body;
@@ -226,6 +226,7 @@ const submitRide = async (req, res) => {
   }
 };
 
+/* List all active rides by the driver so that he can view and cancel rides if required*/
 const driverActiveRides = async (req, res) => {
   console.log("Recieved API Request for Driver Active Rides");
   const { userID } = req.body;
@@ -257,6 +258,7 @@ const driverActiveRides = async (req, res) => {
   })
 };
 
+/* List all passenges travelling with driver */
 const passengerActiveRides = async (req, res) => {
   console.log("Recieved API Request for Passenger Active Rides")
   const userId = req.body.userID;
