@@ -49,12 +49,13 @@ router.route("/:userID/driverviewpassengers").post(viewPassengers);
 router.route("/:userID/:rideID/info").post(getRideDetails);
 
 router.route("/:userID/:rideID/ridercancel").post(riderCancelled);
-router.route("/:userID/:rideID/drivercancel").post(driverCancelled);
+router.route("/:userID/:rideID/drivercancel").post(driverCancelled); /*Added routes for cancellation*/
 
 // get details of ride request (used by the driver frontend)
 router.route("/getRequestedRide/:offeredRideId/:requestedPassengerId").get(getRequestedRide);
 router.route("/riderRideHistory/:userID").get(riderRideHistory);
 router.route("/driverRideHistory/:userID").get(driverRideHistory);
+
 
 
 module.exports = router;
