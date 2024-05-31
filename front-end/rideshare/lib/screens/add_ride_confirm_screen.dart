@@ -1,3 +1,4 @@
+/* This code has been written to draw a polyline from start to end location */
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
