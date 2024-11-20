@@ -6,6 +6,5 @@ Watch demo [here](https://www.youtube.com/watch?v=k5ItUC8abTU&t=4s)
   <li> Created REST API routes to handle ride submission, ride requests, driver matching, and ride cancellation on Node and Express server-side integrated with MySQL database.</li>
   <li> Deployed backend on AWS EC2 Fedora Linux instance for remote API calls from Flutter client-side app </li>
   <li> Utilised Firebase Cloud Messaging to send Push Notifications to Flutter Client Side and Google Maps APIs for Autocomplete Address, Directions, and Route Polyline display on map screen for travel.</li>
-  
 </ul>
-
+![](https://github.com/KiranRaghavendra1248/Ride-Share/blob/dev/RideShare%20Architecture.png)
